@@ -1,228 +1,154 @@
 // ---------------------------
-// Question Bank (short demo, add all ~60 here)
+// Full 60 Question Bank (English + Hindi)
 // ---------------------------
 const questions = [
-  // ---------------------------
-  // Emotional Intelligence (EQ) – 15
-  // ---------------------------
-  { text: "I can usually identify my emotions as I experience them.",
-    hindi: "मैं आमतौर पर अपनी भावनाओं को पहचान लेता/लेती हूँ जब मैं उन्हें अनुभव करता/करती हूँ।",
-    domain: "EQ", reverse: false },
-  { text: "I find it easy to understand how others are feeling.",
-    hindi: "मुझे यह समझना आसान लगता है कि अन्य लोग कैसा महसूस कर रहे हैं।",
-    domain: "EQ", reverse: false },
-  { text: "I can stay calm and composed under stress.",
-    hindi: "तनाव में भी मैं शांत और संयमित रह सकता/सकती हूँ।",
-    domain: "EQ", reverse: false },
-  { text: "I often react emotionally before thinking through the situation.",
-    hindi: "मैं अक्सर बिना सोचे-समझे भावनात्मक प्रतिक्रिया देता/देती हूँ।",
-    domain: "EQ", reverse: true },
-  { text: "I know how to motivate myself when I lose focus.",
-    hindi: "जब मेरा ध्यान भटकता है, तो मैं खुद को प्रेरित करना जानता/जानती हूँ।",
-    domain: "EQ", reverse: false },
-  { text: "I am good at reading non-verbal cues (facial expressions, tone).",
-    hindi: "मैं गैर-मौखिक संकेतों (चेहरे के भाव, स्वर) को समझने में अच्छा/अच्छी हूँ।",
-    domain: "EQ", reverse: false },
-  { text: "I avoid discussing emotions because it makes me uncomfortable.",
-    hindi: "मैं भावनाओं पर चर्चा करने से बचता/बचती हूँ क्योंकि यह मुझे असहज करता है।",
-    domain: "EQ", reverse: true },
-  { text: "I can express my feelings clearly to others.",
-    hindi: "मैं अपनी भावनाओं को दूसरों के सामने स्पष्ट रूप से व्यक्त कर सकता/सकती हूँ।",
-    domain: "EQ", reverse: false },
-  { text: "I get defensive when someone gives me feedback.",
-    hindi: "जब कोई मुझे प्रतिक्रिया देता है तो मैं रक्षात्मक हो जाता/जाती हूँ।",
-    domain: "EQ", reverse: true },
-  { text: "I try to see situations from another person’s perspective.",
-    hindi: "मैं स्थितियों को दूसरे व्यक्ति के दृष्टिकोण से देखने की कोशिश करता/करती हूँ।",
-    domain: "EQ", reverse: false },
-  { text: "I manage my anger effectively.",
-    hindi: "मैं अपने गुस्से को प्रभावी ढंग से नियंत्रित करता/करती हूँ।",
-    domain: "EQ", reverse: false },
-  { text: "I struggle to control my emotions when I feel upset.",
-    hindi: "जब मैं परेशान होता/होती हूँ तो मुझे अपनी भावनाओं को नियंत्रित करने में कठिनाई होती है।",
-    domain: "EQ", reverse: true },
-  { text: "I can inspire or uplift others with my words or actions.",
-    hindi: "मैं अपने शब्दों या कार्यों से दूसरों को प्रेरित कर सकता/सकती हूँ।",
-    domain: "EQ", reverse: false },
-  { text: "I avoid conflicts rather than resolving them.",
-    hindi: "मैं समस्याओं को हल करने की बजाय उनसे बचता/बचती हूँ।",
-    domain: "EQ", reverse: true },
-  { text: "I adapt my communication style depending on who I’m talking to.",
-    hindi: "मैं जिस व्यक्ति से बात करता/करती हूँ, उसके अनुसार अपनी संचार शैली बदलता/बदलती हूँ।",
-    domain: "EQ", reverse: false },
+  // Block 1 (1–15) → EQ (Emotional Intelligence)
+  { text: "I can usually identify my emotions as I experience them.", hindi: "मैं आमतौर पर अपनी भावनाओं को पहचान लेता/लेती हूँ जब मैं उन्हें अनुभव करता/करती हूँ।", domain: "EQ", reverse: false },
+  { text: "I often react emotionally before thinking through the situation.", hindi: "मैं अक्सर बिना सोचे-समझे भावनात्मक प्रतिक्रिया देता/देती हूँ।", domain: "EQ", reverse: true },
+  { text: "I stay calm in stressful situations.", hindi: "तनावपूर्ण स्थितियों में मैं शांत रहता/रहती हूँ।", domain: "EQ", reverse: false },
+  { text: "I can easily understand the emotions of others.", hindi: "मैं दूसरों की भावनाओं को आसानी से समझ लेता/लेती हूँ।", domain: "EQ", reverse: false },
+  { text: "I lose control of my feelings quickly.", hindi: "मैं जल्दी अपनी भावनाओं पर नियंत्रण खो देता/देती हूँ।", domain: "EQ", reverse: true },
+  { text: "I can express my emotions without hurting others.", hindi: "मैं अपनी भावनाओं को बिना किसी को ठेस पहुँचाए व्यक्त कर सकता/सकती हूँ।", domain: "EQ", reverse: false },
+  { text: "I feel overwhelmed when dealing with conflicts.", hindi: "संघर्षों से निपटने में मैं अभिभूत महसूस करता/करती हूँ।", domain: "EQ", reverse: true },
+  { text: "I am aware of how my behavior impacts people around me.", hindi: "मैं जानता/जानती हूँ कि मेरा व्यवहार मेरे आस-पास के लोगों पर कैसे प्रभाव डालता है।", domain: "EQ", reverse: false },
+  { text: "I struggle to manage my anger effectively.", hindi: "मुझे अपने गुस्से को नियंत्रित करने में कठिनाई होती है।", domain: "EQ", reverse: true },
+  { text: "I can motivate myself even when I feel discouraged.", hindi: "हतोत्साहित होने पर भी मैं खुद को प्रेरित कर सकता/सकती हूँ।", domain: "EQ", reverse: false },
+  { text: "I get irritated over small issues.", hindi: "मैं छोटी-छोटी बातों पर चिड़चिड़ा हो जाता/जाती हूँ।", domain: "EQ", reverse: true },
+  { text: "I can adapt my communication style depending on the person.", hindi: "मैं व्यक्ति के अनुसार अपनी संचार शैली बदल सकता/सकती हूँ।", domain: "EQ", reverse: false },
+  { text: "I often misunderstand others’ intentions.", hindi: "मैं अक्सर दूसरों के इरादों को गलत समझ लेता/लेती हूँ।", domain: "EQ", reverse: true },
+  { text: "I practice empathy when someone shares a problem.", hindi: "जब कोई समस्या साझा करता है, तो मैं सहानुभूति दिखाता/दिखाती हूँ।", domain: "EQ", reverse: false },
+  { text: "I find it hard to stay emotionally stable under pressure.", hindi: "दबाव में मुझे भावनात्मक रूप से स्थिर रहना कठिन लगता है।", domain: "EQ", reverse: true },
 
-  // ---------------------------
-  // Resilience – 15
-  // ---------------------------
-  { text: "When faced with setbacks, I quickly look for solutions.",
-    hindi: "जब मुझे असफलता मिलती है, तो मैं तुरंत समाधान ढूंढता/ढूंढती हूँ।",
-    domain: "Resilience", reverse: false },
-  { text: "I see challenges as opportunities to grow stronger.",
-    hindi: "मैं चुनौतियों को मजबूत बनने के अवसर के रूप में देखता/देखती हूँ।",
-    domain: "Resilience", reverse: false },
-  { text: "If something doesn’t work, I keep trying different approaches.",
-    hindi: "यदि कुछ काम नहीं करता है, तो मैं अलग-अलग तरीके आजमाता/आज़माती हूँ।",
-    domain: "Resilience", reverse: false },
-  { text: "I often give up easily when things become difficult.",
-    hindi: "जब चीजें कठिन हो जाती हैं, तो मैं आसानी से हार मान लेता/लेती हूँ।",
-    domain: "Resilience", reverse: true },
-  { text: "I recover emotionally from disappointments faster than others.",
-    hindi: "मैं भावनात्मक निराशाओं से दूसरों की तुलना में जल्दी उबर जाता/जाती हूँ।",
-    domain: "Resilience", reverse: false },
-  { text: "I stay optimistic even in tough circumstances.",
-    hindi: "कठिन परिस्थितियों में भी मैं आशावादी रहता/रहती हूँ।",
-    domain: "Resilience", reverse: false },
-  { text: "I tend to blame myself excessively when things go wrong.",
-    hindi: "जब चीजें गलत हो जाती हैं, तो मैं खुद को अत्यधिक दोषी ठहराता/ठहराती हूँ।",
-    domain: "Resilience", reverse: true },
-  { text: "I can find meaning or learning in difficult experiences.",
-    hindi: "मैं कठिन अनुभवों में भी अर्थ या सीख ढूंढ सकता/सकती हूँ।",
-    domain: "Resilience", reverse: false },
-  { text: "Stressful events affect me for a long time.",
-    hindi: "तनावपूर्ण घटनाएँ मुझे लंबे समय तक प्रभावित करती हैं।",
-    domain: "Resilience", reverse: true },
-  { text: "I am confident in my ability to handle crises.",
-    hindi: "मुझे संकटों को संभालने की अपनी क्षमता पर विश्वास है।",
-    domain: "Resilience", reverse: false },
-  { text: "I adapt quickly when circumstances change.",
-    hindi: "जब परिस्थितियाँ बदलती हैं तो मैं जल्दी अनुकूल हो जाता/जाती हूँ।",
-    domain: "Resilience", reverse: false },
-  { text: "I panic when unexpected problems arise.",
-    hindi: "जब अप्रत्याशित समस्याएँ आती हैं तो मैं घबरा जाता/जाती हूँ।",
-    domain: "Resilience", reverse: true },
-  { text: "I maintain hope even when faced with repeated failures.",
-    hindi: "बार-बार असफल होने के बाद भी मैं उम्मीद बनाए रखता/रखती हूँ।",
-    domain: "Resilience", reverse: false },
-  { text: "I let small obstacles discourage me.",
-    hindi: "मैं छोटी-छोटी बाधाओं से हतोत्साहित हो जाता/जाती हूँ।",
-    domain: "Resilience", reverse: true },
-  { text: "I believe every setback can be turned into a comeback.",
-    hindi: "मेरा मानना है कि हर असफलता को वापसी में बदला जा सकता है।",
-    domain: "Resilience", reverse: false },
+  // Block 2 (16–30) → Resilience
+  { text: "When faced with setbacks, I quickly look for solutions.", hindi: "जब मुझे असफलता मिलती है, तो मैं जल्दी समाधान ढूंढता/ढूंढती हूँ।", domain: "Resilience", reverse: false },
+  { text: "I give up easily when things get tough.", hindi: "कठिन परिस्थितियों में मैं आसानी से हार मान लेता/लेती हूँ।", domain: "Resilience", reverse: true },
+  { text: "I see challenges as opportunities to grow.", hindi: "मैं चुनौतियों को बढ़ने का अवसर मानता/मानती हूँ।", domain: "Resilience", reverse: false },
+  { text: "I struggle to bounce back after failure.", hindi: "असफलता के बाद मैं फिर से संभलने में संघर्ष करता/करती हूँ।", domain: "Resilience", reverse: true },
+  { text: "I remain hopeful even in uncertain times.", hindi: "अनिश्चित परिस्थितियों में भी मैं आशावादी रहता/रहती हूँ।", domain: "Resilience", reverse: false },
+  { text: "I avoid dealing with problems and hope they resolve on their own.", hindi: "मैं समस्याओं का सामना करने से बचता/बचती हूँ और उम्मीद करता/करती हूँ कि वे खुद सुलझ जाएंगी।", domain: "Resilience", reverse: true },
+  { text: "I learn from difficult experiences.", hindi: "मैं कठिन अनुभवों से सीखता/सीखती हूँ।", domain: "Resilience", reverse: false },
+  { text: "I feel stuck when things don’t go my way.", hindi: "जब चीजें मेरे अनुसार नहीं होतीं, तो मैं फंसा हुआ महसूस करता/करती हूँ।", domain: "Resilience", reverse: true },
+  { text: "I can handle change without much stress.", hindi: "मैं बदलाव को बिना अधिक तनाव के संभाल सकता/सकती हूँ।", domain: "Resilience", reverse: false },
+  { text: "I often dwell on past failures.", hindi: "मैं अक्सर पिछली असफलताओं में उलझा रहता/रहती हूँ।", domain: "Resilience", reverse: true },
+  { text: "I find ways to stay positive in difficulties.", hindi: "कठिनाइयों में भी मैं सकारात्मक बने रहने का तरीका ढूंढ लेता/लेती हूँ।", domain: "Resilience", reverse: false },
+  { text: "I blame others when I cannot cope.", hindi: "जब मैं सामना नहीं कर पाता/पाती, तो मैं दूसरों को दोष देता/देती हूँ।", domain: "Resilience", reverse: true },
+  { text: "I adapt quickly to unexpected changes.", hindi: "मैं अप्रत्याशित बदलावों के लिए जल्दी अनुकूल हो जाता/जाती हूँ।", domain: "Resilience", reverse: false },
+  { text: "I lose hope when I fail repeatedly.", hindi: "बार-बार असफल होने पर मैं आशा खो देता/देती हूँ।", domain: "Resilience", reverse: true },
+  { text: "I use setbacks as motivation to try harder.", hindi: "मैं असफलताओं को और अधिक प्रयास करने की प्रेरणा बनाता/बनाती हूँ।", domain: "Resilience", reverse: false },
 
-  // ---------------------------
-  // Mindset – 15
-  // ---------------------------
-  { text: "I believe abilities can always be developed with effort.",
-    hindi: "मेरा मानना है कि क्षमताएँ हमेशा प्रयास से विकसित की जा सकती हैं।",
-    domain: "Mindset", reverse: false },
-  { text: "When I fail, I see it as a chance to learn.",
-    hindi: "जब मैं असफल होता/होती हूँ, तो मैं इसे सीखने का अवसर मानता/मानती हूँ।",
-    domain: "Mindset", reverse: false },
-  { text: "Some people are just naturally talented; effort changes little.",
-    hindi: "कुछ लोग स्वाभाविक रूप से प्रतिभाशाली होते हैं; प्रयास बहुत कम बदलाव करता है।",
-    domain: "Mindset", reverse: true },
-  { text: "I actively seek feedback even if it is critical.",
-    hindi: "मैं सक्रिय रूप से प्रतिक्रिया माँगता/माँगती हूँ, भले ही वह आलोचनात्मक हो।",
-    domain: "Mindset", reverse: false },
-  { text: "I push myself to step out of my comfort zone regularly.",
-    hindi: "मैं नियमित रूप से खुद को आरामदायक क्षेत्र से बाहर धकेलता/धकेलती हूँ।",
-    domain: "Mindset", reverse: false },
-  { text: "I believe intelligence is fixed and cannot change.",
-    hindi: "मेरा मानना है कि बुद्धिमत्ता स्थिर है और इसे बदला नहीं जा सकता।",
-    domain: "Mindset", reverse: true },
-  { text: "I enjoy tackling difficult problems.",
-    hindi: "मुझे कठिन समस्याओं का सामना करना पसंद है।",
-    domain: "Mindset", reverse: false },
-  { text: "I avoid challenges because I fear failure.",
-    hindi: "मैं चुनौतियों से बचता/बचती हूँ क्योंकि मुझे असफलता का डर है।",
-    domain: "Mindset", reverse: true },
-  { text: "I reflect on my mistakes to improve in the future.",
-    hindi: "मैं अपनी गलतियों पर विचार करता/करती हूँ ताकि भविष्य में सुधार कर सकूँ।",
-    domain: "Mindset", reverse: false },
-  { text: "I get discouraged when I don’t succeed immediately.",
-    hindi: "जब मुझे तुरंत सफलता नहीं मिलती तो मैं हतोत्साहित हो जाता/जाती हूँ।",
-    domain: "Mindset", reverse: true },
-  { text: "I believe effort and persistence matter more than natural ability.",
-    hindi: "मेरा मानना है कि प्रयास और दृढ़ता प्राकृतिक क्षमता से अधिक महत्वपूर्ण हैं।",
-    domain: "Mindset", reverse: false },
-  { text: "I quit tasks if they take too long to master.",
-    hindi: "यदि किसी कार्य में महारत हासिल करने में अधिक समय लगता है तो मैं उसे छोड़ देता/देती हूँ।",
-    domain: "Mindset", reverse: true },
-  { text: "I set goals that push me to grow.",
-    hindi: "मैं ऐसे लक्ष्य निर्धारित करता/करती हूँ जो मुझे बढ़ने के लिए प्रेरित करते हैं।",
-    domain: "Mindset", reverse: false },
-  { text: "I learn from others’ success instead of feeling threatened.",
-    hindi: "मैं दूसरों की सफलता से सीखता/सीखती हूँ बजाय इसके कि खतरा महसूस करूँ।",
-    domain: "Mindset", reverse: false },
-  { text: "I think my potential is always expandable.",
-    hindi: "मेरा मानना है कि मेरी क्षमता हमेशा बढ़ाई जा सकती है।",
-    domain: "Mindset", reverse: false },
+  // Block 3 (31–45) → Mindset
+  { text: "I believe abilities can always be developed with effort.", hindi: "मेरा मानना है कि क्षमताएँ हमेशा प्रयास से विकसित की जा सकती हैं।", domain: "Mindset", reverse: false },
+  { text: "I think talent matters more than effort.", hindi: "मेरा मानना है कि प्रतिभा, प्रयास से अधिक महत्वपूर्ण है।", domain: "Mindset", reverse: true },
+  { text: "I enjoy learning new skills.", hindi: "मुझे नए कौशल सीखने में आनंद आता है।", domain: "Mindset", reverse: false },
+  { text: "I avoid challenges to prevent failure.", hindi: "मैं असफलता से बचने के लिए चुनौतियों से बचता/बचती हूँ।", domain: "Mindset", reverse: true },
+  { text: "Feedback helps me improve.", hindi: "प्रतिक्रिया मुझे सुधारने में मदद करती है।", domain: "Mindset", reverse: false },
+  { text: "I feel intelligence is fixed and cannot change.", hindi: "मेरा मानना है कि बुद्धिमत्ता स्थिर है और बदल नहीं सकती।", domain: "Mindset", reverse: true },
+  { text: "I put consistent effort into personal growth.", hindi: "मैं व्यक्तिगत विकास में लगातार प्रयास करता/करती हूँ।", domain: "Mindset", reverse: false },
+  { text: "I give up if I don’t succeed immediately.", hindi: "अगर मैं तुरंत सफल नहीं होता/होती, तो मैं हार मान लेता/लेती हूँ।", domain: "Mindset", reverse: true },
+  { text: "I see failures as learning opportunities.", hindi: "मैं असफलताओं को सीखने के अवसर के रूप में देखता/देखती हूँ।", domain: "Mindset", reverse: false },
+  { text: "I avoid effort if I feel I lack natural talent.", hindi: "अगर मुझे लगता है कि मेरे पास प्राकृतिक प्रतिभा नहीं है, तो मैं प्रयास से बचता/बचती हूँ।", domain: "Mindset", reverse: true },
+  { text: "I enjoy exploring new ideas.", hindi: "मुझे नए विचारों का पता लगाना अच्छा लगता है।", domain: "Mindset", reverse: false },
+  { text: "I believe failure means I am not good enough.", hindi: "मेरा मानना है कि असफलता का मतलब है कि मैं पर्याप्त अच्छा नहीं हूँ।", domain: "Mindset", reverse: true },
+  { text: "I persist in tasks even if they take a long time.", hindi: "मैं कार्यों में डटा रहता/रहती हूँ, भले ही वे लंबा समय लें।", domain: "Mindset", reverse: false },
+  { text: "I avoid asking questions to not appear weak.", hindi: "मैं कमजोर न दिखने के लिए प्रश्न पूछने से बचता/बचती हूँ।", domain: "Mindset", reverse: true },
+  { text: "I believe growth comes from effort, not luck.", hindi: "मेरा मानना है कि विकास प्रयास से आता है, भाग्य से नहीं।", domain: "Mindset", reverse: false },
 
-  // ---------------------------
-  // Overthinking – 15
-  // ---------------------------
-  { text: "I often get stuck in loops of repetitive thinking that prevent action.",
-    hindi: "मैं अक्सर बार-बार सोच में फंस जाता/जाती हूँ जिससे मैं कार्य नहीं कर पाता/पाती।",
-    domain: "Overthinking", reverse: true },
-  { text: "I spend more time planning than actually doing.",
-    hindi: "मैं वास्तव में करने की बजाय योजना बनाने में अधिक समय बिताता/बिताती हूँ।",
-    domain: "Overthinking", reverse: true },
-  { text: "I find it difficult to switch off my thoughts when I want to relax.",
-    hindi: "जब मैं आराम करना चाहता/चाहती हूँ, तब भी अपने विचार बंद करना मुश्किल होता है।",
-    domain: "Overthinking", reverse: true },
-  { text: "I use strategies (journaling, mindfulness) to clear my mind.",
-    hindi: "मैं अपने मन को साफ करने के लिए रणनीतियों (डायरी लिखना, माइंडफुलनेस) का उपयोग करता/करती हूँ।",
-    domain: "Overthinking", reverse: false },
-  { text: "I can let go of small mistakes without replaying them in my head.",
-    hindi: "मैं छोटी गलतियों को बार-बार सोचने की बजाय आसानी से जाने देता/देती हूँ।",
-    domain: "Overthinking", reverse: false },
-  { text: "I overanalyze simple situations.",
-    hindi: "मैं सरल स्थितियों का भी अत्यधिक विश्लेषण करता/करती हूँ।",
-    domain: "Overthinking", reverse: true },
-  { text: "I delay decisions because I keep weighing all possibilities.",
-    hindi: "मैं निर्णय लेने में देर करता/करती हूँ क्योंकि मैं सभी संभावनाओं का बार-बार तौलता/तौलती हूँ।",
-    domain: "Overthinking", reverse: true },
-  { text: "I can stop worrying when I realize it’s unproductive.",
-    hindi: "जब मुझे एहसास होता है कि चिंता करना अनुपयोगी है तो मैं इसे रोक सकता/सकती हूँ।",
-    domain: "Overthinking", reverse: false },
-  { text: "I lose sleep because of overthinking.",
-    hindi: "अत्यधिक सोचने के कारण मेरी नींद खराब हो जाती है।",
-    domain: "Overthinking", reverse: true },
-  { text: "I talk myself through difficult choices to calm my mind.",
-    hindi: "मैं कठिन विकल्पों में खुद से बात करता/करती हूँ ताकि मेरा मन शांत हो सके।",
-    domain: "Overthinking", reverse: false },
-  { text: "I mentally replay conversations long after they end.",
-    hindi: "मैं बातचीत खत्म होने के बाद भी लंबे समय तक उसे दोहराता/दोहराती रहता/रहती हूँ।",
-    domain: "Overthinking", reverse: true },
-  { text: "I distract myself with healthy activities when my mind gets stuck.",
-    hindi: "जब मेरा मन अटक जाता है तो मैं स्वस्थ गतिविधियों से खुद को विचलित करता/करती हूँ।",
-    domain: "Overthinking", reverse: false },
-  { text: "I criticize myself harshly for small mistakes.",
-    hindi: "मैं छोटी गलतियों के लिए खुद की कठोर आलोचना करता/करती हूँ।",
-    domain: "Overthinking", reverse: true },
-  { text: "I know when to stop gathering information and just act.",
-    hindi: "मुझे पता है कि कब जानकारी इकट्ठा करना बंद करना है और बस कार्य करना है।",
-    domain: "Overthinking", reverse: false },
-  { text: "I feel paralyzed when I have too many choices.",
-    hindi: "जब मेरे पास बहुत सारे विकल्प होते हैं तो मैं असहाय महसूस करता/करती हूँ।",
-    domain: "Overthinking", reverse: true }
+  // Block 4 (46–60) → Overthinking
+  { text: "I often get stuck in loops of repetitive thinking.", hindi: "मैं अक्सर बार-बार सोच में फंस जाता/जाती हूँ।", domain: "Overthinking", reverse: true },
+  { text: "I can let go of thoughts that are not useful.", hindi: "मैं उन विचारों को छोड़ सकता/सकती हूँ जो उपयोगी नहीं हैं।", domain: "Overthinking", reverse: false },
+  { text: "I keep replaying past mistakes in my mind.", hindi: "मैं अपने दिमाग में पिछली गलतियों को बार-बार दोहराता/दोहराती हूँ।", domain: "Overthinking", reverse: true },
+  { text: "I can focus on present tasks without distraction.", hindi: "मैं वर्तमान कार्यों पर ध्यान केंद्रित कर सकता/सकती हूँ।", domain: "Overthinking", reverse: false },
+  { text: "I worry excessively about the future.", hindi: "मैं भविष्य के बारे में अत्यधिक चिंता करता/करती हूँ।", domain: "Overthinking", reverse: true },
+  { text: "I can redirect my thoughts when I get distracted.", hindi: "जब मैं विचलित होता/होती हूँ तो मैं अपने विचारों को पुनर्निर्देशित कर सकता/सकती हूँ।", domain: "Overthinking", reverse: false },
+  { text: "I obsess over small decisions.", hindi: "मैं छोटी-छोटी बातों पर अत्यधिक सोचता/सोचती हूँ।", domain: "Overthinking", reverse: true },
+  { text: "I can prioritize and move on without hesitation.", hindi: "मैं प्राथमिकता तय करके बिना झिझक आगे बढ़ सकता/सकती हूँ।", domain: "Overthinking", reverse: false },
+  { text: "I replay conversations long after they happen.", hindi: "मैं बातचीत को लंबे समय तक बार-बार सोचता/सोचती हूँ।", domain: "Overthinking", reverse: true },
+  { text: "I can make quick, confident decisions.", hindi: "मैं जल्दी और आत्मविश्वास से निर्णय ले सकता/सकती हूँ।", domain: "Overthinking", reverse: false },
+  { text: "I get anxious imagining all possible outcomes.", hindi: "मैं सभी संभावित परिणामों की कल्पना करके चिंतित हो जाता/जाती हूँ।", domain: "Overthinking", reverse: true },
+  { text: "I focus on what I can control instead of what I can’t.", hindi: "मैं उन चीजों पर ध्यान केंद्रित करता/करती हूँ जिन्हें मैं नियंत्रित कर सकता/सकती हूँ।", domain: "Overthinking", reverse: false },
+  { text: "I feel paralyzed when I have to make decisions.", hindi: "निर्णय लेने की स्थिति में मैं जड़ हो जाता/जाती हूँ।", domain: "Overthinking", reverse: true },
+  { text: "I can clear my mind and concentrate when needed.", hindi: "जब आवश्यकता होती है, मैं अपना मन शांत कर सकता/सकती हूँ।", domain: "Overthinking", reverse: false },
+  { text: "I think too much about how others perceive me.", hindi: "मैं बहुत सोचता/सोचती हूँ कि लोग मुझे कैसे देखते हैं।", domain: "Overthinking", reverse: true },
 ];
 
+// ---------------------------
+// State Variables
+// ---------------------------
+let currentBlock = 0;
+const blockSize = 15;
+let blockTimes = [0,0,0,0];
+let blockStart = null;
+let timerInterval = null;
 
 // ---------------------------
-// Render Questions
+// Render Block
 // ---------------------------
-const form = document.getElementById("testForm");
+function renderBlock(blockIndex) {
+  const form = document.getElementById("testForm");
+  form.innerHTML = "";
 
-questions.forEach((q, i) => {
-  const div = document.createElement("div");
-  div.classList.add("question");
-  div.innerHTML = `
-    <p><strong>Q${i + 1}.</strong> ${q.text}<br><span class="hindi">${q.hindi}</span></p>
-    ${[1,2,3,4,5].map(val => `
-      <label>
-        <input type="radio" name="q${i}" value="${val}">
-        ${val}
-      </label>`).join(" ")}
-  `;
-  form.appendChild(div);
+  const start = blockIndex * blockSize;
+  const end = start + blockSize;
+
+  questions.slice(start, end).forEach((q, i) => {
+    const div = document.createElement("div");
+    div.classList.add("question");
+    div.innerHTML = `
+      <p><strong>Q${start + i + 1}.</strong> ${q.text}<br><span class="hindi">${q.hindi}</span></p>
+      ${[1,2,3,4,5].map(val => `
+        <label>
+          <input type="radio" name="q${start+i}" value="${val}">
+          ${val}
+        </label>`).join(" ")}
+    `;
+    form.appendChild(div);
+  });
+
+  // Buttons state
+  document.getElementById("prevBtn").disabled = blockIndex === 0;
+  document.getElementById("nextBtn").classList.toggle("hidden", blockIndex === 3);
+  document.getElementById("submitBtn").classList.toggle("hidden", blockIndex !== 3);
+
+  // Reset + start timer
+  if (timerInterval) clearInterval(timerInterval);
+  blockStart = Date.now();
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+  const elapsed = Math.floor((Date.now() - blockStart) / 1000);
+  document.getElementById("timer").textContent =
+    `${String(Math.floor(elapsed/60)).padStart(2,"0")}:${String(elapsed%60).padStart(2,"0")}`;
+}
+
+// ---------------------------
+// Save time for block
+// ---------------------------
+function saveBlockTime() {
+  const elapsed = Math.floor((Date.now() - blockStart) / 1000);
+  blockTimes[currentBlock] += elapsed;
+  clearInterval(timerInterval);
+}
+
+// ---------------------------
+// Navigation
+// ---------------------------
+document.getElementById("prevBtn").addEventListener("click", () => {
+  saveBlockTime();
+  currentBlock--;
+  renderBlock(currentBlock);
+});
+document.getElementById("nextBtn").addEventListener("click", () => {
+  saveBlockTime();
+  currentBlock++;
+  renderBlock(currentBlock);
 });
 
 // ---------------------------
 // Handle Submit
 // ---------------------------
 document.getElementById("submitBtn").addEventListener("click", () => {
+  saveBlockTime();
   let scores = {EQ:0, Resilience:0, Mindset:0, Overthinking:0};
   let counts = {EQ:0, Resilience:0, Mindset:0, Overthinking:0};
 
@@ -230,7 +156,7 @@ document.getElementById("submitBtn").addEventListener("click", () => {
     const selected = document.querySelector(`input[name="q${i}"]:checked`);
     if (selected) {
       let val = parseInt(selected.value);
-      if (q.reverse) val = 6 - val; // reverse scoring
+      if (q.reverse) val = 6 - val;
       scores[q.domain] += val;
       counts[q.domain]++;
     }
@@ -238,9 +164,23 @@ document.getElementById("submitBtn").addEventListener("click", () => {
 
   const resultsDiv = document.getElementById("results");
   resultsDiv.innerHTML = "<h2>Results / परिणाम</h2>";
+
   for (let domain in scores) {
     const avg = (scores[domain] / counts[domain]).toFixed(2);
     resultsDiv.innerHTML += `<p><strong>${domain}:</strong> ${avg} / 5</p>`;
   }
+
+  resultsDiv.innerHTML += "<h3>Time Taken (per block)</h3>";
+  blockTimes.forEach((t, i) => {
+    const mins = String(Math.floor(t/60)).padStart(2,"0");
+    const secs = String(t%60).padStart(2,"0");
+    resultsDiv.innerHTML += `<p>Block ${i+1}: ${mins}:${secs}</p>`;
+  });
+
   resultsDiv.classList.remove("hidden");
 });
+
+// ---------------------------
+// Start Test
+// ---------------------------
+renderBlock(currentBlock);

@@ -9,13 +9,29 @@
 </head>
 <body>
   <div class="container">
-    <h1>Bilingual Psychometric Test<br><span class="hindi">द्विभाषी मनोवैज्ञानिक परीक्षण</span></h1>
+    <h1>Bilingual Psychometric Test<br>
+      <span class="hindi">द्विभाषी मनोवैज्ञानिक परीक्षण</span>
+    </h1>
     <p>Answer each question on a scale of 1–5.<br>
-    <span class="hindi">प्रत्येक प्रश्न का उत्तर 1–5 के पैमाने पर दें।</span></p>
+      <span class="hindi">प्रत्येक प्रश्न का उत्तर 1–5 के पैमाने पर दें।</span>
+    </p>
 
+    <!-- Timer -->
+    <div id="timerBox">
+      <strong>Block Timer:</strong> <span id="timer">00:00</span>
+    </div>
+
+    <!-- Questions rendered here -->
     <form id="testForm"></form>
-    <button type="button" id="submitBtn">Submit / जमा करें</button>
 
+    <!-- Navigation buttons -->
+    <div id="navButtons">
+      <button type="button" id="prevBtn" disabled>Previous / पिछला</button>
+      <button type="button" id="nextBtn">Next / अगला</button>
+      <button type="button" id="submitBtn" class="hidden">Submit / जमा करें</button>
+    </div>
+
+    <!-- Results -->
     <div id="results" class="hidden"></div>
   </div>
 </body>

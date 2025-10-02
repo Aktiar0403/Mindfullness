@@ -28,8 +28,7 @@ h1 {
   border-bottom: 1px solid #ddd;
 }
 button {
-  display: block;
-  margin: 20px auto;
+  margin: 10px;
   padding: 10px 20px;
   font-size: 16px;
   background: #0077cc;
@@ -50,4 +49,9 @@ button:hover {
   border: 2px solid #0077cc;
   border-radius: 8px;
   background: #eef7ff;
+}
+#timerBox {
+  text-align: center;
+  font-size: 18px;
+  margin: 10px 0 20px 0;
 }
