@@ -70,11 +70,12 @@ nextBtn.addEventListener("click", () => {
 
   loadQuestion();
 });
-function showResults() {
+async function showResults() {
   const resultsContainer = document.getElementById("results-container");
   resultsContainer.innerHTML = "";
 
-  categories.forEach((cat, index) => {
+  for (let index = 0; index < categories.length; index++) {
+    const cat = categories[index];
     const totalScore = answers
       .filter(a => a.category === cat)
       .reduce((sum, a) => sum + parseInt(a.value), 0);
@@ -91,7 +92,8 @@ function showResults() {
     else if (avgScore <= 5.5) level = "level5";
     else level = "level6";
 
-    const reportText = reportsData[cat].reports[level];
+    // Fetch Markdown report
+    const reportText = await fetchReport(cat, level);
 
     // Display results
     const blockDiv = document.createElement("div");
@@ -99,15 +101,32 @@ function showResults() {
     blockDiv.innerHTML = `
       <h3>${reportsData[cat].title}</h3>
       <p><strong>Block Time:</strong> ${blockTimes[index]} seconds</p>
-      <p>${reportText}</p>
+      <div class="report-content">${reportText}</div>
     `;
     resultsContainer.appendChild(blockDiv);
-  });
+  }
 
   // Hide question box and show results
   questionBox.style.display = "none";
   resultsContainer.style.display = "block";
 }
+async function fetchReport(category, level) {
+  try {
+    const response = await fetch(`Reports/${category}/${level}.md`);
+    if (!response.ok) throw new Error("Report not found");
+    const text = await response.text();
+
+    // Optional: convert Markdown to HTML (using marked.js)
+    // return marked(text);
+
+    return text.replace(/\n/g, "<br>"); // simple line breaks if not using marked.js
+  } catch (err) {
+    console.error(err);
+    return "Report not available.";
+  }
+}
+
+
 // Start first question on page load
 window.onload = () => {
   loadQuestion();
