@@ -1,6 +1,7 @@
 // Global Variables
 let categories = ["emotional", "growth", "overthinking", "resilience"];
 let currentCategory = 0;
+let userName = "";
 let currentQuestion = 0;
 let answers = [];
 let blockTimes = [0, 0, 0, 0]; // Timer for each block
@@ -41,6 +42,14 @@ function loadQuestion() {
   progressBar.style.width = progressPercent + "%";
 }
 nextBtn.addEventListener("click", () => {
+  if (!userName) {
+    const nameInput = document.getElementById("user-name");
+    if (nameInput.value.trim() === "") {
+      alert("Please enter your name to proceed.");
+      return;
+    }
+    userName = nameInput.value.trim();
+  }
   const cat = categories[currentCategory];
   const questionList = reportsData[cat].questions;
 
@@ -74,6 +83,11 @@ async function showResults() {
   const resultsContainer = document.getElementById("results-container");
   resultsContainer.innerHTML = "";
 
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
   for (let index = 0; index < categories.length; index++) {
     const cat = categories[index];
     const totalScore = answers
@@ -106,10 +120,21 @@ async function showResults() {
     resultsContainer.appendChild(blockDiv);
   }
 
+  // Append Name, Date, Time at the end
+  const userInfoDiv = document.createElement("div");
+  userInfoDiv.classList.add("user-info-footer");
+  userInfoDiv.innerHTML = `
+    <p><strong>Name:</strong> ${userName}</p>
+    <p><strong>Date:</strong> ${dateStr}</p>
+    <p><strong>Time:</strong> ${timeStr}</p>
+  `;
+  resultsContainer.appendChild(userInfoDiv);
+
   // Hide question box and show results
   questionBox.style.display = "none";
   resultsContainer.style.display = "block";
 }
+
 async function fetchReport(category, level) {
   try {
     const response = await fetch(`Reports/${category}/${level}.md`);
