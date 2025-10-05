@@ -160,3 +160,23 @@ h1 {
   color: #004d40;
   font-weight: bold;
 }
+/* Caution Note */
+.caution-note {
+  background: #fff3e0;
+  padding: 12px 15px;
+  border-left: 5px solid #ff9800;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #bf360c;
+  text-align: center;
+}
+
+/* Slider Labels */
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #004d40;
+  margin-top: 5px;
+}

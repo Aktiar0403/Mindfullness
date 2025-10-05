@@ -25,7 +25,10 @@ langSelect.addEventListener("change", (e) => {
 function loadQuestion() {
   const cat = categories[currentCategory];
   const questionList = reportsData[cat].questions;
-  const question = questionList[currentQuestion][selectedLang]; // Use selected language
+  const question = questionList[currentQuestion][selectedLang];
+
+  // Update category title
+  document.getElementById("category-title").innerText = reportsData[cat].title;
 
   // Start timer for block if first question
   if (currentQuestion === 0 && blockStartTime === null) {
@@ -41,6 +44,7 @@ function loadQuestion() {
   const progressPercent = (currentQuestion / questionList.length) * 100;
   progressBar.style.width = progressPercent + "%";
 }
+
 nextBtn.addEventListener("click", () => {
   if (!userName) {
     const nameInput = document.getElementById("user-name");
