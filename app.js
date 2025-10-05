@@ -162,61 +162,66 @@ Instead of scrolling endless reels and passing time on social media, hope for th
 
   loadQuestion();
 });
-async function showResults() {
-  const resultsContainer = document.getElementById("results-container");
-  resultsContainer.innerHTML = "";
+function showResults() {
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "";
 
-  // Get current date and time
-  const now = new Date();
-  const dateStr = now.toLocaleDateString();
-  const timeStr = now.toLocaleTimeString();
+    // Check if all categories are answered
+    const allCategories = Object.keys(reportsData);
+    const answeredCategories = Object.keys(userScores);
+    const isComplete = answeredCategories.length === allCategories.length && allCategories.every(cat => userScores[cat] !== null && userScores[cat] !== undefined);
 
-  for (let index = 0; index < categories.length; index++) {
-    const cat = categories[index];
-    const totalScore = answers
-      .filter(a => a.category === cat)
-      .reduce((sum, a) => sum + parseInt(a.value), 0);
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString();
+    const formattedTime = now.toLocaleTimeString();
 
-    const questionCount = reportsData[cat].questions.length;
-    const avgScore = totalScore / questionCount;
+    // ✅ Case 1: Incomplete or skipped test
+    if (!isComplete) {
+        resultsDiv.innerHTML = `
+            <h2>Test Incomplete</h2>
+            <p>Looks like you didn’t complete the full test — and that’s completely okay 😊</p>
+            <p>Whenever you find a calm, distraction-free moment, try taking the test in full. 
+            It’s designed to help <strong>you</strong> reflect, grow, and understand yourself better — emotionally, mentally, and behaviorally.</p>
+            <p>Instead of endlessly scrolling or passing time on social media, investing a few minutes in knowing yourself can open powerful insights 🌱</p>
+            <p>Remember, self-awareness is the first step toward personal mastery.</p>
+            <p>Wishing you calmness, clarity, and self-growth ahead ✨</p>
 
-    // Determine report level (1-6)
-    let level;
-    if (avgScore <= 1.5) level = "level1";
-    else if (avgScore <= 2.5) level = "level2";
-    else if (avgScore <= 3.5) level = "level3";
-    else if (avgScore <= 4.5) level = "level4";
-    else if (avgScore <= 5.5) level = "level5";
-    else level = "level6";
+            <div class="result-footer">
+                <hr>
+                <p><strong>Viewed on:</strong> ${formattedDate} at ${formattedTime}</p>
+                <p><strong>Privacy Note:</strong> No data is stored — only you can see your responses.</p>
+            </div>
+        `;
+        return;
+    }
 
-    // Fetch Markdown report
-    const reportText = await fetchReport(cat, level);
+    // ✅ Case 2: Full test completed – show detailed personalized results
+    resultsDiv.innerHTML = `<h2>Your Complete Personality Insight Report</h2>`;
 
-    // Display results
-    const blockDiv = document.createElement("div");
-    blockDiv.classList.add("result-block");
-    blockDiv.innerHTML = `
-      <h3>${reportsData[cat].title}</h3>
-      <p><strong>Block Time:</strong> ${blockTimes[index]} seconds</p>
-      <div class="report-content">${reportText}</div>
+    for (const category in userScores) {
+        const score = userScores[category];
+        const level = getLevelFromScore(score); // same function you used earlier
+        const report = reportsData[category]?.[level] || "Report not available.";
+
+        resultsDiv.innerHTML += `
+            <div class="category-report">
+                <h3>${category}</h3>
+                <p>${report}</p>
+                <p><strong>Your Score:</strong> ${score}</p>
+                <p><strong>Level:</strong> ${level}</p>
+                <hr>
+            </div>
+        `;
+    }
+
+    resultsDiv.innerHTML += `
+        <div class="result-footer">
+            <p><strong>Completed on:</strong> ${formattedDate} at ${formattedTime}</p>
+            <p><strong>Privacy Note:</strong> Your data is not stored or shared — this report is visible only to you.</p>
+        </div>
     `;
-    resultsContainer.appendChild(blockDiv);
-  }
-
-  // Append Name, Date, Time at the end
-  const userInfoDiv = document.createElement("div");
-  userInfoDiv.classList.add("user-info-footer");
-  userInfoDiv.innerHTML = `
-    <p><strong>Name:</strong> ${userName}</p>
-    <p><strong>Date:</strong> ${dateStr}</p>
-    <p><strong>Time:</strong> ${timeStr}</p>
-  `;
-  resultsContainer.appendChild(userInfoDiv);
-
-  // Hide question box and show results
-  questionBox.style.display = "none";
-  resultsContainer.style.display = "block";
 }
+
 
 async function fetchReport(category, level) {
   try {
