@@ -1,137 +1,60 @@
-// Global Variables
+// ===================== GLOBAL VARIABLES =====================
 let categories = ["emotional", "growth", "overthinking", "resilience"];
 let currentCategory = 0;
-let userName = "";
 let currentQuestion = 0;
+let userName = "";
+let selectedLang = "en";
 let answers = [];
-let blockTimes = [0, 0, 0, 0]; // Timer for each block
-let selectedLang = "en"; // Default language
-
-// Timer variables
 let blockStartTime = null;
+let blockTimes = [0, 0, 0, 0];
+let userScores = {};
+let skippedCategories = {};
 
-// Reference to HTML elements
+// ===================== ELEMENT REFERENCES =====================
 const questionBox = document.getElementById("question-box");
 const questionText = document.getElementById("question-text");
 const slider = document.getElementById("response-slider");
 const nextBtn = document.getElementById("next-btn");
 const progressBar = document.getElementById("progress-bar");
 const langSelect = document.getElementById("lang-select");
-// Change question language dynamically
+const resultsDiv = document.getElementById("results");
+
+// ===================== LANGUAGE SELECTION =====================
 langSelect.addEventListener("change", (e) => {
   selectedLang = e.target.value;
   loadQuestion();
 });
+
+// ===================== LOAD QUESTION =====================
 function loadQuestion() {
-  const cat = categories[currentCategory];
-  const questionList = reportsData[cat].questions;
+  const catKey = categories[currentCategory];
+  const categoryData = reportsData[catKey];
+  const questionList = categoryData.questions;
   const question = questionList[currentQuestion][selectedLang];
 
-  // Update category title
-  document.getElementById("category-title").innerText = reportsData[cat].title;
+  // Update title
+  document.getElementById("category-title").innerText = categoryData.title;
 
-  // Start timer for block if first question
-  if (currentQuestion === 0 && blockStartTime === null) {
-    blockStartTime = new Date().getTime();
-  }
+  // Start block timer
+  if (currentQuestion === 0) blockStartTime = new Date().getTime();
 
   questionText.innerText = question;
-
-  // Reset slider
   slider.value = 3;
 
-  // Update progress bar
   const progressPercent = (currentQuestion / questionList.length) * 100;
   progressBar.style.width = progressPercent + "%";
 }
 
+// ===================== NEXT BUTTON =====================
 nextBtn.addEventListener("click", () => {
+  const nameInput = document.getElementById("user-name");
   if (!userName) {
-    const nameInput = document.getElementById("user-name");
     if (nameInput.value.trim() === "") {
       alert("Please enter your name to proceed.");
       return;
     }
     userName = nameInput.value.trim();
   }
-
-  document.getElementById("skip-btn").addEventListener("click", () => {
-  const now = new Date().getTime();
-
-  // Record time for the block if any question answered
-  if (blockStartTime !== null) {
-    blockTimes[currentCategory] = Math.round((now - blockStartTime) / 1000);
-  }
-
-  // Move to next category
-  currentCategory++;
-  currentQuestion = 0;
-  blockStartTime = null;
-
-  if (currentCategory >= categories.length) {
-    showResults();
-    return;
-  }
-
-  loadQuestion();
-});
-// Friendly confirmation popup function
-function showFriendlyConfirm(message, callbackYes) {
-  const proceed = confirm(message); // Replace later with custom modal if desired
-  if (proceed) callbackYes();
-}
-
-// Skip Category
-document.getElementById("skip-btn").addEventListener("click", () => {
-  const catName = reportsData[categories[currentCategory]].title;
-  const message = `Not a problem if you don't have time now for "${catName}". 
-But make sure to take the test later to understand yourself better. 
-Instead of scrolling endless reels and passing time on social media, hope for the best!`;
-
-  showFriendlyConfirm(message, () => {
-    const now = new Date().getTime();
-
-    if (blockStartTime !== null) {
-      blockTimes[currentCategory] = Math.round((now - blockStartTime) / 1000);
-    }
-
-    const cat = categories[currentCategory];
-    skippedCategories[cat] = `
-      You avoided this category: ${catName}. 
-      We recommend taking this test later in full focus when you have time. 
-      Remember, it is only for your benefit and self-improvement.
-    `;
-
-    currentCategory++;
-    currentQuestion = 0;
-    blockStartTime = null;
-
-    if (currentCategory >= categories.length) {
-      showResults();
-      return;
-    }
-
-    loadQuestion();
-  });
-});
-
-// Exit Test
-document.getElementById("exit-btn").addEventListener("click", () => {
-  const message = `Not a problem if you don't have time now to finish the test. 
-Make sure to complete it later to understand yourself better. 
-Instead of scrolling endless reels and passing time on social media, hope for the best!`;
-
-  showFriendlyConfirm(message, () => {
-    const now = new Date().getTime();
-
-    if (blockStartTime !== null) {
-      blockTimes[currentCategory] = Math.round((now - blockStartTime) / 1000);
-    }
-
-    showResults();
-  });
-});
-
 
   const cat = categories[currentCategory];
   const questionList = reportsData[cat].questions;
@@ -140,19 +63,19 @@ Instead of scrolling endless reels and passing time on social media, hope for th
   answers.push({
     category: cat,
     questionIndex: currentQuestion,
-    value: slider.value
+    value: parseInt(slider.value),
   });
 
   currentQuestion++;
 
+  // If last question of the block
   if (currentQuestion >= questionList.length) {
-    // End of block, record time
     const now = new Date().getTime();
-    blockTimes[currentCategory] = Math.round((now - blockStartTime) / 1000); // in seconds
-    blockStartTime = null; // reset for next block
-
-    currentCategory++;
+    blockTimes[currentCategory] = Math.round((now - blockStartTime) / 1000);
+    userScores[cat] = calculateCategoryScore(cat);
+    blockStartTime = null;
     currentQuestion = 0;
+    currentCategory++;
 
     if (currentCategory >= categories.length) {
       showResults();
@@ -162,109 +85,38 @@ Instead of scrolling endless reels and passing time on social media, hope for th
 
   loadQuestion();
 });
-function showResults() {
-    const resultsDiv = document.getElementById("results");
-    resultsDiv.innerHTML = "";
 
-    // Check if all categories are answered
-    const allCategories = Object.keys(reportsData);
-    const answeredCategories = Object.keys(userScores);
-    const isComplete = answeredCategories.length === allCategories.length && allCategories.every(cat => userScores[cat] !== null && userScores[cat] !== undefined);
-
-    const now = new Date();
-    const formattedDate = now.toLocaleDateString();
-    const formattedTime = now.toLocaleTimeString();
-
-    // ✅ Case 1: Incomplete or skipped test
-    if (!isComplete) {
-        resultsDiv.innerHTML = `
-            <h2>Test Incomplete</h2>
-            <p>Looks like you didn’t complete the full test — and that’s completely okay 😊</p>
-            <p>Whenever you find a calm, distraction-free moment, try taking the test in full. 
-            It’s designed to help <strong>you</strong> reflect, grow, and understand yourself better — emotionally, mentally, and behaviorally.</p>
-            <p>Instead of endlessly scrolling or passing time on social media, investing a few minutes in knowing yourself can open powerful insights 🌱</p>
-            <p>Remember, self-awareness is the first step toward personal mastery.</p>
-            <p>Wishing you calmness, clarity, and self-growth ahead ✨</p>
-
-            <div class="result-footer">
-                <hr>
-                <p><strong>Viewed on:</strong> ${formattedDate} at ${formattedTime}</p>
-                <p><strong>Privacy Note:</strong> No data is stored — only you can see your responses.</p>
-            </div>
-        `;
-        return;
-    }
-
-    // ✅ Case 2: Full test completed – show detailed personalized results
-    resultsDiv.innerHTML = `<h2>Your Complete Personality Insight Report</h2>`;
-
-    for (const category in userScores) {
-        const score = userScores[category];
-        const level = getLevelFromScore(score); // same function you used earlier
-        const report = reportsData[category]?.[level] || "Report not available.";
-
-        resultsDiv.innerHTML += `
-            <div class="category-report">
-                <h3>${category}</h3>
-                <p>${report}</p>
-                <p><strong>Your Score:</strong> ${score}</p>
-                <p><strong>Level:</strong> ${level}</p>
-                <hr>
-            </div>
-        `;
-    }
-
-    resultsDiv.innerHTML += `
-        <div class="result-footer">
-            <p><strong>Completed on:</strong> ${formattedDate} at ${formattedTime}</p>
-            <p><strong>Privacy Note:</strong> Your data is not stored or shared — this report is visible only to you.</p>
-        </div>
-    `;
+// ===================== CATEGORY SCORING =====================
+function calculateCategoryScore(cat) {
+  const catAnswers = answers.filter((a) => a.category === cat);
+  if (catAnswers.length === 0) return 0;
+  const total = catAnswers.reduce((sum, a) => sum + a.value, 0);
+  return Math.round(total / catAnswers.length);
 }
 
-function confirmExitTest() {
-    const confirmExit = confirm(
-        "Not an issue if you don’t have time now!\n\n" +
-        "But make sure to give the test later — it’s designed to help you understand yourself better.\n\n" +
-        "Of course, scrolling endless reels or passing time on social media can wait 😉\n\n" +
-        "Would you like to exit the test now?"
-    );
-
-    if (confirmExit) {
-        // Mark test as incomplete and show motivational result
-        showResults();
-    }
-}
-function confirmSkipCategory(currentCategory) {
-    const confirmSkip = confirm(
-        `You’re about to skip the category "${currentCategory}".\n\n` +
-        "No worries if you’re short on time — but make sure to revisit this category later.\n" +
-        "Understanding your full self helps you grow better 🌱"
-    );
-
-    if (confirmSkip) {
-        userScores[currentCategory] = "Skipped";
-        nextCategory();
-    }
+// ===================== LEVEL DETERMINATION =====================
+function getLevelFromScore(score) {
+  if (score <= 1.5) return "level1";
+  if (score <= 2.5) return "level2";
+  if (score <= 3.5) return "level3";
+  if (score <= 4.5) return "level4";
+  if (score <= 5.5) return "level5";
+  return "level6";
 }
 
-
+// ===================== FETCH REPORT (Markdown) =====================
 async function fetchReport(category, level) {
   try {
     const response = await fetch(`Reports/${category}/${level}.md`);
     if (!response.ok) throw new Error("Report not found");
     const text = await response.text();
-
-    // Optional: convert Markdown to HTML (using marked.js)
-    // return marked(text);
-
-    return text.replace(/\n/g, "<br>"); // simple line breaks if not using marked.js
-  } catch (err) {
-    console.error(err);
+    return text.replace(/\n/g, "<br>");
+  } catch {
     return "Report not available.";
   }
 }
-// === Custom Modal Functions ===
+
+// ===================== CUSTOM MODAL FUNCTION =====================
 function showModal(title, message, confirmCallback) {
   const modal = document.getElementById("confirmModal");
   const modalTitle = document.getElementById("modalTitle");
@@ -274,10 +126,8 @@ function showModal(title, message, confirmCallback) {
 
   modalTitle.textContent = title;
   modalMessage.textContent = message;
-
   modal.classList.remove("hidden");
 
-  // Remove previous listeners to avoid stacking
   const newConfirmBtn = confirmBtn.cloneNode(true);
   confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
 
@@ -291,7 +141,29 @@ function showModal(title, message, confirmCallback) {
   });
 }
 
-// === Replace old confirm functions ===
+// ===================== SKIP CATEGORY =====================
+function confirmSkipCategory() {
+  const catKey = categories[currentCategory];
+  const catName = reportsData[catKey].title;
+
+  showModal(
+    "Skip This Category?",
+    `You’re about to skip "${catName}". No worries if you’re short on time — but do try again later to get full insights 🌱`,
+    () => {
+      skippedCategories[catKey] = true;
+      currentCategory++;
+      currentQuestion = 0;
+
+      if (currentCategory >= categories.length) {
+        showResults();
+      } else {
+        loadQuestion();
+      }
+    }
+  );
+}
+
+// ===================== EXIT TEST =====================
 function confirmExitTest() {
   showModal(
     "Exit the Test?",
@@ -300,19 +172,64 @@ function confirmExitTest() {
   );
 }
 
-function confirmSkipCategory(currentCategory) {
-  showModal(
-    "Skip This Category?",
-    `You’re about to skip the category "${currentCategory}".\n\nNo worries if you’re short on time — but make sure to revisit this later. Understanding your full self helps you grow better 🌱`,
-    () => {
-      userScores[currentCategory] = "Skipped";
-      nextCategory();
-    }
-  );
+// ===================== SHOW RESULTS =====================
+async function showResults() {
+  resultsDiv.innerHTML = "";
+
+  const now = new Date();
+  const date = now.toLocaleDateString();
+  const time = now.toLocaleTimeString();
+
+  const allAnswered = Object.keys(userScores).length > 0 &&
+    Object.keys(userScores).length === categories.length &&
+    !Object.keys(skippedCategories).length;
+
+  if (!allAnswered) {
+    resultsDiv.innerHTML = `
+      <h2>Test Incomplete</h2>
+      <p>Looks like you didn’t complete the full test — and that’s completely okay 😊</p>
+      <p>Whenever you find a calm, distraction-free moment, try taking it again. 
+      It’s designed to help <strong>you</strong> reflect, grow, and understand yourself better — emotionally, mentally, and behaviorally.</p>
+      <p>Instead of endlessly scrolling or passing time on social media, 
+      invest a few minutes in knowing yourself. It’s one of the best investments 🌱</p>
+      <p>Wishing you calmness, clarity, and self-growth ahead ✨</p>
+
+      <div class="result-footer">
+        <hr>
+        <p><strong>Viewed on:</strong> ${date} at ${time}</p>
+        <p><strong>Privacy Note:</strong> No data is stored — only you can see your responses.</p>
+      </div>
+    `;
+    return;
+  }
+
+  resultsDiv.innerHTML = `<h2>Your Complete Personality Insight Report</h2>`;
+
+  for (const cat of categories) {
+    const score = userScores[cat];
+    const level = getLevelFromScore(score);
+    const reportText = await fetchReport(cat, level);
+
+    resultsDiv.innerHTML += `
+      <div class="category-report">
+        <h3>${reportsData[cat].title}</h3>
+        <p>${reportText}</p>
+        <p><strong>Your Score:</strong> ${score}</p>
+        <p><strong>Level:</strong> ${level}</p>
+        <hr>
+      </div>
+    `;
+  }
+
+  resultsDiv.innerHTML += `
+    <div class="result-footer">
+      <p><strong>Completed on:</strong> ${date} at ${time}</p>
+      <p><strong>Privacy Note:</strong> Your data is not stored or shared — this report is visible only to you.</p>
+    </div>
+  `;
 }
 
-
-// Start first question on page load
+// ===================== PAGE LOAD =====================
 window.onload = () => {
   loadQuestion();
 };
