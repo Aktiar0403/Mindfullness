@@ -1,93 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Psychometric Test</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Self Insight Personality Test</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
   <div class="container">
-  <h1>Psychometric Test</h1>
+    <h1>Self Insight Test</h1>
 
-  <!-- Language Selector -->
-  <div class="lang-container">
-    <label for="lang-select">Select Language:</label>
-    <select id="lang-select">
-      <option value="en">English</option>
-      <option value="hi">हिन्दी</option>
-      <option value="bn">বাংলা</option>
-    </select>
-  </div>
+    <!-- Name Input -->
+    <div class="input-section">
+      <label for="user-name">Enter your name:</label>
+      <input type="text" id="user-name" placeholder="Your name here" />
+    </div>
 
-  <!-- User Name Input -->
-  <div class="user-info">
-    <label for="user-name">Enter Your Name:</label>
-    <input type="text" id="user-name" placeholder="Your Name">
-  </div>
+    <!-- Language Selector -->
+    <div class="lang-select">
+      <label for="lang-select">Choose Language:</label>
+      <select id="lang-select">
+        <option value="en">English</option>
+        <option value="hi">Hindi</option>
+      </select>
+    </div>
 
-  <!-- Caution Note -->
-  <div class="caution-note">
-    <p>⚠️ Please think carefully and choose your answer honestly. Your responses help you understand and improve yourself. <strong>No data is stored, and only you can see your results.</strong></p>
-  </div>
+    <!-- Category Title -->
+    <h2 id="category-title" class="category-title"></h2>
 
-  <!-- Question Box -->
-  <div id="question-box" class="question-box">
-    <h2 id="category-title">Category Title</h2>
-    <p id="question-text">Question text will appear here</p>
+    <!-- Question Box -->
+    <div id="question-box" class="question-box">
+      <p id="question-text">Loading question...</p>
+    </div>
 
     <!-- Slider -->
-    <div class="slider-container">
-      <input type="range" id="response-slider" min="1" max="6" value="3">
-      <div class="slider-labels">
-        <span>1 - Never</span>
-        <span>2 - Almost Never</span>
-        <span>3 - Sometimes</span>
-        <span>4 - Often</span>
-        <span>5 - Very Often</span>
-        <span>6 - Always</span>
+    <div class="slider-section">
+      <label for="response-slider" class="slider-label">Your Response:</label>
+      <input type="range" id="response-slider" min="1" max="6" step="1" value="3" />
+      <div class="slider-scale">
+        <span>Never</span>
+        <span>Rarely</span>
+        <span>Sometimes</span>
+        <span>Often</span>
+        <span>Very Often</span>
+        <span>Always</span>
       </div>
+      <p class="slider-note">
+        ⚠️ Think carefully before you answer — this test helps you know yourself better.
+        Your answers are private; no data is stored or shared.
+      </p>
     </div>
-
-    <!-- Next Button -->
-    <button id="next-btn" class="next-btn">Next</button>
-    <div class="action-buttons">
-  <button id="skip-btn" class="skip-btn">Skip Category</button>
-  <button id="exit-btn" class="exit-btn">Exit Test</button>
-</div>
-
 
     <!-- Progress Bar -->
-    <div class="progress-bar-wrapper">
+    <div class="progress-container">
       <div id="progress-bar" class="progress-bar"></div>
     </div>
+
+    <!-- Buttons -->
+    <div class="button-group">
+      <button id="skip-btn" class="secondary-btn">Skip Category</button>
+      <button id="exit-btn" class="danger-btn">Exit Test</button>
+      <button id="next-btn" class="primary-btn">Next</button>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results" class="results hidden"></div>
   </div>
 
-  <!-- Results Container -->
-  <div id="results-container" class="results-container" style="display:none;"></div>
-</div>
-
-
-  <!-- JS Files -->
-   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-  <script src="reports.js"></script>
-  <script src="app.js"></script>
-  <!-- Exit / Skip Confirmation Modal -->
-<div id="confirmModal" class="modal hidden">
-  <div class="modal-content">
-    <h3 id="modalTitle">Confirm Exit</h3>
-    <p id="modalMessage">
-      Not an issue if you don’t have time now! But make sure to give the test later
-      — it’s designed to help you understand yourself better. Of course, scrolling endless
-      reels or passing time on social media can wait 😉
-    </p>
-    <div class="modal-actions">
-      <button id="cancelModal">Cancel</button>
-      <button id="confirmModalBtn" class="confirm-btn">Yes, Exit</button>
+  <!-- Custom Modal -->
+  <div id="confirmModal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="modalTitle"></h3>
+      <p id="modalMessage"></p>
+      <div class="modal-actions">
+        <button id="confirmModalBtn" class="primary-btn">Yes</button>
+        <button id="cancelModal" class="secondary-btn">Cancel</button>
+      </div>
     </div>
   </div>
-</div>
 
+  <script src="Reports.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

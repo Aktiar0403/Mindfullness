@@ -1,4 +1,4 @@
-// ===================== GLOBAL VARIABLES =====================
+// === Global Variables ===
 let categories = ["emotional", "growth", "overthinking", "resilience"];
 let currentCategory = 0;
 let currentQuestion = 0;
@@ -7,36 +7,29 @@ let selectedLang = "en";
 let answers = [];
 let blockStartTime = null;
 let blockTimes = [0, 0, 0, 0];
-let userScores = {};
 let skippedCategories = {};
+let userScores = {}; // assuming you calculate these later
 
-// ===================== ELEMENT REFERENCES =====================
-const questionBox = document.getElementById("question-box");
+// === HTML References ===
 const questionText = document.getElementById("question-text");
 const slider = document.getElementById("response-slider");
 const nextBtn = document.getElementById("next-btn");
 const progressBar = document.getElementById("progress-bar");
 const langSelect = document.getElementById("lang-select");
-const resultsDiv = document.getElementById("results");
+const skipBtn = document.getElementById("skip-btn");
+const exitBtn = document.getElementById("exit-btn");
 
-// ===================== LANGUAGE SELECTION =====================
-langSelect.addEventListener("change", (e) => {
-  selectedLang = e.target.value;
-  loadQuestion();
-});
-
-// ===================== LOAD QUESTION =====================
+// === Load Question Function ===
 function loadQuestion() {
-  const catKey = categories[currentCategory];
-  const categoryData = reportsData[catKey];
-  const questionList = categoryData.questions;
+  const cat = categories[currentCategory];
+  const questionList = reportsData[cat].questions;
   const question = questionList[currentQuestion][selectedLang];
 
-  // Update title
-  document.getElementById("category-title").innerText = categoryData.title;
+  document.getElementById("category-title").innerText = reportsData[cat].title;
 
-  // Start block timer
-  if (currentQuestion === 0) blockStartTime = new Date().getTime();
+  if (currentQuestion === 0 && blockStartTime === null) {
+    blockStartTime = new Date().getTime();
+  }
 
   questionText.innerText = question;
   slider.value = 3;
@@ -45,10 +38,10 @@ function loadQuestion() {
   progressBar.style.width = progressPercent + "%";
 }
 
-// ===================== NEXT BUTTON =====================
+// === Next Question Handler ===
 nextBtn.addEventListener("click", () => {
-  const nameInput = document.getElementById("user-name");
   if (!userName) {
+    const nameInput = document.getElementById("user-name");
     if (nameInput.value.trim() === "") {
       alert("Please enter your name to proceed.");
       return;
@@ -59,23 +52,21 @@ nextBtn.addEventListener("click", () => {
   const cat = categories[currentCategory];
   const questionList = reportsData[cat].questions;
 
-  // Store answer
   answers.push({
     category: cat,
     questionIndex: currentQuestion,
-    value: parseInt(slider.value),
+    value: slider.value,
   });
 
   currentQuestion++;
 
-  // If last question of the block
   if (currentQuestion >= questionList.length) {
     const now = new Date().getTime();
     blockTimes[currentCategory] = Math.round((now - blockStartTime) / 1000);
-    userScores[cat] = calculateCategoryScore(cat);
     blockStartTime = null;
-    currentQuestion = 0;
+
     currentCategory++;
+    currentQuestion = 0;
 
     if (currentCategory >= categories.length) {
       showResults();
@@ -86,37 +77,117 @@ nextBtn.addEventListener("click", () => {
   loadQuestion();
 });
 
-// ===================== CATEGORY SCORING =====================
-function calculateCategoryScore(cat) {
-  const catAnswers = answers.filter((a) => a.category === cat);
-  if (catAnswers.length === 0) return 0;
-  const total = catAnswers.reduce((sum, a) => sum + a.value, 0);
-  return Math.round(total / catAnswers.length);
-}
+// === Language Change Handler ===
+langSelect.addEventListener("change", (e) => {
+  selectedLang = e.target.value;
+  loadQuestion();
+});
 
-// ===================== LEVEL DETERMINATION =====================
-function getLevelFromScore(score) {
-  if (score <= 1.5) return "level1";
-  if (score <= 2.5) return "level2";
-  if (score <= 3.5) return "level3";
-  if (score <= 4.5) return "level4";
-  if (score <= 5.5) return "level5";
-  return "level6";
-}
+// === Skip Category Handler ===
+skipBtn.addEventListener("click", () => {
+  const catName = reportsData[categories[currentCategory]].title;
 
-// ===================== FETCH REPORT (Markdown) =====================
-async function fetchReport(category, level) {
-  try {
-    const response = await fetch(`Reports/${category}/${level}.md`);
-    if (!response.ok) throw new Error("Report not found");
-    const text = await response.text();
-    return text.replace(/\n/g, "<br>");
-  } catch {
-    return "Report not available.";
+  showModal(
+    "Skip This Category?",
+    `Not a problem if you don’t have time now for “${catName}”. 🌱 
+But make sure to take the test later to understand yourself better.
+Instead of scrolling endless reels or passing time on social media — invest in knowing yourself better.`,
+    () => {
+      const cat = categories[currentCategory];
+      skippedCategories[cat] = `
+        You avoided this category: ${catName}. 
+        We recommend taking this test later in full focus when you have time.
+        Remember, it’s only for your benefit and growth.
+      `;
+
+      currentCategory++;
+      currentQuestion = 0;
+      blockStartTime = null;
+
+      if (currentCategory >= categories.length) {
+        showResults();
+      } else {
+        loadQuestion();
+      }
+    }
+  );
+});
+
+// === Exit Test Handler ===
+exitBtn.addEventListener("click", () => {
+  showModal(
+    "Exit the Test?",
+    `Not an issue if you don’t have time now! 🌱 
+But make sure to give the test later — it’s designed to help you understand yourself better.
+Of course, scrolling endless reels or passing time on social media can wait 😉`,
+    () => {
+      showResults();
+    }
+  );
+});
+
+// === Show Results ===
+function showResults() {
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = "";
+
+  const now = new Date();
+  const formattedDate = now.toLocaleDateString();
+  const formattedTime = now.toLocaleTimeString();
+
+  const allCategories = Object.keys(reportsData);
+  const answeredCategories = Object.keys(userScores);
+  const isComplete =
+    answeredCategories.length === allCategories.length &&
+    allCategories.every(
+      (cat) => userScores[cat] !== null && userScores[cat] !== undefined
+    );
+
+  if (!isComplete) {
+    resultsDiv.innerHTML = `
+      <h2>Test Incomplete</h2>
+      <p>Looks like you didn’t complete the full test — and that’s completely okay 😊</p>
+      <p>Whenever you find a calm, distraction-free moment, try taking the test in full. 
+      It’s designed to help <strong>you</strong> reflect, grow, and understand yourself better — emotionally, mentally, and behaviorally.</p>
+      <p>Instead of endlessly scrolling or passing time on social media, investing a few minutes in knowing yourself can open powerful insights 🌱</p>
+      <p>Remember, self-awareness is the first step toward personal mastery.</p>
+      <p>Wishing you calmness, clarity, and self-growth ahead ✨</p>
+      <div class="result-footer">
+        <hr>
+        <p><strong>Viewed on:</strong> ${formattedDate} at ${formattedTime}</p>
+        <p><strong>Privacy Note:</strong> No data is stored — only you can see your responses.</p>
+      </div>
+    `;
+    return;
   }
+
+  resultsDiv.innerHTML = `<h2>Your Complete Personality Insight Report</h2>`;
+
+  for (const category in userScores) {
+    const score = userScores[category];
+    const level = getLevelFromScore(score);
+    const report = reportsData[category]?.[level] || "Report not available.";
+
+    resultsDiv.innerHTML += `
+      <div class="category-report">
+        <h3>${category}</h3>
+        <p>${report}</p>
+        <p><strong>Your Score:</strong> ${score}</p>
+        <p><strong>Level:</strong> ${level}</p>
+        <hr>
+      </div>
+    `;
+  }
+
+  resultsDiv.innerHTML += `
+    <div class="result-footer">
+      <p><strong>Completed on:</strong> ${formattedDate} at ${formattedTime}</p>
+      <p><strong>Privacy Note:</strong> Your data is not stored or shared — this report is visible only to you.</p>
+    </div>
+  `;
 }
 
-// ===================== CUSTOM MODAL FUNCTION =====================
+// === Modal System ===
 function showModal(title, message, confirmCallback) {
   const modal = document.getElementById("confirmModal");
   const modalTitle = document.getElementById("modalTitle");
@@ -141,95 +212,7 @@ function showModal(title, message, confirmCallback) {
   });
 }
 
-// ===================== SKIP CATEGORY =====================
-function confirmSkipCategory() {
-  const catKey = categories[currentCategory];
-  const catName = reportsData[catKey].title;
-
-  showModal(
-    "Skip This Category?",
-    `You’re about to skip "${catName}". No worries if you’re short on time — but do try again later to get full insights 🌱`,
-    () => {
-      skippedCategories[catKey] = true;
-      currentCategory++;
-      currentQuestion = 0;
-
-      if (currentCategory >= categories.length) {
-        showResults();
-      } else {
-        loadQuestion();
-      }
-    }
-  );
-}
-
-// ===================== EXIT TEST =====================
-function confirmExitTest() {
-  showModal(
-    "Exit the Test?",
-    "Not an issue if you don’t have time now! 🌱 But make sure to give the test later — it’s designed to help you understand yourself better. Of course, scrolling endless reels or passing time on social media can wait 😉",
-    () => showResults()
-  );
-}
-
-// ===================== SHOW RESULTS =====================
-async function showResults() {
-  resultsDiv.innerHTML = "";
-
-  const now = new Date();
-  const date = now.toLocaleDateString();
-  const time = now.toLocaleTimeString();
-
-  const allAnswered = Object.keys(userScores).length > 0 &&
-    Object.keys(userScores).length === categories.length &&
-    !Object.keys(skippedCategories).length;
-
-  if (!allAnswered) {
-    resultsDiv.innerHTML = `
-      <h2>Test Incomplete</h2>
-      <p>Looks like you didn’t complete the full test — and that’s completely okay 😊</p>
-      <p>Whenever you find a calm, distraction-free moment, try taking it again. 
-      It’s designed to help <strong>you</strong> reflect, grow, and understand yourself better — emotionally, mentally, and behaviorally.</p>
-      <p>Instead of endlessly scrolling or passing time on social media, 
-      invest a few minutes in knowing yourself. It’s one of the best investments 🌱</p>
-      <p>Wishing you calmness, clarity, and self-growth ahead ✨</p>
-
-      <div class="result-footer">
-        <hr>
-        <p><strong>Viewed on:</strong> ${date} at ${time}</p>
-        <p><strong>Privacy Note:</strong> No data is stored — only you can see your responses.</p>
-      </div>
-    `;
-    return;
-  }
-
-  resultsDiv.innerHTML = `<h2>Your Complete Personality Insight Report</h2>`;
-
-  for (const cat of categories) {
-    const score = userScores[cat];
-    const level = getLevelFromScore(score);
-    const reportText = await fetchReport(cat, level);
-
-    resultsDiv.innerHTML += `
-      <div class="category-report">
-        <h3>${reportsData[cat].title}</h3>
-        <p>${reportText}</p>
-        <p><strong>Your Score:</strong> ${score}</p>
-        <p><strong>Level:</strong> ${level}</p>
-        <hr>
-      </div>
-    `;
-  }
-
-  resultsDiv.innerHTML += `
-    <div class="result-footer">
-      <p><strong>Completed on:</strong> ${date} at ${time}</p>
-      <p><strong>Privacy Note:</strong> Your data is not stored or shared — this report is visible only to you.</p>
-    </div>
-  `;
-}
-
-// ===================== PAGE LOAD =====================
+// === Initialize ===
 window.onload = () => {
   loadQuestion();
 };
