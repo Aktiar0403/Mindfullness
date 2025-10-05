@@ -3,84 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Self Insight Personality Test</title>
+  <title>Self Insight Test</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="app-container">
 
-  <div class="container">
-    <h1>Self Insight Test</h1>
-
-    <!-- Name Input -->
-    <div class="input-section">
-      <label for="user-name">Enter your name:</label>
-      <input type="text" id="user-name" placeholder="Your name here" />
-    </div>
-
-    <!-- Language Selector -->
-    <div class="lang-select">
-      <label for="lang-select">Choose Language:</label>
-      <select id="lang-select">
-        <option value="en">English</option>
-        <option value="hi">Hindi</option>
-      </select>
-    </div>
-
-    <!-- Category Title -->
-    <h2 id="category-title" class="category-title"></h2>
-
-    <!-- Question Box -->
-    <div id="question-box" class="question-box">
-      <p id="question-text">Loading question...</p>
-    </div>
-
-    <!-- Slider -->
-    <div class="slider-section">
-      <label for="response-slider" class="slider-label">Your Response:</label>
-      <input type="range" id="response-slider" min="1" max="6" step="1" value="3" />
-      <div class="slider-scale">
-        <span>Never</span>
-        <span>Rarely</span>
-        <span>Sometimes</span>
-        <span>Often</span>
-        <span>Very Often</span>
-        <span>Always</span>
-      </div>
-      <p class="slider-note">
-        ⚠️ Think carefully before you answer — this test helps you know yourself better.
-        Your answers are private; no data is stored or shared.
+    <!-- Header -->
+    <header>
+      <h1>🧠 Self Insight & Growth Test</h1>
+      <p class="privacy-note">
+        ⚠️ Think calmly before you answer. This test helps you know yourself better.  
+        No data is stored — only <b>you</b> can see your result.
       </p>
-    </div>
+    </header>
 
-    <!-- Progress Bar -->
-    <div class="progress-container">
-      <div id="progress-bar" class="progress-bar"></div>
-    </div>
+    <!-- Question Area -->
+    <section id="test-section">
+      <div id="category-title" class="category-title"></div>
+      <div id="question-box" class="question-box"></div>
+      <div class="slider-container">
+        <input type="range" id="answer-slider" min="1" max="6" step="1" value="3" />
+        <div class="slider-labels">
+          <span>Never</span>
+          <span>Rarely</span>
+          <span>Sometimes</span>
+          <span>Often</span>
+          <span>Mostly</span>
+          <span>Always</span>
+        </div>
+      </div>
 
-    <!-- Buttons -->
-    <div class="button-group">
-      <button id="skip-btn" class="secondary-btn">Skip Category</button>
-      <button id="exit-btn" class="danger-btn">Exit Test</button>
-      <button id="next-btn" class="primary-btn">Next</button>
-    </div>
+      <div class="button-group">
+        <button id="prev-btn" class="btn secondary">⬅️ Previous</button>
+        <button id="next-btn" class="btn primary">Next ➡️</button>
+      </div>
 
-    <!-- Results Section -->
-    <div id="results" class="results hidden"></div>
+      <div class="action-group">
+        <button id="skip-category" class="btn warning">⏭️ Skip Category</button>
+        <button id="end-test" class="btn danger">❌ End Test</button>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section id="result-section" class="hidden">
+      <h2>Your Personalized Insight Report</h2>
+      <div id="result-output"></div>
+      <button id="restart-btn" class="btn primary">🔁 Restart Test</button>
+    </section>
   </div>
 
-  <!-- Custom Modal -->
-  <div id="confirmModal" class="modal hidden">
+  <!-- Modal for confirmation -->
+  <div id="modal" class="modal hidden">
     <div class="modal-content">
-      <h3 id="modalTitle"></h3>
-      <p id="modalMessage"></p>
-      <div class="modal-actions">
-        <button id="confirmModalBtn" class="primary-btn">Yes</button>
-        <button id="cancelModal" class="secondary-btn">Cancel</button>
+      <h3>Take your time ⏳</h3>
+      <p>Not an issue if you don’t have time now.  
+        But make sure to take this test later — it’s for your own growth.  
+        From scrolling endless reels to self-discovery, hope you choose the better path 💫</p>
+      <div class="modal-buttons">
+        <button id="confirm-exit" class="btn danger">Exit Anyway</button>
+        <button id="cancel-exit" class="btn secondary">Cancel</button>
       </div>
     </div>
   </div>
 
-  <script src="Reports.js"></script>
+  <script src="reports.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
