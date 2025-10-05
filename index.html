@@ -3,29 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Psychology Diagnostic Test</title>
+  <title>Mind Mirror Test</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="container">
+    <h1>🧭 Mind Mirror</h1>
+    <p class="subtitle">Discover your Emotional, Growth, Overthinking, and Resilience Levels</p>
 
-  <div class="app-container">
-    <header>
-      <h1>🧠 Psychology Diagnostic Test</h1>
-      <p class="subtitle">Emotional • Resilience • Growth • Overthinking</p>
-      <div id="timer">00:00</div>
-    </header>
+    <div class="test-section">
+      <h2 id="category-title">Category: Emotional Intelligence</h2>
+      <div id="question-box">
+        <p id="question-text">Loading question...</p>
+        <div class="slider-container">
+          <input type="range" id="response-slider" min="1" max="5" step="1" value="3" />
+          <div class="slider-labels">
+            <span>😞 Never</span>
+            <span>😐 Sometimes</span>
+            <span>😊 Always</span>
+          </div>
+        </div>
+      </div>
+      <button id="next-btn">Next ➜</button>
+    </div>
 
-    <main id="testForm"></main>
-
-    <footer class="controls">
-      <button id="prevBtn">⬅ Prev</button>
-      <button id="nextBtn">Next ➡</button>
-      <button id="submitBtn" class="hidden">Submit</button>
-    </footer>
-
-    <section id="results" class="hidden"></section>
+    <div id="result-box" class="hidden">
+      <h2>Your Report</h2>
+      <p id="category-name"></p>
+      <div id="final-report"></div>
+      <button id="restart-btn">🔄 Retake Test</button>
+    </div>
   </div>
 
+  <script src="reports.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
