@@ -75,6 +75,63 @@ nextBtn.addEventListener("click", () => {
 
   loadQuestion();
 });
+// Friendly confirmation popup function
+function showFriendlyConfirm(message, callbackYes) {
+  const proceed = confirm(message); // Replace later with custom modal if desired
+  if (proceed) callbackYes();
+}
+
+// Skip Category
+document.getElementById("skip-btn").addEventListener("click", () => {
+  const catName = reportsData[categories[currentCategory]].title;
+  const message = `Not a problem if you don't have time now for "${catName}". 
+But make sure to take the test later to understand yourself better. 
+Instead of scrolling endless reels and passing time on social media, hope for the best!`;
+
+  showFriendlyConfirm(message, () => {
+    const now = new Date().getTime();
+
+    if (blockStartTime !== null) {
+      blockTimes[currentCategory] = Math.round((now - blockStartTime) / 1000);
+    }
+
+    const cat = categories[currentCategory];
+    skippedCategories[cat] = `
+      You avoided this category: ${catName}. 
+      We recommend taking this test later in full focus when you have time. 
+      Remember, it is only for your benefit and self-improvement.
+    `;
+
+    currentCategory++;
+    currentQuestion = 0;
+    blockStartTime = null;
+
+    if (currentCategory >= categories.length) {
+      showResults();
+      return;
+    }
+
+    loadQuestion();
+  });
+});
+
+// Exit Test
+document.getElementById("exit-btn").addEventListener("click", () => {
+  const message = `Not a problem if you don't have time now to finish the test. 
+Make sure to complete it later to understand yourself better. 
+Instead of scrolling endless reels and passing time on social media, hope for the best!`;
+
+  showFriendlyConfirm(message, () => {
+    const now = new Date().getTime();
+
+    if (blockStartTime !== null) {
+      blockTimes[currentCategory] = Math.round((now - blockStartTime) / 1000);
+    }
+
+    showResults();
+  });
+});
+
 
   const cat = categories[currentCategory];
   const questionList = reportsData[cat].questions;
