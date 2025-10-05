@@ -256,3 +256,28 @@ header h1 {
     font-size: 0.9rem;
   }
 }
+// =============================
+// INTRO SCREEN LOGIC
+// =============================
+document.getElementById("start-test-btn").addEventListener("click", function () {
+  const intro = document.getElementById("intro-screen");
+  const app = document.getElementById("app-container");
+
+  intro.classList.add("fade-out");
+  setTimeout(() => {
+    intro.style.display = "none";
+    app.classList.remove("hidden");
+  }, 800);
+});
+
+// Optional smooth fade-out animation
+const style = document.createElement('style');
+style.innerHTML = `
+.fade-out {
+  animation: fadeOut 0.8s forwards;
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}`;
+document.head.appendChild(style);
