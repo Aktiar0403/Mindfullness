@@ -1,57 +1,146 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #f6f8fa;
-  margin: 0;
-  padding: 0;
+/* =============== BASE =============== */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
-.container {
-  max-width: 800px;
-  margin: auto;
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+body {
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  background: linear-gradient(180deg, #eef6ff, #ffffff);
+  color: #222;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+.app-container {
+  width: 100%;
+  max-width: 480px;
+  padding: 16px;
+}
+header {
+  text-align: center;
+  margin-bottom: 1rem;
 }
 h1 {
-  text-align: center;
-  color: #333;
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1f4b7a;
+}
+.subtitle {
+  font-size: 0.9rem;
+  color: #666;
+}
+#timer {
+  font-weight: 600;
+  color: #ff7b54;
+  margin-top: 0.4rem;
+}
+
+/* =============== QUESTION CARD =============== */
+.question {
+  background: #fff;
+  padding: 16px 14px;
+  border-radius: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  margin-bottom: 16px;
+  animation: fadeIn 0.4s ease;
+}
+.question strong {
+  color: #21496b;
 }
 .hindi {
-  color: #444;
-  font-size: 0.95em;
-  display: block;
-  margin-top: 2px;
+  font-size: 0.85rem;
+  color: #666;
 }
-.question {
-  margin: 20px 0;
-  padding: 15px;
-  border-bottom: 1px solid #ddd;
+
+/* =============== SLIDER CONTROL =============== */
+.slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
 }
-button {
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
-  background: #0077cc;
-  color: white;
-  border: none;
-  border-radius: 6px;
+.range-value {
+  width: 42px;
+  text-align: center;
+  font-weight: 600;
+  color: #21496b;
+}
+input[type=range] {
+  flex: 1;
+  appearance: none;
+  height: 8px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #f36f63, #ffb94d, #4cb98a, #3f88fc);
+  outline: none;
   cursor: pointer;
 }
-button:hover {
-  background: #005fa3;
+input[type=range]::-webkit-slider-thumb {
+  appearance: none;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #3f88fc;
+  box-shadow: 0 0 4px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+}
+input[type=range]::-webkit-slider-thumb:active {
+  transform: scale(1.2);
+}
+
+/* =============== BUTTONS =============== */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+button {
+  flex: 1;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  background: linear-gradient(90deg, #2a7ae2, #4cb98a);
+  transition: 0.3s;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+button:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+#submitBtn {
+  background: linear-gradient(90deg, #ff7b54, #ffae52);
+}
+
+/* =============== RESULTS =============== */
+#results {
+  margin-top: 20px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  padding: 16px;
+  line-height: 1.6;
+}
+#results h2 {
+  color: #1f4b7a;
+  margin-top: 0;
+}
+.result-block {
+  margin-bottom: 14px;
 }
 .hidden {
-  display: none;
+  display: none !important;
 }
-#results {
-  margin-top: 30px;
-  padding: 20px;
-  border: 2px solid #0077cc;
-  border-radius: 8px;
-  background: #eef7ff;
-}
-#timerBox {
-  text-align: center;
-  font-size: 18px;
-  margin: 10px 0 20px 0;
+
+/* =============== ANIMATIONS =============== */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(10px);}
+  to {opacity: 1; transform: translateY(0);}
 }

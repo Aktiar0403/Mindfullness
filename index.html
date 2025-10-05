@@ -1,38 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bilingual Psychometric Test</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Psychology Diagnostic Test</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>Bilingual Psychometric Test<br>
-      <span class="hindi">द्विभाषी मनोवैज्ञानिक परीक्षण</span>
-    </h1>
-    <p>Answer each question on a scale of 1–5.<br>
-      <span class="hindi">प्रत्येक प्रश्न का उत्तर 1–5 के पैमाने पर दें।</span>
-    </p>
 
-    <!-- Timer -->
-    <div id="timerBox">
-      <strong>Block Timer:</strong> <span id="timer">00:00</span>
-    </div>
+  <div class="app-container">
+    <header>
+      <h1>🧠 Psychology Diagnostic Test</h1>
+      <p class="subtitle">Emotional • Resilience • Growth • Overthinking</p>
+      <div id="timer">00:00</div>
+    </header>
 
-    <!-- Questions rendered here -->
-    <form id="testForm"></form>
+    <main id="testForm"></main>
 
-    <!-- Navigation buttons -->
-    <div id="navButtons">
-      <button type="button" id="prevBtn" disabled>Previous / पिछला</button>
-      <button type="button" id="nextBtn">Next / अगला</button>
-      <button type="button" id="submitBtn" class="hidden">Submit / जमा करें</button>
-    </div>
+    <footer class="controls">
+      <button id="prevBtn">⬅ Prev</button>
+      <button id="nextBtn">Next ➡</button>
+      <button id="submitBtn" class="hidden">Submit</button>
+    </footer>
 
-    <!-- Results -->
-    <div id="results" class="hidden"></div>
+    <section id="results" class="hidden"></section>
   </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
