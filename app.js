@@ -222,6 +222,32 @@ function showResults() {
     `;
 }
 
+function confirmExitTest() {
+    const confirmExit = confirm(
+        "Not an issue if you don’t have time now!\n\n" +
+        "But make sure to give the test later — it’s designed to help you understand yourself better.\n\n" +
+        "Of course, scrolling endless reels or passing time on social media can wait 😉\n\n" +
+        "Would you like to exit the test now?"
+    );
+
+    if (confirmExit) {
+        // Mark test as incomplete and show motivational result
+        showResults();
+    }
+}
+function confirmSkipCategory(currentCategory) {
+    const confirmSkip = confirm(
+        `You’re about to skip the category "${currentCategory}".\n\n` +
+        "No worries if you’re short on time — but make sure to revisit this category later.\n" +
+        "Understanding your full self helps you grow better 🌱"
+    );
+
+    if (confirmSkip) {
+        userScores[currentCategory] = "Skipped";
+        nextCategory();
+    }
+}
+
 
 async function fetchReport(category, level) {
   try {
@@ -237,6 +263,52 @@ async function fetchReport(category, level) {
     console.error(err);
     return "Report not available.";
   }
+}
+// === Custom Modal Functions ===
+function showModal(title, message, confirmCallback) {
+  const modal = document.getElementById("confirmModal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalMessage = document.getElementById("modalMessage");
+  const confirmBtn = document.getElementById("confirmModalBtn");
+  const cancelBtn = document.getElementById("cancelModal");
+
+  modalTitle.textContent = title;
+  modalMessage.textContent = message;
+
+  modal.classList.remove("hidden");
+
+  // Remove previous listeners to avoid stacking
+  const newConfirmBtn = confirmBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+  newConfirmBtn.addEventListener("click", () => {
+    modal.classList.add("hidden");
+    confirmCallback();
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    modal.classList.add("hidden");
+  });
+}
+
+// === Replace old confirm functions ===
+function confirmExitTest() {
+  showModal(
+    "Exit the Test?",
+    "Not an issue if you don’t have time now! 🌱 But make sure to give the test later — it’s designed to help you understand yourself better. Of course, scrolling endless reels or passing time on social media can wait 😉",
+    () => showResults()
+  );
+}
+
+function confirmSkipCategory(currentCategory) {
+  showModal(
+    "Skip This Category?",
+    `You’re about to skip the category "${currentCategory}".\n\nNo worries if you’re short on time — but make sure to revisit this later. Understanding your full self helps you grow better 🌱`,
+    () => {
+      userScores[currentCategory] = "Skipped";
+      nextCategory();
+    }
+  );
 }
 
 
