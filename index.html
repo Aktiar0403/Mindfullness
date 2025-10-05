@@ -1,40 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mind Mirror Test</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Psychometric Test</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h1>🧭 Mind Mirror</h1>
-    <p class="subtitle">Discover your Emotional, Growth, Overthinking, and Resilience Levels</p>
+    <h1>Psychometric Test</h1>
 
-    <div class="test-section">
-      <h2 id="category-title">Category: Emotional Intelligence</h2>
-      <div id="question-box">
-        <p id="question-text">Loading question...</p>
-        <div class="slider-container">
-          <input type="range" id="response-slider" min="1" max="5" step="1" value="3" />
-          <div class="slider-labels">
-            <span>😞 Never</span>
-            <span>😐 Sometimes</span>
-            <span>😊 Always</span>
-          </div>
+    <!-- Language Selector -->
+    <div class="lang-container">
+      <label for="lang-select">Select Language:</label>
+      <select id="lang-select">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+        <option value="bn">বাংলা</option>
+      </select>
+    </div>
+
+    <!-- Question Box -->
+    <div id="question-box" class="question-box">
+      <h2 id="category-title">Category Title</h2>
+      <p id="question-text">Question text will appear here</p>
+
+      <!-- Slider -->
+      <div class="slider-container">
+        <input type="range" id="response-slider" min="1" max="6" value="3">
+        <div class="slider-labels">
+          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span>
         </div>
       </div>
-      <button id="next-btn">Next ➜</button>
+
+      <!-- Next Button -->
+      <button id="next-btn" class="next-btn">Next</button>
+
+      <!-- Progress Bar -->
+      <div class="progress-bar-wrapper">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
     </div>
 
-    <div id="result-box" class="hidden">
-      <h2>Your Report</h2>
-      <p id="category-name"></p>
-      <div id="final-report"></div>
-      <button id="restart-btn">🔄 Retake Test</button>
-    </div>
+    <!-- Results Container -->
+    <div id="results-container" class="results-container" style="display:none;"></div>
   </div>
 
+  <!-- JS Files -->
   <script src="reports.js"></script>
   <script src="app.js"></script>
 </body>
