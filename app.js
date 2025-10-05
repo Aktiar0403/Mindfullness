@@ -54,6 +54,28 @@ nextBtn.addEventListener("click", () => {
     }
     userName = nameInput.value.trim();
   }
+
+  document.getElementById("skip-btn").addEventListener("click", () => {
+  const now = new Date().getTime();
+
+  // Record time for the block if any question answered
+  if (blockStartTime !== null) {
+    blockTimes[currentCategory] = Math.round((now - blockStartTime) / 1000);
+  }
+
+  // Move to next category
+  currentCategory++;
+  currentQuestion = 0;
+  blockStartTime = null;
+
+  if (currentCategory >= categories.length) {
+    showResults();
+    return;
+  }
+
+  loadQuestion();
+});
+
   const cat = categories[currentCategory];
   const questionList = reportsData[cat].questions;
 

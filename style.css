@@ -180,3 +180,35 @@ h1 {
   color: #004d40;
   margin-top: 5px;
 }
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.skip-btn, .exit-btn {
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  flex: 1;
+  margin: 0 5px;
+  color: #fff;
+}
+
+.skip-btn {
+  background: #ff9800;
+}
+
+.skip-btn:hover {
+  background: #fb8c00;
+}
+
+.exit-btn {
+  background: #f44336;
+}
+
+.exit-btn:hover {
+  background: #d32f2f;
+}
