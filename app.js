@@ -5,7 +5,6 @@ let categories = ["emotional", "growth", "overthinking", "resilience"];
 let currentCategoryIndex = 0;
 let currentQuestionIndex = 0;
 let answers = [];
-let userScores = {}; // store completed category scores
 let selectedLang = "en"; // default language
 
 // ===============================
@@ -37,23 +36,6 @@ function loadQuestion() {
 }
 
 // ===============================
-// Next Button
-// ===============================
-document.getElementById("next-btn").addEventListener("click", () => {
-  const slider = document.getElementById("answer-slider");
-  const category = categories[currentCategoryIndex];
-
-  answers.push({
-    category,
-    questionIndex: currentQuestionIndex,
-    value: slider.value,
-  });
-
-  currentQuestionIndex++;
-  loadQuestion();
-});
-
-// ===============================
 // Skip / End Test Modal
 // ===============================
 function openModal(type) {
@@ -68,44 +50,6 @@ function closeModal() {
   modal.dataset.action = "";
 }
 
-// Skip Category Button
-document.getElementById("skip-category").addEventListener("click", () => {
-  openModal("skip");
-});
-
-// End Test Button
-document.getElementById("end-test").addEventListener("click", () => {
-  openModal("exit");
-});
-
-// Confirm Button in Modal
-document.getElementById("confirm-exit").addEventListener("click", () => {
-  const modal = document.getElementById("modal");
-  const action = modal.dataset.action;
-  closeModal();
-
-  if (action === "skip") {
-    // skip current category
-    answers.push({
-      category: categories[currentCategoryIndex],
-      skipped: true,
-    });
-    currentCategoryIndex++;
-    currentQuestionIndex = 0;
-    if (currentCategoryIndex >= categories.length) {
-      showMotivationalResultMessage("skipped");
-      return;
-    }
-    loadQuestion();
-  } else {
-    // exit test
-    showMotivationalResultMessage("ended");
-  }
-});
-
-// Cancel Button in Modal
-document.getElementById("cancel-exit").addEventListener("click", closeModal);
-
 // ===============================
 // Show Results
 // ===============================
@@ -116,7 +60,6 @@ function showResults() {
   resultSection.classList.remove("hidden");
 
   if (answers.length === 0) {
-    // no answers, show motivation
     showMotivationalResultMessage();
     return;
   }
@@ -181,35 +124,6 @@ function showMotivationalResultMessage(reason = "incomplete") {
 }
 
 // ===============================
-// Restart Test
-// ===============================
-document.getElementById("restart-btn").addEventListener("click", () => {
-  answers = [];
-  currentCategoryIndex = 0;
-  currentQuestionIndex = 0;
-  document.getElementById("result-section").classList.add("hidden");
-  document.getElementById("test-section").classList.remove("hidden");
-  loadQuestion();
-});
-
-// ===============================
-// Language Selector
-// ===============================
-document.getElementById("lang-select").addEventListener("change", (e) => {
-  selectedLang = e.target.value;
-  loadQuestion();
-});
-
-// ===============================
-// Start Test Button
-// ===============================
-document.getElementById("start-test-btn").addEventListener("click", () => {
-  document.getElementById("intro-screen").classList.add("hidden");
-  document.querySelector(".app-container").classList.remove("hidden");
-  loadQuestion();
-});
-
-// ===============================
 // Helper: Convert score to level
 // ===============================
 function getLevelFromScore(score) {
@@ -221,8 +135,82 @@ function getLevelFromScore(score) {
 }
 
 // ===============================
-// Start
+// DOMContentLoaded -> attach all listeners
 // ===============================
-window.onload = () => {
-  loadQuestion();
-};
+document.addEventListener("DOMContentLoaded", () => {
+  // Start Test button
+  document
+    .getElementById("start-test-btn")
+    .addEventListener("click", () => {
+      document.getElementById("intro-screen").classList.add("hidden");
+      document.querySelector(".app-container").classList.remove("hidden");
+      loadQuestion();
+    });
+
+  // Next Button
+  document.getElementById("next-btn").addEventListener("click", () => {
+    const slider = document.getElementById("answer-slider");
+    const category = categories[currentCategoryIndex];
+
+    answers.push({
+      category,
+      questionIndex: currentQuestionIndex,
+      value: slider.value,
+    });
+
+    currentQuestionIndex++;
+    loadQuestion();
+  });
+
+  // Skip Category
+  document.getElementById("skip-category").addEventListener("click", () => {
+    openModal("skip");
+  });
+
+  // End Test
+  document.getElementById("end-test").addEventListener("click", () => {
+    openModal("exit");
+  });
+
+  // Modal confirm
+  document.getElementById("confirm-exit").addEventListener("click", () => {
+    const modal = document.getElementById("modal");
+    const action = modal.dataset.action;
+    closeModal();
+
+    if (action === "skip") {
+      answers.push({
+        category: categories[currentCategoryIndex],
+        skipped: true,
+      });
+      currentCategoryIndex++;
+      currentQuestionIndex = 0;
+      if (currentCategoryIndex >= categories.length) {
+        showMotivationalResultMessage("skipped");
+        return;
+      }
+      loadQuestion();
+    } else {
+      showMotivationalResultMessage("ended");
+    }
+  });
+
+  // Modal cancel
+  document.getElementById("cancel-exit").addEventListener("click", closeModal);
+
+  // Restart Test
+  document.getElementById("restart-btn").addEventListener("click", () => {
+    answers = [];
+    currentCategoryIndex = 0;
+    currentQuestionIndex = 0;
+    document.getElementById("result-section").classList.add("hidden");
+    document.getElementById("test-section").classList.remove("hidden");
+    loadQuestion();
+  });
+
+  // Language Selector
+  document.getElementById("lang-select").addEventListener("change", (e) => {
+    selectedLang = e.target.value;
+    loadQuestion();
+  });
+});
