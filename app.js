@@ -1,234 +1,235 @@
-// =======================
-// GLOBAL VARIABLES
-// =======================
+// ==========================
+// Global Variables
+// ==========================
 const categories = ["emotional", "growth", "overthinking", "resilience"];
 let currentCategory = 0;
 let currentQuestion = 0;
 let userName = "";
-let selectedLang = "en";
-let answers = []; // {category, questionIndex, value, skipped}
+let answers = []; // {category, questionIndex, value}
 let blockStartTime = null;
+let blockTimes = {}; // seconds spent per category
+let skippedCategories = {};
+let selectedLang = "en";
 
-// DOM elements
+// ==========================
+// DOM References
+// ==========================
+const introScreen = document.getElementById("intro-screen");
+const startBtn = document.getElementById("start-test-btn");
+const appContainer = document.getElementById("app-container");
+
+const userNameInput = document.getElementById("user-name");
+const langSelect = document.getElementById("lang-select");
+const categoryTitle = document.getElementById("category-title");
 const questionText = document.getElementById("question-text");
 const slider = document.getElementById("response-slider");
+const progressBar = document.getElementById("progress-bar");
+
 const nextBtn = document.getElementById("next-btn");
 const skipBtn = document.getElementById("skip-btn");
 const exitBtn = document.getElementById("exit-btn");
+
 const resultsDiv = document.getElementById("results");
-const categoryTitle = document.getElementById("category-title");
-const langSelect = document.getElementById("lang-select");
 
-// =======================
-// EVENT LISTENERS
-// =======================
+// Modal references
+const confirmModal = document.getElementById("confirmModal");
+const modalTitle = document.getElementById("modalTitle");
+const modalMessage = document.getElementById("modalMessage");
+const confirmModalBtn = document.getElementById("confirmModalBtn");
+const cancelModal = document.getElementById("cancelModal");
 
-// Language change
-langSelect.addEventListener("change", e => {
+// ==========================
+// Start Test
+// ==========================
+startBtn.addEventListener("click", () => {
+  const name = userNameInput.value.trim();
+  if (!name) {
+    alert("Please enter your name to start the test.");
+    return;
+  }
+  userName = name;
+
+  introScreen.classList.add("fade-out");
+  setTimeout(() => {
+    introScreen.style.display = "none";
+    appContainer.classList.remove("hidden");
+    startCategory();
+  }, 400);
+});
+
+// ==========================
+// Language Selection
+// ==========================
+langSelect.addEventListener("change", (e) => {
   selectedLang = e.target.value;
   loadQuestion();
 });
 
-// Next button
-nextBtn.addEventListener("click", () => {
-  if (!userName) {
-    const nameInput = document.getElementById("user-name");
-    if (!nameInput.value.trim()) {
-      alert("Please enter your name to proceed.");
-      return;
-    }
-    userName = nameInput.value.trim();
-  }
+// ==========================
+// Load Current Question
+// ==========================
+function loadQuestion() {
+  const category = categories[currentCategory];
+  const questionsFile = `questions/${category}.json`; // optional, or your source
 
+  fetch(questionsFile)
+    .then((res) => res.json())
+    .then((data) => {
+      const questionList = data.questions;
+      const questionObj = questionList[currentQuestion];
+      questionText.innerText = questionObj[selectedLang];
+
+      // Update category title
+      categoryTitle.innerText = data.title;
+
+      // Start timer for block
+      if (currentQuestion === 0 && !blockStartTime) {
+        blockStartTime = Date.now();
+      }
+
+      // Update progress bar
+      progressBar.style.width = `${((currentQuestion + 1) / questionList.length) * 100}%`;
+    })
+    .catch((err) => {
+      console.error("Error loading questions:", err);
+      questionText.innerText = "Error loading question.";
+    });
+}
+
+// ==========================
+// Next Button
+// ==========================
+nextBtn.addEventListener("click", () => {
   saveAnswer();
-  nextQuestion();
+  moveNext();
 });
 
-// Skip category
+function saveAnswer() {
+  const category = categories[currentCategory];
+  answers.push({
+    category,
+    questionIndex: currentQuestion,
+    value: parseInt(slider.value),
+  });
+}
+
+// Move to next question or category
+function moveNext() {
+  const category = categories[currentCategory];
+  const questionsFile = `questions/${category}.json`;
+
+  fetch(questionsFile)
+    .then((res) => res.json())
+    .then((data) => {
+      const questionList = data.questions;
+      currentQuestion++;
+      if (currentQuestion >= questionList.length) {
+        // End of category
+        const now = Date.now();
+        blockTimes[category] = Math.round((now - blockStartTime) / 1000);
+        blockStartTime = null;
+        currentCategory++;
+        currentQuestion = 0;
+
+        if (currentCategory >= categories.length) {
+          showResults();
+          return;
+        }
+      }
+      loadQuestion();
+    });
+}
+
+// ==========================
+// Skip Category
+// ==========================
 skipBtn.addEventListener("click", () => {
-  const catName = reportsData[categories[currentCategory]].title;
+  const category = categories[currentCategory];
   showModal(
-    "Skip This Category?",
-    `Not a problem if you don't have time now for "${catName}". Make sure to take this category later to understand yourself better!`,
+    "Skip Category?",
+    `You are about to skip "${category}". You can complete it later.`,
     () => {
-      answers.push({ category: categories[currentCategory], skipped: true });
-      nextCategory();
+      skippedCategories[category] = true;
+      currentCategory++;
+      currentQuestion = 0;
+      blockStartTime = null;
+
+      if (currentCategory >= categories.length) {
+        showResults();
+        return;
+      }
+      loadQuestion();
     }
   );
 });
 
-// Exit test
+// ==========================
+// Exit Test
+// ==========================
 exitBtn.addEventListener("click", () => {
   showModal(
     "Exit Test?",
-    "Not an issue if you don't have time now! Take the test later for full benefit. Hope for the best!",
-    () => showResults()
+    "Do you want to exit now? You can complete the test later.",
+    () => {
+      showResults();
+    }
   );
 });
 
-// =======================
-// CORE FUNCTIONS
-// =======================
-
-function loadQuestion() {
-  if (currentCategory >= categories.length) {
-    showResults();
-    return;
-  }
-
-  const cat = categories[currentCategory];
-  const questionList = reportsData[cat].questions;
-  if (!questionList || questionList.length === 0) {
-    console.warn(`No questions found for ${cat}`);
-    return;
-  }
-
-  if (currentQuestion >= questionList.length) {
-    nextCategory();
-    return;
-  }
-
-  const question = questionList[currentQuestion][selectedLang] || questionList[currentQuestion]["en"];
-  categoryTitle.innerText = reportsData[cat].title;
-  questionText.innerText = question;
-
-  slider.value = 3;
-
-  // Start timer for block if first question
-  if (currentQuestion === 0 && blockStartTime === null) {
-    blockStartTime = new Date().getTime();
-  }
-}
-
-function saveAnswer() {
-  const cat = categories[currentCategory];
-  const value = Number(slider.value);
-  answers.push({ category: cat, questionIndex: currentQuestion, value });
-}
-
-function nextQuestion() {
-  currentQuestion++;
-  const questionList = reportsData[categories[currentCategory]].questions;
-  if (currentQuestion >= questionList.length) {
-    nextCategory();
-  } else {
-    loadQuestion();
-  }
-}
-
-function nextCategory() {
-  currentCategory++;
-  currentQuestion = 0;
-  blockStartTime = null;
-
-  if (currentCategory >= categories.length) {
-    showResults();
-  } else {
-    loadQuestion();
-  }
-}
-
-// =======================
-// RESULTS
-// =======================
-async function showResults() {
-  document.getElementById("app-container").classList.add("hidden");
-  resultsDiv.classList.remove("hidden");
-  resultsDiv.innerHTML = "";
-
-  const now = new Date();
-  let html = `<h2>Self Insight Report for ${userName || "User"}</h2>`;
-
-  if (answers.length === 0) {
-    html += `<p>You did not answer any questions yet. Try taking the test when possible!</p>`;
-  } else {
-    for (let cat of categories) {
-      const catData = reportsData[cat];
-      const catAnswers = answers.filter(a => a.category === cat && !a.skipped);
-      html += `<h3>${catData.title}</h3>`;
-
-      if (catAnswers.length === 0) {
-        html += `<p>You skipped this category. Take it later to gain full insight.</p><hr>`;
-        continue;
-      }
-
-      const avgScore = catAnswers.reduce((sum, a) => sum + a.value, 0) / catAnswers.length;
-      const levelFile = getLevelFileName(avgScore);
-
-      let reportText = "Report not available.";
-      try {
-        reportText = await fetchReport(cat, levelFile);
-      } catch (e) {
-        console.warn(`Could not load report for ${cat} ${levelFile}`);
-      }
-
-      html += `<p><strong>Average Score:</strong> ${avgScore.toFixed(1)}</p>`;
-      html += `<p>${reportText}</p><hr>`;
-    }
-  }
-
-  html += `<div class="result-footer">
-             <p>Completed on: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}</p>
-             <p>Privacy Note: No data is stored; only you can see your answers.</p>
-           </div>`;
-
-  resultsDiv.innerHTML = html;
-}
-
-// =======================
-// HELPER FUNCTIONS
-// =======================
-
-function getLevelFileName(avgScore) {
-  if (avgScore < 1.5) return "level1.md";
-  if (avgScore < 2.5) return "level2.md";
-  if (avgScore < 3.5) return "level3.md";
-  if (avgScore < 4.5) return "level4.md";
-  if (avgScore < 5.5) return "level5.md";
-  return "level6.md";
-}
-
-async function fetchReport(category, levelFile) {
-  try {
-    const response = await fetch(`Reports/${category}/${levelFile}`);
-    if (!response.ok) throw new Error("Report not found");
-    const text = await response.text();
-    return text.replace(/\n/g, "<br>");
-  } catch (err) {
-    console.error(err);
-    return "Report not available.";
-  }
-}
-
-// =======================
-// MODAL
-// =======================
+// ==========================
+// Modal Functions
+// ==========================
 function showModal(title, message, confirmCallback) {
-  const modal = document.getElementById("confirmModal");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalMessage = document.getElementById("modalMessage");
-  const confirmBtn = document.getElementById("confirmModalBtn");
-  const cancelBtn = document.getElementById("cancelModal");
+  modalTitle.textContent = title;
+  modalMessage.textContent = message;
+  confirmModal.classList.remove("hidden");
 
-  modalTitle.innerText = title;
-  modalMessage.innerText = message;
-  modal.classList.remove("hidden");
-
-  // Remove previous listeners
-  const newConfirmBtn = confirmBtn.cloneNode(true);
-  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+  const newConfirmBtn = confirmModalBtn.cloneNode(true);
+  confirmModalBtn.parentNode.replaceChild(newConfirmBtn, confirmModalBtn);
 
   newConfirmBtn.addEventListener("click", () => {
-    modal.classList.add("hidden");
+    confirmModal.classList.add("hidden");
     confirmCallback();
   });
 
-  cancelBtn.addEventListener("click", () => modal.classList.add("hidden"));
+  cancelModal.addEventListener("click", () => {
+    confirmModal.classList.add("hidden");
+  });
 }
 
-// =======================
-// START TEST ON LOAD
-// =======================
-window.onload = () => {
-  loadQuestion();
-};
+// ==========================
+// Show Results
+// ==========================
+async function showResults() {
+  appContainer.classList.add("hidden");
+  resultsDiv.classList.remove("hidden");
+  resultsDiv.innerHTML = `<h2>Hello ${userName}, here are your insights:</h2>`;
+
+  for (const category of categories) {
+    if (skippedCategories[category]) {
+      resultsDiv.innerHTML += `<h3>${category} - Skipped</h3><p>You skipped this category. Consider completing it later.</p>`;
+      continue;
+    }
+
+    // Calculate average score for category
+    const catAnswers = answers.filter((a) => a.category === category);
+    const avgScore = catAnswers.reduce((sum, a) => sum + a.value, 0) / catAnswers.length;
+
+    // Determine level 1-6
+    let level = Math.ceil(avgScore); // 1-6
+    if (level < 1) level = 1;
+    if (level > 6) level = 6;
+
+    // Fetch corresponding .md report
+    try {
+      const res = await fetch(`reports/${category}/level${level}.md`);
+      if (!res.ok) throw new Error("Report not found");
+      const text = await res.text();
+      resultsDiv.innerHTML += `<h3>${category}</h3><p>${text.replace(/\n/g, "<br>")}</p><p><strong>Score:</strong> ${avgScore.toFixed(1)} | <strong>Level:</strong> ${level}</p><hr>`;
+    } catch (err) {
+      resultsDiv.innerHTML += `<h3>${category}</h3><p>Report not available.</p>`;
+    }
+  }
+
+  resultsDiv.innerHTML += `<p>⏱ Time spent per category: ${JSON.stringify(blockTimes)}</p>`;
+}
