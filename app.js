@@ -137,9 +137,21 @@ document.addEventListener("DOMContentLoaded", () => {
   endBtn.addEventListener("click", () => openModal());
 
   confirmExitBtn.addEventListener("click", () => {
-    closeModal();
+  closeModal();
+
+  // Check if all categories and questions are completed
+  const allCategoriesCompleted =
+    currentCategoryIndex >= categories.length - 1 &&
+    currentQuestionIndex >= categories[categories.length - 1].questions.length - 1;
+
+  if (allCategoriesCompleted) {
+    // If user has completed all questions, show results
+    showResults();
+  } else {
+    // Otherwise, show motivational message
     showMotivationalMessage();
-  });
+  }
+});
 
   cancelExitBtn.addEventListener("click", closeModal);
 
