@@ -1,216 +1,233 @@
-// ===============================
+// ==============================
 // Global Variables
-// ===============================
+// ==============================
 let categories = ["emotional", "growth", "overthinking", "resilience"];
-let currentCategoryIndex = 0;
-let currentQuestionIndex = 0;
+let currentCategory = 0;
+let currentQuestion = 0;
+let userName = "";
 let answers = [];
+let blockStartTime = null;
 let selectedLang = "en"; // default language
 
-// ===============================
-// Load Question
-// ===============================
-function loadQuestion() {
-  if (currentCategoryIndex >= categories.length) {
-    showResults();
-    return;
+// ==============================
+// DOM References
+// ==============================
+const introScreen = document.getElementById("intro-screen");
+const startBtn = document.getElementById("start-test-btn");
+const appContainer = document.querySelector(".app-container");
+const questionBox = document.getElementById("question-box");
+const categoryTitle = document.getElementById("category-title");
+const slider = document.getElementById("answer-slider");
+const nextBtn = document.getElementById("next-btn");
+const prevBtn = document.getElementById("prev-btn");
+const skipBtn = document.getElementById("skip-category");
+const endBtn = document.getElementById("end-test");
+const resultSection = document.getElementById("result-section");
+const resultOutput = document.getElementById("result-output");
+const langSelect = document.getElementById("lang-select");
+
+// ==============================
+// Event Listeners
+// ==============================
+
+// Start Test
+startBtn.addEventListener("click", () => {
+  const nameInput = document.getElementById("user-name");
+  if (nameInput && nameInput.value.trim() !== "") {
+    userName = nameInput.value.trim();
+  } else {
+    userName = "Anonymous";
   }
 
-  const category = categories[currentCategoryIndex];
-  const questionList = reportsData[category].questions;
+  introScreen.classList.add("hidden");
+  appContainer.classList.remove("hidden");
+  loadQuestion();
+});
 
-  if (currentQuestionIndex >= questionList.length) {
-    // finished current category, move to next
-    currentCategoryIndex++;
-    currentQuestionIndex = 0;
+// Language change
+langSelect.addEventListener("change", e => {
+  selectedLang = e.target.value;
+  loadQuestion();
+});
+
+// Next Question
+nextBtn.addEventListener("click", () => {
+  saveAnswer();
+  nextQuestion();
+});
+
+// Previous Question
+prevBtn.addEventListener("click", () => {
+  if (currentQuestion > 0) {
+    currentQuestion--;
     loadQuestion();
-    return;
   }
+});
 
-  document.getElementById("category-title").innerText =
-    reportsData[category].title;
-  document.getElementById("question-box").innerText =
-    questionList[currentQuestionIndex][selectedLang];
+// Skip Category
+skipBtn.addEventListener("click", () => {
+  showModal(
+    "Skip This Category?",
+    `Not a problem if you don't have time now for "${categoryTitle.innerText}". Make sure to complete it later for your self-growth.`,
+    () => {
+      answers.push({ category: categories[currentCategory], skipped: true });
+      nextCategory();
+    }
+  );
+});
 
-  document.getElementById("answer-slider").value = 3; // default slider value
+// End Test
+endBtn.addEventListener("click", () => {
+  showModal(
+    "End Test?",
+    "Not a problem if you don’t have time now. Make sure to take the test later to understand yourself better.",
+    () => {
+      showResults();
+    }
+  );
+});
+
+// ==============================
+// Core Functions
+// ==============================
+
+// Load current question
+function loadQuestion() {
+  const cat = categories[currentCategory];
+  const qList = reportsData[cat].questions;
+  if (!qList || qList.length === 0) return;
+
+  const q = qList[currentQuestion][selectedLang];
+  categoryTitle.innerText = reportsData[cat].title;
+  questionBox.innerText = q;
+
+  slider.value = 3; // default middle
 }
 
-// ===============================
-// Skip / End Test Modal
-// ===============================
-function openModal(type) {
-  const modal = document.getElementById("modal");
-  modal.classList.remove("hidden");
-  modal.dataset.action = type; // "skip" or "exit"
+// Save answer
+function saveAnswer() {
+  const cat = categories[currentCategory];
+  const value = Number(slider.value);
+  answers.push({ category: cat, questionIndex: currentQuestion, value });
 }
 
-function closeModal() {
-  const modal = document.getElementById("modal");
-  modal.classList.add("hidden");
-  modal.dataset.action = "";
+// Move to next question or category
+function nextQuestion() {
+  const cat = categories[currentCategory];
+  const qList = reportsData[cat].questions;
+
+  currentQuestion++;
+  if (currentQuestion >= qList.length) {
+    nextCategory();
+  } else {
+    loadQuestion();
+  }
 }
 
-// ===============================
-// Show Results
-// ===============================
-function showResults() {
-  document.getElementById("test-section").classList.add("hidden");
-  const resultSection = document.getElementById("result-section");
-  const resultOutput = document.getElementById("result-output");
+// Move to next category
+function nextCategory() {
+  currentCategory++;
+  currentQuestion = 0;
+
+  if (currentCategory >= categories.length) {
+    showResults();
+  } else {
+    loadQuestion();
+  }
+}
+
+// Map average score to level1–level6
+function getLevelFileName(score) {
+  let rounded = Math.round(score);
+  if (rounded < 1) rounded = 1;
+  if (rounded > 6) rounded = 6;
+  return `level${rounded}.md`;
+}
+
+// Fetch markdown report
+async function fetchReport(category, levelFile) {
+  try {
+    const response = await fetch(`Reports/${category}/${levelFile}`);
+    if (!response.ok) throw new Error("Report not found");
+    const text = await response.text();
+    return text.replace(/\n/g, "<br>");
+  } catch (err) {
+    console.error(err);
+    return "Report not available.";
+  }
+}
+
+// Show final results
+async function showResults() {
+  appContainer.classList.add("hidden");
   resultSection.classList.remove("hidden");
 
   if (answers.length === 0) {
-    showMotivationalResultMessage();
+    resultOutput.innerHTML = `
+      <p>You did not answer any questions yet. Whenever possible, take the test to understand yourself better!</p>
+    `;
     return;
   }
 
-  let html = "<h2>Your Complete Personality Insight Report</h2>";
+  let html = `<h2>${userName}'s Personality Insight Report</h2>`;
 
-  categories.forEach((category) => {
-    const categoryAnswers = answers.filter(
-      (a) => a.category === category && !a.skipped
-    );
-    if (categoryAnswers.length === 0) {
-      html += `<h3>${reportsData[category].title}</h3><p>You skipped this category.</p><hr>`;
-    } else {
-      const score =
-        categoryAnswers.reduce((sum, q) => sum + Number(q.value), 0) /
-        categoryAnswers.length;
-      const level = getLevelFromScore(score);
-      html += `<h3>${reportsData[category].title}</h3>
-               <p><b>Score:</b> ${score.toFixed(1)}</p>
-               <p><b>Level:</b> ${level}</p>
-               <p>${reportsData[category][level]}</p><hr>`;
+  for (let cat of categories) {
+    const catAnswers = answers.filter(a => a.category === cat && !a.skipped);
+    if (catAnswers.length === 0) {
+      html += `<h3>${reportsData[cat].title}</h3><p>You skipped this category. Try it later for full insight.</p><hr>`;
+      continue;
     }
-  });
+
+    const avgScore = catAnswers.reduce((sum, a) => sum + a.value, 0) / catAnswers.length;
+    const levelFile = getLevelFileName(avgScore);
+    const reportText = await fetchReport(cat, levelFile);
+
+    html += `<div class="category-report">
+               <h3>${reportsData[cat].title}</h3>
+               <p><strong>Average Score:</strong> ${avgScore.toFixed(1)}</p>
+               <p>${reportText}</p>
+             </div><hr>`;
+  }
 
   const now = new Date();
   html += `<div class="result-footer">
              <p>Completed on: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}</p>
-             <p>Privacy Note: Your data is not stored; only you can see your answers.</p>
+             <p>Privacy Note: No data is stored; only you can see your answers.</p>
            </div>`;
 
   resultOutput.innerHTML = html;
 }
 
-// ===============================
-// Motivational Message for Partial Test
-// ===============================
-function showMotivationalResultMessage(reason = "incomplete") {
-  document.getElementById("test-section").classList.add("hidden");
-  const resultSection = document.getElementById("result-section");
-  const resultOutput = document.getElementById("result-output");
-  resultSection.classList.remove("hidden");
+// ==============================
+// Custom Modal
+// ==============================
+function showModal(title, message, confirmCallback) {
+  const modal = document.getElementById("modal");
+  modal.querySelector("h3").innerText = title;
+  modal.querySelector("p").innerText = message;
 
-  let message = `
-    <div class="motivational-box">
-      <h2>✨ Take Your Time ✨</h2>
-      <p>
-        You chose to ${
-          reason === "skipped" ? "skip a category" : "end the test early"
-        } — and that’s totally fine!  
-      </p>
-      <p>
-        When you’re free, take this test in full focus. It helps you <b>understand yourself better</b>.
-      </p>
-      <p>
-        Instead of scrolling endless reels, invest a few minutes in self-discovery 🌱
-      </p>
-      <p><b>Wishing you calm and clarity ✨</b></p>
-    </div>
-  `;
+  modal.classList.remove("hidden");
 
-  resultOutput.innerHTML = message;
+  const confirmBtn = document.getElementById("confirm-exit");
+  const cancelBtn = document.getElementById("cancel-exit");
+
+  // Remove previous listeners
+  const newConfirm = confirmBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+
+  newConfirm.addEventListener("click", () => {
+    modal.classList.add("hidden");
+    confirmCallback();
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    modal.classList.add("hidden");
+  });
 }
 
-// ===============================
-// Helper: Convert score to level
-// ===============================
-function getLevelFromScore(score) {
-  if (score <= 1.5) return "Very Low";
-  if (score <= 2.5) return "Low";
-  if (score <= 3.5) return "Medium";
-  if (score <= 4.5) return "High";
-  return "Very High";
-}
-
-// ===============================
-// DOMContentLoaded -> attach all listeners
-// ===============================
-document.addEventListener("DOMContentLoaded", () => {
-  // Start Test button
-  document
-    .getElementById("start-test-btn")
-    .addEventListener("click", () => {
-      document.getElementById("intro-screen").classList.add("hidden");
-      document.querySelector(".app-container").classList.remove("hidden");
-      loadQuestion();
-    });
-
-  // Next Button
-  document.getElementById("next-btn").addEventListener("click", () => {
-    const slider = document.getElementById("answer-slider");
-    const category = categories[currentCategoryIndex];
-
-    answers.push({
-      category,
-      questionIndex: currentQuestionIndex,
-      value: slider.value,
-    });
-
-    currentQuestionIndex++;
-    loadQuestion();
-  });
-
-  // Skip Category
-  document.getElementById("skip-category").addEventListener("click", () => {
-    openModal("skip");
-  });
-
-  // End Test
-  document.getElementById("end-test").addEventListener("click", () => {
-    openModal("exit");
-  });
-
-  // Modal confirm
-  document.getElementById("confirm-exit").addEventListener("click", () => {
-    const modal = document.getElementById("modal");
-    const action = modal.dataset.action;
-    closeModal();
-
-    if (action === "skip") {
-      answers.push({
-        category: categories[currentCategoryIndex],
-        skipped: true,
-      });
-      currentCategoryIndex++;
-      currentQuestionIndex = 0;
-      if (currentCategoryIndex >= categories.length) {
-        showMotivationalResultMessage("skipped");
-        return;
-      }
-      loadQuestion();
-    } else {
-      showMotivationalResultMessage("ended");
-    }
-  });
-
-  // Modal cancel
-  document.getElementById("cancel-exit").addEventListener("click", closeModal);
-
-  // Restart Test
-  document.getElementById("restart-btn").addEventListener("click", () => {
-    answers = [];
-    currentCategoryIndex = 0;
-    currentQuestionIndex = 0;
-    document.getElementById("result-section").classList.add("hidden");
-    document.getElementById("test-section").classList.remove("hidden");
-    loadQuestion();
-  });
-
-  // Language Selector
-  document.getElementById("lang-select").addEventListener("change", (e) => {
-    selectedLang = e.target.value;
-    loadQuestion();
-  });
-});
+// ==============================
+// On page load
+// ==============================
+window.onload = () => {
+  // Optionally, prompt for name or show input field
+};
