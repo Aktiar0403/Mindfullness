@@ -1,13 +1,13 @@
 // ==========================
 // Global Variables
 // ==========================
-const categories = ["emotional", "growth", "overthinking", "resilience"];
+let categories = ["emotional", "growth", "overthinking", "resilience"];
 let currentCategory = 0;
 let currentQuestion = 0;
 let userName = "";
 let answers = []; // {category, questionIndex, value}
 let blockStartTime = null;
-let blockTimes = {}; // seconds spent per category
+let blockTimes = {}; // seconds per category
 let skippedCategories = {};
 let selectedLang = "en";
 
@@ -69,31 +69,25 @@ langSelect.addEventListener("change", (e) => {
 // Load Current Question
 // ==========================
 function loadQuestion() {
-  const category = categories[currentCategory];
-  const questionsFile = `questions/${category}.json`; // optional, or your source
+  const categoryKey = categories[currentCategory];
+  const categoryData = reportsData[categoryKey];
+  const questions = categoryData.questions;
 
-  fetch(questionsFile)
-    .then((res) => res.json())
-    .then((data) => {
-      const questionList = data.questions;
-      const questionObj = questionList[currentQuestion];
-      questionText.innerText = questionObj[selectedLang];
+  if (!questions || questions.length === 0) {
+    questionText.innerText = "No questions available.";
+    return;
+  }
 
-      // Update category title
-      categoryTitle.innerText = data.title;
+  questionText.innerText = questions[currentQuestion][selectedLang];
+  categoryTitle.innerText = categoryData.title;
 
-      // Start timer for block
-      if (currentQuestion === 0 && !blockStartTime) {
-        blockStartTime = Date.now();
-      }
+  // Start timer for category
+  if (currentQuestion === 0 && !blockStartTime) {
+    blockStartTime = Date.now();
+  }
 
-      // Update progress bar
-      progressBar.style.width = `${((currentQuestion + 1) / questionList.length) * 100}%`;
-    })
-    .catch((err) => {
-      console.error("Error loading questions:", err);
-      questionText.innerText = "Error loading question.";
-    });
+  // Update progress
+  progressBar.style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
 }
 
 // ==========================
@@ -113,43 +107,38 @@ function saveAnswer() {
   });
 }
 
-// Move to next question or category
 function moveNext() {
-  const category = categories[currentCategory];
-  const questionsFile = `questions/${category}.json`;
+  const categoryKey = categories[currentCategory];
+  const questions = reportsData[categoryKey].questions;
 
-  fetch(questionsFile)
-    .then((res) => res.json())
-    .then((data) => {
-      const questionList = data.questions;
-      currentQuestion++;
-      if (currentQuestion >= questionList.length) {
-        // End of category
-        const now = Date.now();
-        blockTimes[category] = Math.round((now - blockStartTime) / 1000);
-        blockStartTime = null;
-        currentCategory++;
-        currentQuestion = 0;
+  currentQuestion++;
+  if (currentQuestion >= questions.length) {
+    // End of category
+    const now = Date.now();
+    blockTimes[categoryKey] = Math.round((now - blockStartTime) / 1000);
+    blockStartTime = null;
+    currentCategory++;
+    currentQuestion = 0;
 
-        if (currentCategory >= categories.length) {
-          showResults();
-          return;
-        }
-      }
-      loadQuestion();
-    });
+    if (currentCategory >= categories.length) {
+      showResults();
+      return;
+    }
+  }
+
+  loadQuestion();
 }
 
 // ==========================
 // Skip Category
 // ==========================
 skipBtn.addEventListener("click", () => {
-  const category = categories[currentCategory];
+  const categoryKey = categories[currentCategory];
   showModal(
     "Skip Category?",
-    `You are about to skip "${category}". You can complete it later.`,
+    `You are about to skip "${reportsData[categoryKey].title}".`,
     () => {
-      skippedCategories[category] = true;
+      skippedCategories[categoryKey] = true;
       currentCategory++;
       currentQuestion = 0;
       blockStartTime = null;
@@ -169,7 +158,7 @@ skipBtn.addEventListener("click", () => {
 exitBtn.addEventListener("click", () => {
   showModal(
     "Exit Test?",
-    "Do you want to exit now? You can complete the test later.",
+    "Do you want to end the test now? You can see your results so far.",
     () => {
       showResults();
     }
@@ -205,31 +194,47 @@ async function showResults() {
   resultsDiv.classList.remove("hidden");
   resultsDiv.innerHTML = `<h2>Hello ${userName}, here are your insights:</h2>`;
 
-  for (const category of categories) {
-    if (skippedCategories[category]) {
-      resultsDiv.innerHTML += `<h3>${category} - Skipped</h3><p>You skipped this category. Consider completing it later.</p>`;
+  for (const categoryKey of categories) {
+    const categoryData = reportsData[categoryKey];
+
+    if (skippedCategories[categoryKey]) {
+      resultsDiv.innerHTML += `<h3>${categoryData.title} - Skipped</h3>
+      <p>You skipped this category. Consider completing it later.</p><hr>`;
       continue;
     }
 
-    // Calculate average score for category
-    const catAnswers = answers.filter((a) => a.category === category);
+    // Average score
+    const catAnswers = answers.filter(a => a.category === categoryKey);
     const avgScore = catAnswers.reduce((sum, a) => sum + a.value, 0) / catAnswers.length;
 
-    // Determine level 1-6
-    let level = Math.ceil(avgScore); // 1-6
+    // Level 1-6
+    let level = Math.ceil(avgScore);
     if (level < 1) level = 1;
     if (level > 6) level = 6;
 
-    // Fetch corresponding .md report
+    // Load corresponding .md report
     try {
-      const res = await fetch(`reports/${category}/level${level}.md`);
-      if (!res.ok) throw new Error("Report not found");
-      const text = await res.text();
-      resultsDiv.innerHTML += `<h3>${category}</h3><p>${text.replace(/\n/g, "<br>")}</p><p><strong>Score:</strong> ${avgScore.toFixed(1)} | <strong>Level:</strong> ${level}</p><hr>`;
+      const res = await fetch(`reports/${categoryKey}/level${level}.md`);
+      let text = "";
+      if (res.ok) text = await res.text();
+      else text = categoryData.reports[`level${level}`] || "Report not available.";
+
+      resultsDiv.innerHTML += `<h3>${categoryData.title}</h3>
+      <p>${text.replace(/\n/g, "<br>")}</p>
+      <p><strong>Score:</strong> ${avgScore.toFixed(1)} | <strong>Level:</strong> ${level}</p><hr>`;
     } catch (err) {
-      resultsDiv.innerHTML += `<h3>${category}</h3><p>Report not available.</p>`;
+      resultsDiv.innerHTML += `<h3>${categoryData.title}</h3><p>Report not available.</p><hr>`;
     }
   }
 
   resultsDiv.innerHTML += `<p>⏱ Time spent per category: ${JSON.stringify(blockTimes)}</p>`;
+}
+
+// ==========================
+// Initialize first category
+// ==========================
+function startCategory() {
+  currentCategory = 0;
+  currentQuestion = 0;
+  loadQuestion();
 }
