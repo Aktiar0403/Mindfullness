@@ -87,6 +87,32 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!answers[currentCategory]) answers[currentCategory] = [];
     answers[currentCategory][currentQuestionIndex] = parseInt(slider.value);
   }
+function showMotivationalResultMessage(reason = "incomplete") {
+  document.getElementById("test-section").classList.add("hidden");
+  const resultSection = document.getElementById("result-section");
+  const resultOutput = document.getElementById("result-output");
+  resultSection.classList.remove("hidden");
+
+  let message = `
+    <div class="motivational-box">
+      <h2>✨ Take Your Time ✨</h2>
+      <p>
+        You chose to ${reason === "skipped" ? "skip a category" : "end the test early"}.
+        That’s perfectly fine — maybe you didn’t have time right now.
+      </p>
+      <p>
+        When you’re free, come back and complete the test in peace and focus.
+        It’s designed to help you <b>understand yourself better</b> — not to judge you.
+      </p>
+      <p>
+        Of course, from scrolling endless reels to growing self-awareness… we wish you choose the better path 🌿
+      </p>
+      <p><b>— Wishing you calm and clarity 💫</b></p>
+    </div>
+  `;
+
+  resultOutput.innerHTML = message;
+}
 
   function showResults() {
     testSection.classList.add("hidden");
@@ -124,36 +150,79 @@ document.addEventListener("DOMContentLoaded", () => {
     loadQuestion();
   });
 
-  // --- Modal Logic ---
-  function openModal() {
-    modal.classList.remove("hidden");
-  }
+// ===============================
+// MODAL & EXIT / SKIP HANDLING
+// ===============================
 
-  function closeModal() {
-    modal.classList.add("hidden");
-  }
+// Open modal with action type (skip or exit)
+function openModal(type) {
+  const modal = document.getElementById("modal");
+  modal.classList.remove("hidden");
+  modal.dataset.action = type; // "skip" or "exit"
+}
 
-  skipBtn.addEventListener("click", () => openModal());
-  endBtn.addEventListener("click", () => openModal());
+// Close modal
+function closeModal() {
+  const modal = document.getElementById("modal");
+  modal.classList.add("hidden");
+  modal.dataset.action = "";
+}
 
-  confirmExitBtn.addEventListener("click", () => {
+// Motivational message shown when skipped or exited early
+function showMotivationalResultMessage(reason = "incomplete") {
+  document.getElementById("test-section").classList.add("hidden");
+  const resultSection = document.getElementById("result-section");
+  const resultOutput = document.getElementById("result-output");
+  resultSection.classList.remove("hidden");
+
+  let message = `
+    <div class="motivational-box">
+      <h2>✨ Take Your Time ✨</h2>
+      <p>
+        You chose to ${
+          reason === "skipped" ? "skip a category" : "end the test early"
+        } — and that’s totally fine!  
+      </p>
+      <p>
+        Maybe you didn’t have time right now. When you’re free, take this test with focus.  
+        It helps you <b>understand yourself better</b> — not to judge you.
+      </p>
+      <p>
+        From scrolling endless reels to exploring your own mind — we wish you choose the better path 🌱
+      </p>
+      <p><b>✨ Wishing you calm and clarity ahead 💫</b></p>
+    </div>
+  `;
+
+  resultOutput.innerHTML = message;
+}
+
+// Confirm Exit / Skip
+document.getElementById("confirm-exit").addEventListener("click", () => {
+  const modal = document.getElementById("modal");
+  const action = modal.dataset.action;
   closeModal();
 
-  // Check if all categories and questions are completed
-  const allCategoriesCompleted =
-    currentCategoryIndex >= categories.length - 1 &&
-    currentQuestionIndex >= categories[categories.length - 1].questions.length - 1;
-
-  if (allCategoriesCompleted) {
-    // If user has completed all questions, show results
-    showResults();
+  if (action === "skip") {
+    showMotivationalResultMessage("skipped");
   } else {
-    // Otherwise, show motivational message
-    showMotivationalMessage();
+    // Check if all categories and questions are completed
+    const allCategoriesCompleted =
+      currentCategoryIndex >= categories.length - 1 &&
+      currentQuestionIndex >=
+        categories[categories.length - 1].questions.length - 1;
+
+    if (allCategoriesCompleted) {
+      showResults(); // full test done
+    } else {
+      showMotivationalResultMessage("ended"); // exited early
+    }
   }
 });
 
-  cancelExitBtn.addEventListener("click", closeModal);
+// Cancel exit
+document.getElementById("cancel-exit").addEventListener("click", closeModal);
+
 
   function showMotivationalMessage() {
     testSection.classList.add("hidden");
