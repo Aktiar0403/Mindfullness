@@ -3,46 +3,34 @@
 // ==============================
 window.addEventListener("DOMContentLoaded", () => {
 
-  // ==============================
   // Global Variables
-  // ==============================
-  let categories = ["emotional", "growth", "overthinking", "resilience"];
+  const categories = ["emotional", "growth", "overthinking", "resilience"];
   let currentCategory = 0;
   let currentQuestion = 0;
-  let userName = "";
   let answers = [];
-  let selectedLang = "en"; // default language
+  let selectedLang = "en";
+  let userName = "";
 
-  // ==============================
   // DOM References
-  // ==============================
-  const introScreen = document.getElementById("intro-screen");
-  const startBtn = document.getElementById("start-test-btn");
-  const appContainer = document.querySelector(".app-container");
-  const questionBox = document.getElementById("question-box");
+  const questionBox = document.getElementById("question-text");
   const categoryTitle = document.getElementById("category-title");
-  const slider = document.getElementById("answer-slider");
+  const slider = document.getElementById("response-slider");
   const nextBtn = document.getElementById("next-btn");
-  const prevBtn = document.getElementById("prev-btn");
-  const skipBtn = document.getElementById("skip-category");
-  const endBtn = document.getElementById("end-test");
-  const resultSection = document.getElementById("result-section");
-  const resultOutput = document.getElementById("result-output");
+  const skipBtn = document.getElementById("skip-btn");
+  const exitBtn = document.getElementById("exit-btn");
+  const resultsDiv = document.getElementById("results");
   const langSelect = document.getElementById("lang-select");
+
+  // Modal Elements
+  const modal = document.getElementById("confirmModal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalMessage = document.getElementById("modalMessage");
+  const confirmBtn = document.getElementById("confirmModalBtn");
+  const cancelBtn = document.getElementById("cancelModal");
 
   // ==============================
   // Event Listeners
   // ==============================
-
-  // Start Test
-  startBtn.addEventListener("click", () => {
-    const nameInput = document.getElementById("user-name");
-    userName = nameInput ? nameInput.value.trim() || "Anonymous" : "Anonymous";
-
-    introScreen.classList.add("hidden");
-    appContainer.classList.remove("hidden");
-    loadQuestion();
-  });
 
   // Language change
   langSelect.addEventListener("change", e => {
@@ -50,21 +38,13 @@ window.addEventListener("DOMContentLoaded", () => {
     loadQuestion();
   });
 
-  // Next Question
+  // Next question
   nextBtn.addEventListener("click", () => {
     saveAnswer();
     nextQuestion();
   });
 
-  // Previous Question
-  prevBtn.addEventListener("click", () => {
-    if (currentQuestion > 0) {
-      currentQuestion--;
-      loadQuestion();
-    }
-  });
-
-  // Skip Category
+  // Skip category
   skipBtn.addEventListener("click", () => {
     showModal(
       "Skip This Category?",
@@ -76,8 +56,8 @@ window.addEventListener("DOMContentLoaded", () => {
     );
   });
 
-  // End Test
-  endBtn.addEventListener("click", () => {
+  // End test
+  exitBtn.addEventListener("click", () => {
     showModal(
       "End Test?",
       "Not a problem if you don’t have time now. Make sure to take the test later to understand yourself better.",
@@ -91,8 +71,9 @@ window.addEventListener("DOMContentLoaded", () => {
   // Core Functions
   // ==============================
 
-  // Load current question
   function loadQuestion() {
+    if (!reportsData) return;
+
     const cat = categories[currentCategory];
     const qList = reportsData[cat].questions;
     if (!qList || qList.length === 0) return;
@@ -101,17 +82,15 @@ window.addEventListener("DOMContentLoaded", () => {
     categoryTitle.innerText = reportsData[cat].title;
     questionBox.innerText = q;
 
-    slider.value = 3; // default middle
+    slider.value = 3; // default
   }
 
-  // Save answer
   function saveAnswer() {
     const cat = categories[currentCategory];
     const value = Number(slider.value);
     answers.push({ category: cat, questionIndex: currentQuestion, value });
   }
 
-  // Move to next question or category
   function nextQuestion() {
     const cat = categories[currentCategory];
     const qList = reportsData[cat].questions;
@@ -124,7 +103,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Move to next category
   function nextCategory() {
     currentCategory++;
     currentQuestion = 0;
@@ -136,7 +114,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Map average score to level1–level6
   function getLevelFileName(score) {
     let rounded = Math.round(score);
     if (rounded < 1) rounded = 1;
@@ -144,7 +121,6 @@ window.addEventListener("DOMContentLoaded", () => {
     return `level${rounded}.md`;
   }
 
-  // Fetch markdown report
   async function fetchReport(category, levelFile) {
     try {
       const response = await fetch(`Reports/${category}/${levelFile}`);
@@ -157,20 +133,16 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Show final results
   async function showResults() {
-    appContainer.classList.add("hidden");
-    resultSection.classList.remove("hidden");
+    document.getElementById("app-container").classList.add("hidden");
+    resultsDiv.classList.remove("hidden");
 
     if (answers.length === 0) {
-      resultOutput.innerHTML = `
-        <p>You did not answer any questions yet. Whenever possible, take the test to understand yourself better!</p>
-      `;
+      resultsDiv.innerHTML = `<p>You did not answer any questions yet. Try taking the test when possible!</p>`;
       return;
     }
 
-    let html = `<h2>${userName}'s Personality Insight Report</h2>`;
-
+    let html = `<h2>Your Insight Report</h2>`;
     for (let cat of categories) {
       const catAnswers = answers.filter(a => a.category === cat && !a.skipped);
       if (catAnswers.length === 0) {
@@ -195,35 +167,27 @@ window.addEventListener("DOMContentLoaded", () => {
                <p>Privacy Note: No data is stored; only you can see your answers.</p>
              </div>`;
 
-    resultOutput.innerHTML = html;
+    resultsDiv.innerHTML = html;
   }
 
-  // ==============================
-  // Custom Modal
-  // ==============================
   function showModal(title, message, confirmCallback) {
-    const modal = document.getElementById("modal");
-    modal.querySelector("h3").innerText = title;
-    modal.querySelector("p").innerText = message;
-
+    modalTitle.innerText = title;
+    modalMessage.innerText = message;
     modal.classList.remove("hidden");
 
-    let confirmBtn = document.getElementById("confirm-exit");
-    let cancelBtn = document.getElementById("cancel-exit");
+    // Remove old listeners
+    const newConfirm = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
 
-    // Remove previous listeners
-    confirmBtn.replaceWith(confirmBtn.cloneNode(true));
-    cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+    const newCancel = cancelBtn.cloneNode(true);
+    cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
 
-    confirmBtn = document.getElementById("confirm-exit");
-    cancelBtn = document.getElementById("cancel-exit");
-
-    confirmBtn.addEventListener("click", () => {
+    newConfirm.addEventListener("click", () => {
       modal.classList.add("hidden");
       confirmCallback();
     });
 
-    cancelBtn.addEventListener("click", () => {
+    newCancel.addEventListener("click", () => {
       modal.classList.add("hidden");
     });
   }
