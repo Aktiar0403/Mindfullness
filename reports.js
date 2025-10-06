@@ -18,14 +18,7 @@ const reportsData = {
       { en: "I notice subtle emotional cues in others.", hi: "मैं दूसरों में सूक्ष्म भावनात्मक संकेत देखता हूँ।", bn: "আমি অন্যদের সূক্ষ্ম আবেগীয় সংকেত লক্ষ্য করি।" },
       { en: "I regulate my emotional state daily.", hi: "मैं अपनी भावनाओं की स्थिति रोज़ नियंत्रित करता हूँ।", bn: "আমি প্রতিদিন আমার আবেগীয় অবস্থা নিয়ন্ত্রণ করি।" }
     ],
-    reports: {
-      level1: "Your Emotional Intelligence is very low. You may struggle to understand and manage your emotions, which could affect relationships and stress handling.",
-      level2: "Your EI is below average. You sometimes find it difficult to recognize emotions or respond to social cues.",
-      level3: "Your EI is average. You can handle emotions in normal situations but may face challenges under stress or in complex social scenarios.",
-      level4: "Your EI is above average. You recognize and manage emotions well and usually empathize with others.",
-      level5: "Your EI is high. You consistently understand and manage emotions effectively, showing empathy and resilience.",
-      level6: "Your EI is exceptional. You have remarkable emotional awareness, regulation, and empathy, and serve as a model in personal and professional life."
-    }
+    
   },
 
   growth: {
@@ -47,14 +40,7 @@ const reportsData = {
       { en: "I celebrate progress, not just results.", hi: "मैं केवल परिणाम नहीं, बल्कि प्रगति का भी जश्न मनाता हूँ।", bn: "আমি কেবল ফলাফল নয়, প্রগতি উদযাপন করি।" },
       { en: "I am open to constructive criticism.", hi: "मैं रचनात्मक आलोचना के लिए खुला हूँ।", bn: "আমি গঠনমূলক সমালোচনার জন্য খোলা।" }
     ],
-    reports: {
-      level1: "You have a very low growth mindset. You may avoid challenges and fear failure, limiting personal growth.",
-      level2: "Your growth mindset is below average. You sometimes resist change or feedback.",
-      level3: "Your growth mindset is average. You engage in learning occasionally but may give up under pressure.",
-      level4: "Your growth mindset is above average. You embrace learning and challenges regularly.",
-      level5: "You have a high growth mindset. You actively seek learning, embrace challenges, and see setbacks as opportunities.",
-      level6: "You have an exceptional growth mindset. You consistently pursue growth, innovate, and excel through continuous learning."
-    }
+    
   },
 
   overthinking: {
@@ -76,14 +62,7 @@ const reportsData = {
       { en: "I feel anxious about small uncertainties.", hi: "मैं छोटी अनिश्चितताओं के बारे में चिंतित महसूस करता हूँ।", bn: "আমি ছোট অনিশ্চয়তা নিয়ে উদ্বিগ্ন বোধ করি।" },
       { en: "I plan excessively before taking action.", hi: "मैं कार्रवाई करने से पहले अत्यधिक योजना बनाता हूँ।", bn: "আমি কাজ শুরু করার আগে অতিরিক্ত পরিকল্পনা করি।" }
     ],
-    reports: {
-      level1: "You rarely overthink. Your mind is calm, and you make decisions confidently.",
-      level2: "You occasionally overthink, but it doesn’t significantly affect your decisions or well-being.",
-      level3: "You sometimes overthink, leading to stress and delayed decisions.",
-      level4: "You overthink regularly, which can cause anxiety and indecision.",
-      level5: "You overthink excessively, impacting productivity and mental health. Professional guidance recommended.",
-      level6: "You have a severe overthinking pattern. Intensive strategies including therapy, meditation, and lifestyle adjustments are highly recommended."
-    }
+    
   },
 
   resilience: {
@@ -104,13 +83,6 @@ const reportsData = {
       { en: "I approach problems with a solution-oriented mindset.", hi: "मैं समस्याओं को समाधान-उन्मुख मानसिकता के साथ हल करता हूँ।", bn: "আমি সমস্যা সমাধানমুখী মনোভাব নিয়ে মোকাবিলা করি।" },
       { en: "I maintain confidence even after failures.", hi: "मैं असफलताओं के बाद भी आत्मविश्वास बनाए रखता हूँ।", bn: "আমি ব্যর্থতার পরও আত্মবিশ্বাস বজায় রাখি।" }
     ],
-    reports: {
-      level1: "You have very low resilience. You may struggle to recover from setbacks and handle stress effectively.",
-      level2: "Your resilience is below average. You sometimes find it hard to cope with challenges.",
-      level3: "Your resilience is average. You recover from setbacks moderately well but can improve your coping strategies.",
-      level4: "Your resilience is above average. You manage stress effectively and bounce back from difficulties reliably.",
-      level5: "You have high resilience. You maintain emotional stability, overcome obstacles, and stay focused on goals even under pressure.",
-      level6: "Your resilience is exceptional. You thrive in adversity, recover swiftly from setbacks, and inspire others through your consistent strength and adaptability."
-    }
+    
   }
 };
