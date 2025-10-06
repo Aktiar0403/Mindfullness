@@ -7,19 +7,18 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- =========================
-     WELCOME / INTRO SCREEN
-========================= -->
-<div id="intro-screen" class="intro-screen">
-  <div class="intro-content">
-    <h1>Welcome 🌸</h1>
-    <p>Take a deep breath…</p>
-    <p>This test is designed to help you understand yourself better — your emotions, growth, and resilience.</p>
-    <button id="start-test-btn" class="btn primary">Start the Test</button>
+  <!-- INTRO SCREEN -->
+  <div id="intro-screen" class="intro-screen">
+    <div class="intro-content">
+      <h1>Welcome 🌸</h1>
+      <p>Take a deep breath…</p>
+      <p>This test is designed to help you understand yourself better — your emotions, growth, and resilience.</p>
+      <button id="start-test-btn" class="btn primary">Start the Test</button>
+    </div>
   </div>
-</div>
 
-  <div class="app-container" class="app-container hidden">
+  <!-- MAIN APP (hidden until start) -->
+  <div id="app-container" class="app-container hidden">
 
     <!-- Header -->
     <header>
@@ -30,56 +29,94 @@
       </p>
     </header>
 
-    <!-- Question Area -->
-    <section id="test-section">
-      <div id="category-title" class="category-title"></div>
-      <div id="question-box" class="question-box"></div>
-      <div class="slider-container">
-        <input type="range" id="answer-slider" min="1" max="6" step="1" value="3" />
-        <div class="slider-labels">
-          <span>Never</span>
-          <span>Rarely</span>
-          <span>Sometimes</span>
-          <span>Often</span>
-          <span>Mostly</span>
-          <span>Always</span>
-        </div>
-      </div>
+    <!-- Name + Language -->
+    <div class="input-row">
+      <label for="user-name">Your name:</label>
+      <input id="user-name" type="text" placeholder="Type your name" />
+      <label for="lang-select">Language:</label>
+      <select id="lang-select">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+        <option value="bn">বাংলা</option>
+      </select>
+    </div>
 
-      <div class="button-group">
-        <button id="prev-btn" class="btn secondary">⬅️ Previous</button>
-        <button id="next-btn" class="btn primary">Next ➡️</button>
-      </div>
+    <!-- Category Title -->
+    <h2 id="category-title" class="category-title"></h2>
 
-      <div class="action-group">
-        <button id="skip-category" class="btn warning">⏭️ Skip Category</button>
-        <button id="end-test" class="btn danger">❌ End Test</button>
-      </div>
-    </section>
+    <!-- Question -->
+    <div id="question-box" class="question-box">
+      <p id="question-text">Loading question...</p>
+    </div>
 
-    <!-- Results -->
-    <section id="result-section" class="hidden">
-      <h2>Your Personalized Insight Report</h2>
-      <div id="result-output"></div>
-      <button id="restart-btn" class="btn primary">🔁 Restart Test</button>
-    </section>
+    <!-- Slider -->
+    <div class="slider-container">
+      <label for="response-slider" class="slider-label">Your Response</label>
+      <input id="response-slider" type="range" min="1" max="6" step="1" value="3" />
+      <div class="slider-labels">
+        <span>Never</span>
+        <span>Rarely</span>
+        <span>Sometimes</span>
+        <span>Often</span>
+        <span>Mostly</span>
+        <span>Always</span>
+      </div>
+      <p class="slider-note">⚠️ Think carefully — this helps you understand and improve. No data is stored.</p>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-container">
+      <div id="progress-bar" class="progress-bar" style="width:0%"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button id="skip-btn" class="btn warning">⏭️ Skip Category</button>
+      <button id="exit-btn" class="btn danger">❌ End Test</button>
+      <button id="next-btn" class="btn primary">Next ➡️</button>
+    </div>
+
+    <!-- Results (populated by app.js) -->
+    <div id="results" class="results hidden"></div>
+
   </div>
 
-  <!-- Modal for confirmation -->
-  <div id="modal" class="modal hidden">
+  <!-- Confirmation Modal (IDs must match app.js) -->
+  <div id="confirmModal" class="modal hidden">
     <div class="modal-content">
-      <h3>Take your time ⏳</h3>
-      <p>Not an issue if you don’t have time now.  
-        But make sure to take this test later — it’s for your own growth.  
-        From scrolling endless reels to self-discovery, hope you choose the better path 💫</p>
-      <div class="modal-buttons">
-        <button id="confirm-exit" class="btn danger">Exit Anyway</button>
-        <button id="cancel-exit" class="btn secondary">Cancel</button>
+      <h3 id="modalTitle">Confirm</h3>
+      <p id="modalMessage">Are you sure?</p>
+      <div class="modal-actions">
+        <button id="cancelModal" class="btn secondary">Cancel</button>
+        <button id="confirmModalBtn" class="btn primary">Yes</button>
       </div>
     </div>
   </div>
 
+  <!-- Your reports and app scripts -->
   <script src="reports.js"></script>
   <script src="app.js"></script>
+
+  <!-- Safe: ensure Start button works (runs after app.js loaded) -->
+  <script>
+    (function () {
+      const startBtn = document.getElementById('start-test-btn');
+      const intro = document.getElementById('intro-screen');
+      const app = document.getElementById('app-container');
+      startBtn && startBtn.addEventListener('click', () => {
+        intro.classList.add('fade-out');
+        setTimeout(() => {
+          intro.style.display = 'none';
+          app.classList.remove('hidden');
+          // optional: kick off the first question if app.js expects it
+          if (typeof loadQuestion === 'function') loadQuestion();
+        }, 450);
+      });
+      // optional fade-out style appended if not in CSS
+      const style = document.createElement('style');
+      style.innerHTML = `.fade-out{animation:fadeOut .45s forwards}@keyframes fadeOut{from{opacity:1}to{opacity:0}}`;
+      document.head.appendChild(style);
+    })();
+  </script>
 </body>
 </html>
