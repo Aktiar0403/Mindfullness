@@ -1,120 +1,168 @@
-import questionsData from "./questions.js";
+// ==========================
+// Self Insight Test App
+// ==========================
 
-document.addEventListener("DOMContentLoaded", () => {
-  const categorySelect = document.getElementById("category-select");
-  const langSelect = document.getElementById("lang-select");
-  const questionsContainer = document.getElementById("questions-container");
-  const submitBtn = document.getElementById("submit-btn");
-  const resultsContainer = document.getElementById("results-container");
+import { questionsData } from './questions.js'; // renamed from reports.js
 
-  let currentCategory = "emotional";
-  let currentLang = "en";
+// --- DOM Elements ---
+const introScreen = document.getElementById('intro-screen');
+const appContainer = document.getElementById('app-container');
+const startBtn = document.getElementById('start-test-btn');
 
-  // 🔹 Load questions initially
-  loadQuestions();
+const userNameInput = document.getElementById('user-name');
+const langSelect = document.getElementById('lang-select');
 
-  // 🔹 Event listeners for category/language change
-  categorySelect.addEventListener("change", e => {
-    currentCategory = e.target.value;
-    loadQuestions();
-  });
+const categoryTitle = document.getElementById('category-title');
+const questionText = document.getElementById('question-text');
+const responseSlider = document.getElementById('response-slider');
 
-  langSelect.addEventListener("change", e => {
-    currentLang = e.target.value;
-    loadQuestions();
-  });
+const progressBar = document.getElementById('progress-bar');
 
-  submitBtn.addEventListener("click", handleSubmit);
+const nextBtn = document.getElementById('next-btn');
+const skipBtn = document.getElementById('skip-btn');
+const exitBtn = document.getElementById('exit-btn');
 
-  // --------------------------
-  // 🔹 Load Questions Function
-  // --------------------------
-  function loadQuestions() {
-    const data = questionsData[currentCategory][currentLang];
-    const { categoryTitle, questions } = data;
+const resultsDiv = document.getElementById('results');
 
-    document.getElementById("category-title").textContent = categoryTitle;
-    questionsContainer.innerHTML = "";
+const confirmModal = document.getElementById('confirmModal');
+const cancelModal = document.getElementById('cancelModal');
+const confirmModalBtn = document.getElementById('confirmModalBtn');
+const modalTitle = document.getElementById('modalTitle');
+const modalMessage = document.getElementById('modalMessage');
 
-    questions.forEach((q, i) => {
-      const questionDiv = document.createElement("div");
-      questionDiv.className = "question-item";
-      questionDiv.innerHTML = `
-        <p class="question-text">${i + 1}. ${q}</p>
-        <div class="options">
-          <label><input type="radio" name="q${i}" value="1"> 1</label>
-          <label><input type="radio" name="q${i}" value="2"> 2</label>
-          <label><input type="radio" name="q${i}" value="3"> 3</label>
-          <label><input type="radio" name="q${i}" value="4"> 4</label>
-          <label><input type="radio" name="q${i}" value="5"> 5</label>
-        </div>
-      `;
-      questionsContainer.appendChild(questionDiv);
-    });
+// --- App State ---
+let categories = Object.keys(questionsData); // ['emotional','growth','overthinking','resilience']
+let currentCategoryIndex = 0;
+let currentQuestionIndex = 0;
+let userResponses = {}; // { emotional: [1,4,3...], growth: [2,6,...] }
+let currentLang = 'en';
 
-    resultsContainer.innerHTML = ""; // clear previous results
-  }
+// --- Start Test ---
+startBtn.addEventListener('click', () => {
+  introScreen.style.display = 'none';
+  appContainer.classList.remove('hidden');
+  loadCategory();
+});
 
-  // --------------------------
-  // 🔹 Handle Submit Function
-  // --------------------------
-  async function handleSubmit() {
-    const data = questionsData[currentCategory][currentLang];
-    const { questions } = data;
-    let totalScore = 0;
-    let answered = 0;
+// --- Language Change ---
+langSelect.addEventListener('change', e => {
+  currentLang = e.target.value;
+  loadQuestion();
+});
 
-    for (let i = 0; i < questions.length; i++) {
-      const selected = document.querySelector(`input[name="q${i}"]:checked`);
-      if (selected) {
-        totalScore += parseInt(selected.value);
-        answered++;
-      }
-    }
+// --- Load Category ---
+function loadCategory() {
+  currentQuestionIndex = 0;
+  const catKey = categories[currentCategoryIndex];
+  categoryTitle.textContent = questionsData[catKey].title;
+  userResponses[catKey] = [];
+  loadQuestion();
+  updateProgress();
+}
 
-    if (answered < questions.length) {
-      alert("Please answer all questions before submitting!");
-      return;
-    }
+// --- Load Question ---
+function loadQuestion() {
+  const catKey = categories[currentCategoryIndex];
+  const questionObj = questionsData[catKey].questions[currentQuestionIndex];
+  if (!questionObj) return;
+  questionText.textContent = questionObj[currentLang];
+  responseSlider.value = 3; // default middle
+}
 
-    const avgScore = totalScore / questions.length;
-    const level = determineLevel(avgScore);
+// --- Update Progress Bar ---
+function updateProgress() {
+  const catKey = categories[currentCategoryIndex];
+  const totalQ = questionsData[catKey].questions.length;
+  const progressPercent = ((currentQuestionIndex) / totalQ) * 100;
+  progressBar.style.width = `${progressPercent}%`;
+}
 
-    displayResults(level, avgScore);
-  }
-
-  // --------------------------
-  // 🔹 Determine Level (1–6)
-  // --------------------------
-  function determineLevel(score) {
-    if (score <= 1.5) return 1;
-    if (score <= 2.5) return 2;
-    if (score <= 3.5) return 3;
-    if (score <= 4.0) return 4;
-    if (score <= 4.5) return 5;
-    return 6;
-  }
-
-  // --------------------------
-  // 🔹 Display Final Result
-  // --------------------------
-  async function displayResults(level, avgScore) {
-    const reportPath = `reports/${currentCategory}/level${level}.md`;
-
-    try {
-      const response = await fetch(reportPath);
-      if (!response.ok) throw new Error("Report not found");
-      const markdown = await response.text();
-
-      resultsContainer.innerHTML = `
-        <h2>Final Results</h2>
-        <p><strong>Category:</strong> ${questionsData[currentCategory][currentLang].categoryTitle}</p>
-        <p><strong>Average Score:</strong> ${avgScore.toFixed(2)}</p>
-        <p><strong>Level:</strong> ${level}</p>
-        <div class="report-content">${marked.parse(markdown)}</div>
-      `;
-    } catch (err) {
-      resultsContainer.innerHTML = `<p style="color:red;">Error loading report: ${err.message}</p>`;
+// --- Next Question ---
+nextBtn.addEventListener('click', () => {
+  saveResponse();
+  const catKey = categories[currentCategoryIndex];
+  if (currentQuestionIndex < questionsData[catKey].questions.length - 1) {
+    currentQuestionIndex++;
+    loadQuestion();
+    updateProgress();
+  } else {
+    // Category finished
+    currentCategoryIndex++;
+    if (currentCategoryIndex < categories.length) {
+      loadCategory();
+    } else {
+      showResults();
     }
   }
 });
+
+// --- Skip Category ---
+skipBtn.addEventListener('click', () => {
+  currentCategoryIndex++;
+  if (currentCategoryIndex < categories.length) {
+    loadCategory();
+  } else {
+    showResults();
+  }
+});
+
+// --- End Test / Exit ---
+exitBtn.addEventListener('click', () => {
+  showModal('Exit Test', 'Are you sure you want to end the test? Your current answers will be saved and results calculated.', () => {
+    showResults();
+    closeModal();
+  });
+});
+
+// --- Save Response ---
+function saveResponse() {
+  const catKey = categories[currentCategoryIndex];
+  userResponses[catKey].push(Number(responseSlider.value));
+}
+
+// --- Show Modal ---
+function showModal(title, message, confirmCallback) {
+  modalTitle.textContent = title;
+  modalMessage.textContent = message;
+  confirmModal.classList.remove('hidden');
+  confirmModalBtn.onclick = confirmCallback;
+}
+cancelModal.addEventListener('click', closeModal);
+function closeModal() {
+  confirmModal.classList.add('hidden');
+}
+
+// --- Show Results ---
+async function showResults() {
+  appContainer.style.display = 'none';
+  resultsDiv.classList.remove('hidden');
+  resultsDiv.innerHTML = `<h2>Hi ${userNameInput.value || ''}, Your Insight Report</h2>`;
+  
+  for (const catKey of categories) {
+    const scores = userResponses[catKey] || [];
+    const avgScore = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
+    const level = Math.min(Math.max(avgScore,1),6); // clamp 1-6
+    
+    // Fetch report .md file
+    const mdPath = `reports/${catKey}/level${level}.md`;
+    let reportContent = `No report found for ${catKey} level ${level}`;
+    try {
+      const res = await fetch(mdPath);
+      if (res.ok) {
+        reportContent = await res.text();
+      }
+    } catch(err) {
+      console.error(err);
+    }
+
+    resultsDiv.innerHTML += `
+      <div class="category-result">
+        <h3>${questionsData[catKey].title} (Level ${level})</h3>
+        <pre>${reportContent}</pre>
+      </div>
+    `;
+  }
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
