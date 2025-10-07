@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
   <!-- INTRO SCREEN -->
   <div id="intro-screen" class="intro-screen">
     <div class="intro-content">
@@ -17,15 +18,14 @@
     </div>
   </div>
 
-  <!-- MAIN APP (hidden until start) -->
+  <!-- MAIN APP -->
   <div id="app-container" class="app-container hidden">
 
     <!-- Header -->
     <header>
       <h1>🧠 Self Insight & Growth Test</h1>
       <p class="privacy-note">
-        ⚠️ Think calmly before you answer. This test helps you know yourself better.  
-        No data is stored — only <b>you</b> can see your result.
+        ⚠️ Think calmly before you answer. No data is stored — only <b>you</b> see your results.
       </p>
     </header>
 
@@ -41,7 +41,7 @@
       </select>
     </div>
 
-    <!-- Category Title -->
+    <!-- Category -->
     <h2 id="category-title" class="category-title"></h2>
 
     <!-- Question -->
@@ -49,7 +49,7 @@
       <p id="question-text">Loading question...</p>
     </div>
 
-    <!-- Slider -->
+    <!-- Slider for answer -->
     <div class="slider-container">
       <label for="response-slider" class="slider-label">Your Response</label>
       <input id="response-slider" type="range" min="1" max="6" step="1" value="3" />
@@ -61,7 +61,6 @@
         <span>Mostly</span>
         <span>Always</span>
       </div>
-      <p class="slider-note">⚠️ Think carefully — this helps you understand and improve. No data is stored.</p>
     </div>
 
     <!-- Progress -->
@@ -71,17 +70,18 @@
 
     <!-- Controls -->
     <div class="controls">
+      <button id="prev-btn" class="btn secondary">⬅️ Previous</button>
       <button id="skip-btn" class="btn warning">⏭️ Skip Category</button>
       <button id="exit-btn" class="btn danger">❌ End Test</button>
       <button id="next-btn" class="btn primary">Next ➡️</button>
     </div>
 
-    <!-- Results (populated by app.js) -->
+    <!-- Results -->
     <div id="results" class="results hidden"></div>
 
   </div>
 
-  <!-- Confirmation Modal (IDs must match app.js) -->
+  <!-- Confirmation Modal -->
   <div id="confirmModal" class="modal hidden">
     <div class="modal-content">
       <h3 id="modalTitle">Confirm</h3>
@@ -93,26 +93,25 @@
     </div>
   </div>
 
-  <!-- Your reports and app scripts -->
   <script src="questions.js"></script>
   <script src="app.js"></script>
 
-  <!-- Safe: ensure Start button works (runs after app.js loaded) -->
   <script>
+    // Start button
     (function () {
       const startBtn = document.getElementById('start-test-btn');
       const intro = document.getElementById('intro-screen');
       const app = document.getElementById('app-container');
+
       startBtn && startBtn.addEventListener('click', () => {
         intro.classList.add('fade-out');
         setTimeout(() => {
           intro.style.display = 'none';
           app.classList.remove('hidden');
-          // optional: kick off the first question if app.js expects it
-          if (typeof loadQuestion === 'function') loadQuestion();
+          if (typeof startTest === 'function') startTest();
         }, 450);
       });
-      // optional fade-out style appended if not in CSS
+
       const style = document.createElement('style');
       style.innerHTML = `.fade-out{animation:fadeOut .45s forwards}@keyframes fadeOut{from{opacity:1}to{opacity:0}}`;
       document.head.appendChild(style);
