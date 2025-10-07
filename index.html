@@ -1,122 +1,176 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Self Insight Test</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <!-- INTRO SCREEN -->
-  <div id="intro-screen" class="intro-screen">
-    <div class="intro-content">
-      <h1>Welcome 🌸</h1>
-      <p>Take a deep breath…</p>
-      <p>This test is designed to help you understand yourself better — your emotions, growth, and resilience.</p>
-      <button id="start-test-btn" class="btn primary">Start the Test</button>
-    </div>
-  </div>
+// ------------------------------
+// PSYCHOMETRIC TEST APP.JS
+// ------------------------------
 
-  <!-- MAIN APP (hidden until start) -->
-  <div id="app-container" class="app-container hidden">
+let currentCategoryIndex = 0;
+let currentQuestionIndex = 0;
+let score = {};
+let userAnswers = {};
+let selectedLanguage = "en";
 
-    <!-- Header -->
-    <header>
-      <h1>🧠 Self Insight & Growth Test</h1>
-      <p class="privacy-note">
-        ⚠️ Think calmly before you answer. This test helps you know yourself better.  
-        No data is stored — only <b>you</b> can see your result.
-      </p>
-    </header>
+const startBtn = document.getElementById("startBtn");
+const nextBtn = document.getElementById("nextBtn");
+const skipBtn = document.getElementById("skipBtn");
+const endBtn = document.getElementById("endBtn");
+const confirmExitBtn = document.getElementById("confirmExitBtn");
+const cancelExitBtn = document.getElementById("cancelExitBtn");
+const langSelect = document.getElementById("langSelect");
 
-    <!-- Name + Language -->
-    <div class="input-row">
-      <label for="user-name">Your name:</label>
-      <input id="user-name" type="text" placeholder="Type your name" />
-      <label for="lang-select">Language:</label>
-      <select id="lang-select">
-        <option value="en">English</option>
-        <option value="hi">हिन्दी</option>
-        <option value="bn">বাংলা</option>
-      </select>
-    </div>
+const welcomeScreen = document.getElementById("welcomeScreen");
+const testScreen = document.getElementById("testScreen");
+const resultScreen = document.getElementById("resultScreen");
+const modal = document.getElementById("modalBox");
 
-    <!-- Category Title -->
-    <h2 id="category-title" class="category-title"></h2>
+const questionText = document.getElementById("questionText");
+const categoryTitle = document.getElementById("categoryTitle");
+const resultText = document.getElementById("resultText");
 
-    <!-- Question -->
-    <div id="question-box" class="question-box">
-      <p id="question-text">Loading question...</p>
-    </div>
+// ------------------------------
+// LANGUAGE CHANGE
+// ------------------------------
+langSelect.addEventListener("change", e => {
+  selectedLanguage = e.target.value;
+  loadQuestion();
+});
 
-    <!-- Slider -->
-    <div class="slider-container">
-      <label for="response-slider" class="slider-label">Your Response</label>
-      <input id="response-slider" type="range" min="1" max="6" step="1" value="3" />
-      <div class="slider-labels">
-        <span>Never</span>
-        <span>Rarely</span>
-        <span>Sometimes</span>
-        <span>Often</span>
-        <span>Mostly</span>
-        <span>Always</span>
-      </div>
-      <p class="slider-note">⚠️ Think carefully — this helps you understand and improve. No data is stored.</p>
-    </div>
+// ------------------------------
+// START TEST
+// ------------------------------
+startBtn.addEventListener("click", () => {
+  welcomeScreen.style.display = "none";
+  testScreen.style.display = "block";
+  resultScreen.style.display = "none";
+  score = {};
+  userAnswers = {};
+  currentCategoryIndex = 0;
+  currentQuestionIndex = 0;
+  loadQuestion();
+});
 
-    <!-- Progress -->
-    <div class="progress-container">
-      <div id="progress-bar" class="progress-bar" style="width:0%"></div>
-    </div>
+// ------------------------------
+// LOAD QUESTION
+// ------------------------------
+function loadQuestion() {
+  const categories = Object.keys(questions);
+  const currentCategory = categories[currentCategoryIndex];
+  const currentSet = questions[currentCategory];
 
-    <!-- Controls -->
-    <div class="controls">
-      <button id="skip-btn" class="btn warning">⏭️ Skip Category</button>
-      <button id="exit-btn" class="btn danger">❌ End Test</button>
-      <button id="next-btn" class="btn primary">Next ➡️</button>
-    </div>
+  if (!currentSet || currentQuestionIndex >= currentSet.length) {
+    nextCategory();
+    return;
+  }
 
-    <!-- Results (populated by app.js) -->
-    <div id="results" class="results hidden"></div>
+  categoryTitle.textContent = `${currentCategory.toUpperCase()} (${currentQuestionIndex + 1}/${currentSet.length})`;
+  questionText.textContent = currentSet[currentQuestionIndex][selectedLanguage];
+}
 
-  </div>
+// ------------------------------
+// HANDLE ANSWER
+// ------------------------------
+function handleAnswer(value) {
+  const category = Object.keys(questions)[currentCategoryIndex];
+  if (!score[category]) score[category] = 0;
+  score[category] += value;
+  userAnswers[`${category}_${currentQuestionIndex}`] = value;
+  currentQuestionIndex++;
+  loadQuestion();
+}
 
-  <!-- Confirmation Modal (IDs must match app.js) -->
-  <div id="confirmModal" class="modal hidden">
-    <div class="modal-content">
-      <h3 id="modalTitle">Confirm</h3>
-      <p id="modalMessage">Are you sure?</p>
-      <div class="modal-actions">
-        <button id="cancelModal" class="btn secondary">Cancel</button>
-        <button id="confirmModalBtn" class="btn primary">Yes</button>
-      </div>
-    </div>
-  </div>
+// ------------------------------
+// NEXT QUESTION
+// ------------------------------
+nextBtn.addEventListener("click", () => handleAnswer(3));
 
-  <!-- Your reports and app scripts -->
-  <script src="reports.js"></script>
-  <script src="app.js"></script>
+// ------------------------------
+// SKIP CATEGORY
+// ------------------------------
+skipBtn.addEventListener("click", () => {
+  showMotivationalMessage("skip");
+});
 
-  <!-- Safe: ensure Start button works (runs after app.js loaded) -->
-  <script>
-    (function () {
-      const startBtn = document.getElementById('start-test-btn');
-      const intro = document.getElementById('intro-screen');
-      const app = document.getElementById('app-container');
-      startBtn && startBtn.addEventListener('click', () => {
-        intro.classList.add('fade-out');
-        setTimeout(() => {
-          intro.style.display = 'none';
-          app.classList.remove('hidden');
-          // optional: kick off the first question if app.js expects it
-          if (typeof loadQuestion === 'function') loadQuestion();
-        }, 450);
-      });
-      // optional fade-out style appended if not in CSS
-      const style = document.createElement('style');
-      style.innerHTML = `.fade-out{animation:fadeOut .45s forwards}@keyframes fadeOut{from{opacity:1}to{opacity:0}}`;
-      document.head.appendChild(style);
-    })();
-  </script>
-</body>
-</html>
+// ------------------------------
+// END TEST (POPUP CONFIRMATION)
+// ------------------------------
+endBtn.addEventListener("click", () => {
+  modal.style.display = "flex";
+});
+
+// ------------------------------
+// MODAL CONFIRM BUTTONS
+// ------------------------------
+confirmExitBtn.addEventListener("click", () => {
+  modal.style.display = "none";
+  showMotivationalMessage("end");
+});
+
+cancelExitBtn.addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+// ------------------------------
+// NEXT CATEGORY
+// ------------------------------
+function nextCategory() {
+  currentCategoryIndex++;
+  currentQuestionIndex = 0;
+  const categories = Object.keys(questions);
+
+  if (currentCategoryIndex >= categories.length) {
+    showResults();
+  } else {
+    loadQuestion();
+  }
+}
+
+// ------------------------------
+// SHOW RESULTS
+// ------------------------------
+function showResults() {
+  testScreen.style.display = "none";
+  resultScreen.style.display = "block";
+  
+  if (Object.keys(score).length === 0) {
+    resultText.innerHTML = `
+      <div class="motivation">
+        <h2>✨ Take Your Time ✨</h2>
+        <p>We noticed you didn’t complete the test. That’s totally fine! 🌱</p>
+        <p>When you feel relaxed and focused, come back — this test helps you understand your mind better than endless scrolling ever could.</p>
+        <p>Wishing you growth and clarity 💫</p>
+      </div>`;
+  } else {
+    let resultHTML = `<h2>🧠 Your Test Summary</h2>`;
+    for (const [cat, val] of Object.entries(score)) {
+      resultHTML += `<p><strong>${cat.toUpperCase()}:</strong> ${val}</p>`;
+    }
+    resultText.innerHTML = resultHTML + `<p class='thanks'>Thank you for taking the test ❤️</p>`;
+  }
+}
+
+// ------------------------------
+// MOTIVATIONAL MESSAGE
+// ------------------------------
+function showMotivationalMessage(type) {
+  testScreen.style.display = "none";
+  resultScreen.style.display = "block";
+
+  if (type === "skip") {
+    const cat = Object.keys(questions)[currentCategoryIndex];
+    resultText.innerHTML = `
+      <div class="motivation">
+        <h2>⏳ You Skipped ${cat.toUpperCase()}</h2>
+        <p>Looks like you didn’t have time right now. That’s totally okay!</p>
+        <p>When you’re free, take this test again — it’s designed to understand <strong>you</strong> better and guide your growth journey.</p>
+        <p>For now, may your time go to things that truly help you — not just endless scrolling 😉</p>
+        <p>🌟 Wishing you self-awareness and peace!</p>
+      </div>`;
+  } else {
+    resultText.innerHTML = `
+      <div class="motivation">
+        <h2>💭 Test Ended Early</h2>
+        <p>Not an issue if you didn’t have time right now.</p>
+        <p>Make sure to take the test later — it’s a small step toward understanding your thoughts and emotions better.</p>
+        <p>We hope your next few minutes go toward something meaningful, not just endless reels 😌</p>
+        <p>🌱 Wishing you calm focus ahead.</p>
+      </div>`;
+  }
+}
