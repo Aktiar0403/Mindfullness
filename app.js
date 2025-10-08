@@ -1,163 +1,145 @@
 // app.js
-import { questionsData } from "./questions.js"; // <- match your export
+import { questionsData } from './questions.js';
 
 document.addEventListener("DOMContentLoaded", () => {
-  const questionContainer = document.getElementById("questionContainer");
-  const nextBtn = document.getElementById("nextBtn");
-  const prevBtn = document.getElementById("prevBtn");
-  const endBtn = document.getElementById("endBtn");
-  const resultSection = document.getElementById("resultSection");
-  const resultContent = document.getElementById("resultContent");
-  const categoryTitle = document.getElementById("categoryTitle");
-  const questions = questionsData;
+  // ===== DOM ELEMENTS =====
+  const introScreen = document.getElementById("intro-screen");
+  const startBtn = document.getElementById("start-test-btn");
+  const appContainer = document.getElementById("app-container");
+  const categoryTitle = document.getElementById("category-title");
+  const questionText = document.getElementById("question-text");
+  const slider = document.getElementById("response-slider");
+  const sliderValue = document.getElementById("slider-value");
+  const prevBtn = document.getElementById("prev-btn");
+  const nextBtn = document.getElementById("next-btn");
+  const exitBtn = document.getElementById("exit-btn");
+  const resultsDiv = document.getElementById("results");
+  const userNameInput = document.getElementById("user-name");
+  const langSelect = document.getElementById("lang-select");
+
   let currentCategoryIndex = 0;
   let currentQuestionIndex = 0;
   let userAnswers = {};
-  let examEndedEarly = false;
 
-  const totalCategories = questionsData.length;
-
-  // === INITIALIZE ===
-  loadCategory(currentCategoryIndex);
-
-  // === LOAD CATEGORY ===
-  function loadCategory(index) {
-    const category = questionsData[index];
-    if (!category) return;
-    categoryTitle.textContent = category.title;
-    currentQuestionIndex = 0;
-    renderQuestion(category.questions[currentQuestionIndex]);
+  // ===== START BUTTON =====
+  startBtn.addEventListener("click", () => {
+    const name = userNameInput.value.trim();
+    if (!name) {
+      alert("Please enter your name to start.");
+      return;
+    }
+    introScreen.classList.add("hidden");
+    appContainer.classList.remove("hidden");
+    loadQuestion();
     updateButtons();
-  }
+  });
 
-  // === RENDER QUESTION ===
-  function renderQuestion(questionObj) {
-    if (!questionObj) return;
-    questionContainer.innerHTML = `
-      <div class="question-box">
-        <h2>${questionObj.en}</h2>
-        <div class="options">
-          ${[1,2,3,4].map(i => `
-            <label class="option">
-              <input type="radio" name="question" value="${i}" ${
-                userAnswers[getKey()] === i ? "checked" : ""
-              }>
-              ${i}
-            </label>
-          `).join("")}
-        </div>
-      </div>
-    `;
+  // ===== LOAD QUESTION =====
+  function loadQuestion() {
+    const category = questionsData[currentCategoryIndex];
+    const questionObj = category.questions[currentQuestionIndex];
+    categoryTitle.textContent = category.title;
+    const lang = langSelect.value || "en";
+    questionText.textContent = questionObj[lang] || questionObj.en;
+
+    const key = getKey();
+    slider.value = userAnswers[key] || 3;
+    sliderValue.textContent = slider.value;
   }
 
   function getKey() {
     return `${currentCategoryIndex}-${currentQuestionIndex}`;
   }
 
-  function saveAnswer() {
-    const selected = document.querySelector('input[name="question"]:checked');
-    if (selected) userAnswers[getKey()] = parseInt(selected.value);
-  }
-
-  function updateButtons() {
-    prevBtn.style.display = currentQuestionIndex === 0 && currentCategoryIndex === 0 ? "none" : "inline-block";
-
-    // If last question of last category, button becomes "Show Report"
-    if (currentCategoryIndex === totalCategories - 1 &&
-        currentQuestionIndex === questionsData[currentCategoryIndex].questions.length - 1) {
-      nextBtn.textContent = "Show Report";
-    } else {
-      nextBtn.textContent = "Next";
+  // ===== BUTTON LOGIC =====
+  prevBtn.addEventListener("click", () => {
+    saveAnswer();
+    if (currentQuestionIndex > 0) {
+      currentQuestionIndex--;
+    } else if (currentCategoryIndex > 0) {
+      currentCategoryIndex--;
+      currentQuestionIndex = questionsData[currentCategoryIndex].questions.length - 1;
     }
-  }
+    loadQuestion();
+    updateButtons();
+  });
 
-  // === NEXT BUTTON ===
   nextBtn.addEventListener("click", () => {
     saveAnswer();
     const category = questionsData[currentCategoryIndex];
-
     if (currentQuestionIndex < category.questions.length - 1) {
       currentQuestionIndex++;
-      renderQuestion(category.questions[currentQuestionIndex]);
-    } else if (currentCategoryIndex < totalCategories - 1) {
+    } else if (currentCategoryIndex < questionsData.length - 1) {
       currentCategoryIndex++;
-      loadCategory(currentCategoryIndex);
-    } else {
-      showResults();
-      return;
+      currentQuestionIndex = 0;
     }
+    loadQuestion();
     updateButtons();
   });
 
-  // === PREV BUTTON ===
-  prevBtn.addEventListener("click", () => {
-    if (currentQuestionIndex > 0) {
-      currentQuestionIndex--;
-      renderQuestion(questionsData[currentCategoryIndex].questions[currentQuestionIndex]);
-    } else if (currentCategoryIndex > 0) {
-      currentCategoryIndex--;
-      loadCategory(currentCategoryIndex);
-      currentQuestionIndex = questionsData[currentCategoryIndex].questions.length - 1;
-      renderQuestion(questionsData[currentCategoryIndex].questions[currentQuestionIndex]);
-    }
-    updateButtons();
+  exitBtn.addEventListener("click", () => {
+    showResults(false);
   });
 
-  // === END BUTTON ===
-  endBtn.addEventListener("click", () => {
-    // Check if all questions answered
-    const allAnswered = questionsData.every((cat, catIndex) =>
-      cat.questions.every((_, qIndex) => userAnswers[`${catIndex}-${qIndex}`] !== undefined)
-    );
-
-    if (!allAnswered) {
-      examEndedEarly = true;
-    }
-
-    showResults();
-  });
-
-  function showResults() {
-    questionContainer.style.display = "none";
-    nextBtn.style.display = "none";
-    prevBtn.style.display = "none";
-    endBtn.style.display = "none";
-    categoryTitle.textContent = "Results";
-
-    if (examEndedEarly) {
-      resultContent.innerHTML = `<p>You exited early. Please take the test when you have sufficient time and patience. This test is for your benefit and understanding.</p>`;
-    } else {
-      const results = calculateResults();
-      resultContent.innerHTML = `
-        <h3>Summary</h3>
-        <p><strong>Total Categories:</strong> ${results.totalCategories}</p>
-        <p><strong>Completed:</strong> ${results.completed}</p>
-        <p><strong>Score:</strong> ${results.score}</p>
-      `;
-    }
-
-    resultSection.style.display = "block";
+  function saveAnswer() {
+    const key = getKey();
+    userAnswers[key] = parseInt(slider.value);
   }
 
-  function calculateResults() {
-    let completed = 0;
-    let score = 0;
+  function updateButtons() {
+    prevBtn.style.display = currentCategoryIndex === 0 && currentQuestionIndex === 0 ? "none" : "inline-block";
 
-    questionsData.forEach((cat, catIndex) => {
-      const answered = cat.questions.filter((_, qIndex) => userAnswers[`${catIndex}-${qIndex}`] !== undefined);
-      if (answered.length > 0) completed++;
+    // If last question of last category
+    const isLastQuestion =
+      currentCategoryIndex === questionsData.length - 1 &&
+      currentQuestionIndex === questionsData[currentCategoryIndex].questions.length - 1;
 
-      answered.forEach((_, qIndex) => {
-        const ans = userAnswers[`${catIndex}-${qIndex}`];
-        // For demonstration, assume correct answer is 4 for all (or you can extend questions with 'correct')
-        if (ans === 4) score++;
+    nextBtn.textContent = isLastQuestion ? "Show Report" : "Next ➡️";
+  }
+
+  // ===== SHOW RESULTS =====
+  function showResults(completed = true) {
+    saveAnswer();
+    appContainer.querySelectorAll("*").forEach(el => {
+      if (!resultsDiv.contains(el)) el.style.display = "none";
+    });
+    resultsDiv.classList.remove("hidden");
+
+    if (!completed) {
+      resultsDiv.innerHTML = `<h2>Test Ended Early</h2>
+      <p>You exited before completing the test. Take your time and try again later — this test is for your benefit.</p>`;
+      return;
+    }
+
+    // Calculate score
+    let totalQuestions = 0;
+    let answeredQuestions = 0;
+    let totalScore = 0;
+
+    questionsData.forEach((cat, cIndex) => {
+      totalQuestions += cat.questions.length;
+      cat.questions.forEach((q, qIndex) => {
+        const key = `${cIndex}-${qIndex}`;
+        if (userAnswers[key] !== undefined) {
+          answeredQuestions++;
+          totalScore += userAnswers[key];
+        }
       });
     });
 
-    return {
-      totalCategories,
-      completed,
-      score
-    };
+    const name = userNameInput.value.trim() || "User";
+
+    resultsDiv.innerHTML = `
+      <h2>📝 Test Report for ${name}</h2>
+      <p><strong>Total Questions:</strong> ${totalQuestions}</p>
+      <p><strong>Questions Answered:</strong> ${answeredQuestions}</p>
+      <p><strong>Total Score:</strong> ${totalScore}</p>
+      <p><strong>Average Score:</strong> ${(totalScore / answeredQuestions).toFixed(2)}</p>
+    `;
   }
+
+  // ===== SLIDER DISPLAY =====
+  slider.addEventListener("input", () => {
+    sliderValue.textContent = slider.value;
+  });
 });
