@@ -1,89 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Self Insight Test</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inside Mind Psychometry Test</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Marked.js for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 
-  <!-- INTRO SCREEN -->
-  <div id="intro-screen" class="intro-screen">
-    <div class="intro-content">
-      <h1>Welcome 🌸</h1>
-      <p>Take a deep breath…</p>
-      <p>This test is designed to help you understand yourself better — your emotions, growth, and resilience.</p>
-      <button id="start-test-btn" class="btn primary">Start the Test</button>
+  <!-- =================== Intro Screen =================== -->
+  <section id="intro-screen" class="screen active">
+    <div class="container">
+      <h1>Welcome to Inside Mind</h1>
+      <p>Discover your emotional, growth, resilience, and overthinking profiles.</p>
+      <input type="text" id="user-name" placeholder="Enter your name" required>
+      <button id="start-btn">Start Test</button>
     </div>
-  </div>
+  </section>
 
-  <!-- MAIN APP -->
-  <div id="app-container" class="app-container hidden">
-
-    <!-- Header -->
-    <header>
-      <h1>🧠 Self Insight & Growth Test</h1>
-      <p class="privacy-note">
-        ⚠️ Think calmly before you answer. No data is stored — only <b>you</b> see your results.
-      </p>
-    </header>
-
-    <!-- Name + Language -->
-    <div class="input-row">
-      <label for="user-name">Your name:</label>
-      <input id="user-name" type="text" placeholder="Type your name" />
-      <label for="lang-select">Language:</label>
-      <select id="lang-select">
-        <option value="en">English</option>
-        <option value="hi">हिन्दी</option>
-        <option value="bn">বাংলা</option>
-      </select>
-    </div>
-
-    <!-- Category -->
-    <h2 id="category-title" class="category-title"></h2>
-
-    <!-- Question -->
-    <div id="question-box" class="question-box">
-      <p id="question-text">Loading question...</p>
-    </div>
-
-    <!-- Slider for answer -->
-    <div class="slider-container">
-      <label for="response-slider" class="slider-label">Your Response: <span id="slider-value">3</span></label>
-      <input id="response-slider" type="range" min="1" max="6" step="1" value="3" />
-      <div class="slider-labels">
-        <span>Never</span>
-        <span>Rarely</span>
-        <span>Sometimes</span>
-        <span>Often</span>
-        <span>Mostly</span>
-        <span>Always</span>
+  <!-- =================== Test Screen =================== -->
+  <section id="test-screen" class="screen">
+    <div class="container">
+      <div id="progress-container">
+        <span id="progress-text">Question 1 / 60</span>
+        <progress id="progress-bar" value="0" max="60"></progress>
+      </div>
+      <div id="question-container"></div>
+      <div id="options-container"></div>
+      <div class="navigation-buttons">
+        <button id="prev-btn" class="nav-btn">Previous</button>
+        <button id="skip-btn" class="nav-btn">Skip</button>
+        <button id="next-btn" class="nav-btn">Next</button>
       </div>
     </div>
+  </section>
 
-    <!-- Controls -->
-    <div class="controls">
-      <button id="prev-btn" class="btn secondary">⬅️ Previous</button>
-      <button id="exit-btn" class="btn danger">❌ End Test</button>
-      <button id="next-btn" class="btn primary">Next ➡️</button>
+  <!-- =================== Result Screen =================== -->
+  <section id="result-screen" class="screen">
+    <div class="container">
+      <h2>Hi <span id="result-name"></span>, here are your results:</h2>
+
+      <div class="category-report">
+        <h3>Emotional</h3>
+        <div id="Emotional-report" class="report-content"></div>
+      </div>
+
+      <div class="category-report">
+        <h3>Growth</h3>
+        <div id="Growth-report" class="report-content"></div>
+      </div>
+
+      <div class="category-report">
+        <h3>Resilience</h3>
+        <div id="Resilience-report" class="report-content"></div>
+      </div>
+
+      <div class="category-report">
+        <h3>Overthinking</h3>
+        <div id="Overthinking-report" class="report-content"></div>
+      </div>
+
+      <button id="restart-btn">Retake Test</button>
     </div>
+  </section>
 
-    <!-- Results -->
-    <div id="results" class="results hidden"></div>
-
-  </div>
-
-  <script src="app.js" type="module"></script>
-
-  <script>
-    // Update slider value display
-    const slider = document.getElementById("response-slider");
-    const sliderValue = document.getElementById("slider-value");
-    slider.addEventListener("input", () => {
-      sliderValue.textContent = slider.value;
-    });
-  </script>
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

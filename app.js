@@ -1,145 +1,120 @@
-// app.js
-import { questionsData } from './questions.js';
+// ===================== app.js =====================
 
-document.addEventListener("DOMContentLoaded", () => {
-  // ===== DOM ELEMENTS =====
-  const introScreen = document.getElementById("intro-screen");
-  const startBtn = document.getElementById("start-test-btn");
-  const appContainer = document.getElementById("app-container");
-  const categoryTitle = document.getElementById("category-title");
-  const questionText = document.getElementById("question-text");
-  const slider = document.getElementById("response-slider");
-  const sliderValue = document.getElementById("slider-value");
-  const prevBtn = document.getElementById("prev-btn");
-  const nextBtn = document.getElementById("next-btn");
-  const exitBtn = document.getElementById("exit-btn");
-  const resultsDiv = document.getElementById("results");
-  const userNameInput = document.getElementById("user-name");
-  const langSelect = document.getElementById("lang-select");
+// Current category index and user answers
+let currentCategoryIndex = 0;
+let answers = {
+  Emotional: [],
+  Growth: [],
+  Resilience: [],
+  Overthinking: []
+};
 
-  let currentCategoryIndex = 0;
-  let currentQuestionIndex = 0;
-  let userAnswers = {};
+// Categories in order
+const categories = ["Emotional", "Growth", "Resilience", "Overthinking"];
 
-  // ===== START BUTTON =====
-  startBtn.addEventListener("click", () => {
-    const name = userNameInput.value.trim();
-    if (!name) {
-      alert("Please enter your name to start.");
-      return;
-    }
-    introScreen.classList.add("hidden");
-    appContainer.classList.remove("hidden");
-    loadQuestion();
-    updateButtons();
+// Load questions from questions.js
+// Assume questions.js exports: const questions = [ {category, question, options, reverse}, ... ];
+
+const questionContainer = document.getElementById("question-container");
+const nextBtn = document.getElementById("next-btn");
+const reportContainer = document.getElementById("report-container");
+
+// ===================== Load Question =====================
+function loadQuestion(categoryIndex, questionIndex) {
+  const category = categories[categoryIndex];
+  const categoryQuestions = questions.filter(q => q.category === category);
+  const q = categoryQuestions[questionIndex];
+
+  if (!q) return;
+
+  let html = `<h3>${q.question.en}</h3>`;
+  q.options.forEach((opt, idx) => {
+    html += `
+      <div>
+        <input type="radio" name="option" id="opt${idx}" value="${opt.value}">
+        <label for="opt${idx}">${opt.text.en}</label>
+      </div>`;
   });
 
-  // ===== LOAD QUESTION =====
-  function loadQuestion() {
-    const category = questionsData[currentCategoryIndex];
-    const questionObj = category.questions[currentQuestionIndex];
-    categoryTitle.textContent = category.title;
-    const lang = langSelect.value || "en";
-    questionText.textContent = questionObj[lang] || questionObj.en;
+  questionContainer.innerHTML = html;
+}
 
-    const key = getKey();
-    slider.value = userAnswers[key] || 3;
-    sliderValue.textContent = slider.value;
-  }
+// ===================== Save Answer =====================
+function saveAnswer(categoryIndex, questionIndex) {
+  const category = categories[categoryIndex];
+  const categoryQuestions = questions.filter(q => q.category === category);
+  const q = categoryQuestions[questionIndex];
+  const selected = document.querySelector('input[name="option"]:checked');
+  if (!selected) return false;
 
-  function getKey() {
-    return `${currentCategoryIndex}-${currentQuestionIndex}`;
-  }
+  const val = parseInt(selected.value);
+  // Apply reverse scoring if needed
+  const score = q.reverse ? 6 - val : val;
+  answers[category].push(score);
+  return true;
+}
 
-  // ===== BUTTON LOGIC =====
-  prevBtn.addEventListener("click", () => {
-    saveAnswer();
-    if (currentQuestionIndex > 0) {
-      currentQuestionIndex--;
-    } else if (currentCategoryIndex > 0) {
-      currentCategoryIndex--;
-      currentQuestionIndex = questionsData[currentCategoryIndex].questions.length - 1;
-    }
-    loadQuestion();
-    updateButtons();
-  });
+// ===================== Calculate Score & Level =====================
+function calculateLevel(category) {
+  const totalScore = answers[category].reduce((a,b) => a + b, 0);
+  const maxScore = 15 * 5; // 15 questions max 5 points
+  const levelRanges = [
+    {level:1, max: Math.floor(maxScore*0.2)},  // 0-15
+    {level:2, max: Math.floor(maxScore*0.4)},  // 16-30
+    {level:3, max: Math.floor(maxScore*0.6)},  // 31-45
+    {level:4, max: Math.floor(maxScore*0.8)},  // 46-60
+    {level:5, max: Math.floor(maxScore*0.93)}, // 61-70
+    {level:6, max: maxScore}                    // 71-75
+  ];
 
-  nextBtn.addEventListener("click", () => {
-    saveAnswer();
-    const category = questionsData[currentCategoryIndex];
-    if (currentQuestionIndex < category.questions.length - 1) {
-      currentQuestionIndex++;
-    } else if (currentCategoryIndex < questionsData.length - 1) {
-      currentCategoryIndex++;
-      currentQuestionIndex = 0;
-    }
-    loadQuestion();
-    updateButtons();
-  });
+  const levelObj = levelRanges.find(lr => totalScore <= lr.max);
+  return levelObj.level;
+}
 
-  exitBtn.addEventListener("click", () => {
-    showResults(false);
-  });
-
-  function saveAnswer() {
-    const key = getKey();
-    userAnswers[key] = parseInt(slider.value);
-  }
-
-  function updateButtons() {
-    prevBtn.style.display = currentCategoryIndex === 0 && currentQuestionIndex === 0 ? "none" : "inline-block";
-
-    // If last question of last category
-    const isLastQuestion =
-      currentCategoryIndex === questionsData.length - 1 &&
-      currentQuestionIndex === questionsData[currentCategoryIndex].questions.length - 1;
-
-    nextBtn.textContent = isLastQuestion ? "Show Report" : "Next ➡️";
-  }
-
-  // ===== SHOW RESULTS =====
-  function showResults(completed = true) {
-    saveAnswer();
-    appContainer.querySelectorAll("*").forEach(el => {
-      if (!resultsDiv.contains(el)) el.style.display = "none";
+// ===================== Load Report MD =====================
+function loadReport(category, level) {
+  const path = `Reports/${category}/level${level}.md`;
+  fetch(path)
+    .then(res => res.text())
+    .then(md => {
+      // Simple Markdown render (basic)
+      reportContainer.innerHTML += `<h2>${category} Report</h2><p>${md.replace(/\n/g,'<br>')}</p>`;
     });
-    resultsDiv.classList.remove("hidden");
+}
 
-    if (!completed) {
-      resultsDiv.innerHTML = `<h2>Test Ended Early</h2>
-      <p>You exited before completing the test. Take your time and try again later — this test is for your benefit.</p>`;
-      return;
-    }
+// ===================== Next Button Handler =====================
+let currentQuestionIndex = 0;
 
-    // Calculate score
-    let totalQuestions = 0;
-    let answeredQuestions = 0;
-    let totalScore = 0;
-
-    questionsData.forEach((cat, cIndex) => {
-      totalQuestions += cat.questions.length;
-      cat.questions.forEach((q, qIndex) => {
-        const key = `${cIndex}-${qIndex}`;
-        if (userAnswers[key] !== undefined) {
-          answeredQuestions++;
-          totalScore += userAnswers[key];
-        }
-      });
-    });
-
-    const name = userNameInput.value.trim() || "User";
-
-    resultsDiv.innerHTML = `
-      <h2>📝 Test Report for ${name}</h2>
-      <p><strong>Total Questions:</strong> ${totalQuestions}</p>
-      <p><strong>Questions Answered:</strong> ${answeredQuestions}</p>
-      <p><strong>Total Score:</strong> ${totalScore}</p>
-      <p><strong>Average Score:</strong> ${(totalScore / answeredQuestions).toFixed(2)}</p>
-    `;
+nextBtn.addEventListener("click", () => {
+  if (!saveAnswer(currentCategoryIndex, currentQuestionIndex)) {
+    alert("Please select an option!");
+    return;
   }
 
-  // ===== SLIDER DISPLAY =====
-  slider.addEventListener("input", () => {
-    sliderValue.textContent = slider.value;
-  });
+  currentQuestionIndex++;
+  const category = categories[currentCategoryIndex];
+  const categoryQuestions = questions.filter(q => q.category === category);
+
+  if (currentQuestionIndex < categoryQuestions.length) {
+    loadQuestion(currentCategoryIndex, currentQuestionIndex);
+  } else {
+    // Category complete
+    const level = calculateLevel(category);
+    loadReport(category, level);
+
+    // Move to next category
+    currentCategoryIndex++;
+    currentQuestionIndex = 0;
+
+    if (currentCategoryIndex < categories.length) {
+      loadQuestion(currentCategoryIndex, currentQuestionIndex);
+    } else {
+      // All categories done
+      questionContainer.innerHTML = "<h2>Evaluation Complete!</h2>";
+      nextBtn.style.display = "none";
+    }
+  }
 });
+
+// ===================== Initialize =====================
+loadQuestion(currentCategoryIndex, currentQuestionIndex);
