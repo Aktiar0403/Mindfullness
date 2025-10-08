@@ -21,7 +21,6 @@
   <!-- MAIN APP -->
   <div id="app-container" class="app-container hidden">
 
-    <!-- Header -->
     <header>
       <h1>🧠 Self Insight & Growth Test</h1>
       <p class="privacy-note">
@@ -29,7 +28,6 @@
       </p>
     </header>
 
-    <!-- Name + Language -->
     <div class="input-row">
       <label for="user-name">Your name:</label>
       <input id="user-name" type="text" placeholder="Type your name" />
@@ -41,15 +39,12 @@
       </select>
     </div>
 
-    <!-- Category -->
     <h2 id="category-title" class="category-title"></h2>
 
-    <!-- Question -->
     <div id="question-box" class="question-box">
       <p id="question-text">Loading question...</p>
     </div>
 
-    <!-- Slider for answer -->
     <div class="slider-container">
       <label for="response-slider" class="slider-label">Your Response</label>
       <input id="response-slider" type="range" min="1" max="6" step="1" value="3" />
@@ -63,12 +58,10 @@
       </div>
     </div>
 
-    <!-- Progress -->
     <div class="progress-container">
       <div id="progress-bar" class="progress-bar" style="width:0%"></div>
     </div>
 
-    <!-- Controls -->
     <div class="controls">
       <button id="prev-btn" class="btn secondary">⬅️ Previous</button>
       <button id="skip-btn" class="btn warning">⏭️ Skip Category</button>
@@ -76,7 +69,6 @@
       <button id="next-btn" class="btn primary">Next ➡️</button>
     </div>
 
-    <!-- Results -->
     <div id="results" class="results hidden"></div>
 
   </div>
@@ -93,12 +85,13 @@
     </div>
   </div>
 
+  <!-- Script Load Order -->
   <script src="questions.js"></script>
   <script src="results.js"></script>
   <script src="app.js"></script>
 
+  <!-- Intro Fade -->
   <script>
-    // Start button
     (function () {
       const startBtn = document.getElementById('start-test-btn');
       const intro = document.getElementById('intro-screen');
