@@ -1,6 +1,6 @@
 // questions.js
 
-const questions = {
+const questionsData = {
   emotional: {
     title: "Emotional Intelligence",
     questions: [
@@ -85,3 +85,25 @@ const questions = {
     ]
   }
 };
+export const questions = [
+  {
+    category: "emotional",
+    title: "Emotional Intelligence",
+    questions: questionsData.emotional.questions
+  },
+  {
+    category: "growth",
+    title: "Growth Mindset",
+    questions: questionsData.growth.questions
+  },
+  {
+    category: "overthinking",
+    title: "Overthinking Pattern",
+    questions: questionsData.overthinking.questions
+  },
+  {
+    category: "resilience",
+    title: "Resilience",
+    questions: questionsData.resilience.questions
+  }
+];
