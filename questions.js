@@ -1,7 +1,8 @@
 // questions.js
 
-const questionsData = {
-  emotional: {
+const questionsData = [
+  {
+  category: "emotional", 
     title: "Emotional Intelligence",
     questions: [
       { en: "I can recognize my emotions easily.", hi: "मैं अपनी भावनाओं को आसानी से पहचान सकता हूँ।", bn: "আমি সহজেই আমার অনুভূতিগুলি চিনতে পারি।" },
@@ -21,8 +22,8 @@ const questionsData = {
       { en: "I regulate my emotional state daily.", hi: "मैं अपनी भावनाओं की स्थिति रोज़ नियंत्रित करता हूँ।", bn: "আমি প্রতিদিন আমার আবেগীয় অবস্থা নিয়ন্ত্রণ করি।" }
     ]
   },
-
-  growth: {
+{
+  category: "growth",
     title: "Growth Mindset",
     questions: [
       { en: "I see challenges as opportunities to grow.", hi: "मैं चुनौतियों को विकास के अवसर के रूप में देखता हूँ।", bn: "আমি চ্যালেঞ্জকে বৃদ্ধির সুযোগ হিসাবে দেখি।" },
@@ -42,8 +43,8 @@ const questionsData = {
       { en: "I am open to constructive criticism.", hi: "मैं रचनात्मक आलोचना के लिए खुला हूँ।", bn: "আমি গঠনমূলক সমালোচনার জন্য খোলা।" }
     ]
   },
-
-  overthinking: {
+{
+ category: "overthinking",
     title: "Overthinking Pattern",
     questions: [
       { en: "I replay past events repeatedly in my mind.", hi: "मैं अतीत की घटनाओं को बार-बार याद करता हूँ।", bn: "আমি অতীতের ঘটনাগুলি বারবার মনে করি।" },
@@ -63,8 +64,8 @@ const questionsData = {
       { en: "I plan excessively before taking action.", hi: "मैं कार्रवाई करने से पहले अत्यधिक योजना बनाता हूँ।", bn: "আমি কাজ শুরু করার আগে অতিরিক্ত পরিকল্পনা করি।" }
     ]
   },
-
-  resilience: {
+{
+    category: "resilience",
     title: "Resilience",
     questions: [
       { en: "I recover quickly from setbacks.", hi: "मैं असफलताओं से जल्दी उबर जाता हूँ।", bn: "আমি ব্যর্থতা থেকে দ্রুত পুনরুদ্ধার করি।" },
@@ -84,26 +85,5 @@ const questionsData = {
       { en: "I stay resilient during stressful periods.", hi: "मैं तनावपूर्ण समय के दौरान लचीला रहता हूँ।", bn: "আমি চাপপূর্ণ সময়ে স্থিতিস্থাপক থাকি।" }
     ]
   }
-};
-export const questions = [
-  {
-    category: "emotional",
-    title: "Emotional Intelligence",
-    questions: questionsData.emotional.questions
-  },
-  {
-    category: "growth",
-    title: "Growth Mindset",
-    questions: questionsData.growth.questions
-  },
-  {
-    category: "overthinking",
-    title: "Overthinking Pattern",
-    questions: questionsData.overthinking.questions
-  },
-  {
-    category: "resilience",
-    title: "Resilience",
-    questions: questionsData.resilience.questions
-  }
 ];
+export {questionsData} ;
