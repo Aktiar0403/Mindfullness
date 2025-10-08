@@ -84,21 +84,21 @@ function calculateLevel(category) {
 }
 
 // ===== Load Report (English only) =====
-function loadReport(category, level) {
-  const path = `Reports/${category}/level${level}.md`;
-  fetch(path)
-    .then(res => res.text())
-    .then(md => {
-      reportContainer.innerHTML += `
-        <div class="report-block">
-          <h2>${category} Report (Level ${level})</h2>
-          <p>${md.replace(/\n/g, '<br>')}</p>
-        </div>`;
-    })
-    .catch(err => {
-      console.error("Report load error:", err);
-      reportContainer.innerHTML += `<p>Report not found for ${category}.</p>`;
-    });
+async function loadReport(category, level) {
+  const reportPath = `Reports/${category}/level${level}.md`;
+  try {
+    const response = await fetch(reportPath);
+    if (!response.ok) throw new Error("File not found");
+    const text = await response.text();
+    const reportContainer = document.getElementById("report-content");
+    if (reportContainer) reportContainer.innerHTML = marked.parse(text);
+  } catch (err) {
+    console.error("Report load error:", err);
+    const reportContainer = document.getElementById("report-content");
+    if (reportContainer) {
+      reportContainer.innerHTML = `<p style="color:red;">⚠️ Report not found for ${category} Level ${level}. Please check file path or name.</p>`;
+    }
+  }
 }
 
 // ===== Next Button Logic =====
