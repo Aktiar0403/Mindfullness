@@ -19,7 +19,14 @@ document.addEventListener("DOMContentLoaded", () => {
       let userAnswers = {};
 
       // === INITIALIZE ===
-      loadCategory(currentCategoryIndex);
+    if (Array.isArray(questions) && questions.length > 0) {
+  loadCategory(currentCategoryIndex);
+} else {
+  questionContainer.innerHTML = "<p>No questions found. Please check questions.js</p>";
+  nextBtn.style.display = "none";
+  skipBtn.style.display = "none";
+}
+
 
       // === LOAD CATEGORY ===
       function loadCategory(index) {
