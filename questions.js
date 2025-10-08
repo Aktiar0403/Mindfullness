@@ -1,6 +1,6 @@
 // questions.js
 
-const questionsData = {
+const questions = {
   emotional: {
     title: "Emotional Intelligence",
     questions: [

@@ -1,5 +1,5 @@
 // results.js
-export async function loadReport(category, level) {
+async function loadReport(category, level) {
   try {
     const response = await fetch(`./reports/${category}/level${level}.md`);
     if (!response.ok) throw new Error("Report not found");
@@ -10,3 +10,6 @@ export async function loadReport(category, level) {
     return "Report unavailable. Please check file structure.";
   }
 }
+
+// Make it global for app.js
+window.loadReport = loadReport;
