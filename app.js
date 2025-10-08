@@ -1,168 +1,165 @@
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  const categoryTitle = document.getElementById("category-title");
+// app.js — Complete Version
+document.addEventListener("DOMContentLoaded", async () => {
+  const introScreen = document.getElementById("intro-screen");
+  const startBtn = document.getElementById("start-test-btn");
+  const appContainer = document.getElementById("app-container");
+  const questionBox = document.getElementById("question-box");
   const questionText = document.getElementById("question-text");
   const responseSlider = document.getElementById("response-slider");
-  const progressBar = document.getElementById("progress-bar");
   const nextBtn = document.getElementById("next-btn");
   const prevBtn = document.getElementById("prev-btn");
-  const skipBtn = document.getElementById("skip-btn");
+  const exitBtn = document.getElementById("exit-btn");
+  const categoryTitle = document.getElementById("category-title");
   const resultsDiv = document.getElementById("results");
-  const userNameInput = document.getElementById("user-name");
   const langSelect = document.getElementById("lang-select");
 
-  // Import questions
-  import("./questions.js")
-    .then((module) => {
-      const questions = module.questions;
-      let currentCategoryIndex = 0;
-      let currentQuestionIndex = 0;
-      let userAnswers = {}; // {"catIndex-qIndex": value}
+  let categories = [];
+  let currentCategoryIndex = 0;
+  let currentQuestionIndex = 0;
+  let userAnswers = {}; // stores answers as key "catIndex-quesIndex" => value 1-6
 
-      loadCategory(currentCategoryIndex);
-      updateProgress();
+  // Load questions
+  try {
+    const questionsModule = await import("./questions.js");
+    const questionsData = questionsModule.questionsData;
+    categories = Object.keys(questionsData).map((key) => ({
+      category: questionsData[key].title,
+      key,
+      questions: questionsData[key].questions,
+    }));
+  } catch (err) {
+    console.error("Error loading questions:", err);
+    questionBox.innerHTML = "<p>Questions failed to load. Check console.</p>";
+    return;
+  }
 
-      // === LOAD CATEGORY ===
-      function loadCategory(catIndex) {
-        const category = questions[catIndex];
-        if (!category) return;
-        categoryTitle.textContent = category.title;
-        currentQuestionIndex = 0;
-        renderQuestion();
-        updateButtons();
-      }
+  // Start button
+  startBtn.addEventListener("click", () => {
+    introScreen.style.display = "none";
+    appContainer.classList.remove("hidden");
+    renderQuestion(getCurrentQuestion());
+    updateButtons();
+    updateExitButton();
+  });
 
-      // === RENDER QUESTION ===
-      function renderQuestion() {
-        const category = questions[currentCategoryIndex];
-        const questionObj = category.questions[currentQuestionIndex];
-        if (!questionObj) return;
+  // Get current question object
+  function getCurrentQuestion() {
+    return categories[currentCategoryIndex].questions[currentQuestionIndex];
+  }
 
-        const lang = langSelect.value || "en";
-        questionText.textContent = questionObj[lang];
+  // Render question and slider
+  function renderQuestion(questionObj) {
+    const savedAnswer = userAnswers[getKey()] || 3; // default middle value
+    questionText.textContent = questionObj[langSelect.value];
+    responseSlider.value = savedAnswer;
+    categoryTitle.textContent = categories[currentCategoryIndex].category;
+  }
 
-        const key = getKey();
-        responseSlider.value = userAnswers[key] !== undefined ? userAnswers[key] : 3;
+  // Unique key for answers
+  function getKey() {
+    return `${currentCategoryIndex}-${currentQuestionIndex}`;
+  }
 
-        updateProgress();
-      }
+  // Save answer
+  function saveAnswer() {
+    userAnswers[getKey()] = parseInt(responseSlider.value);
+    updateExitButton();
+  }
 
-      function getKey() {
-        return `${currentCategoryIndex}-${currentQuestionIndex}`;
-      }
+  // Next button
+  nextBtn.addEventListener("click", () => {
+    saveAnswer();
+    const category = categories[currentCategoryIndex];
+    if (currentQuestionIndex < category.questions.length - 1) {
+      currentQuestionIndex++;
+    } else if (currentCategoryIndex < categories.length - 1) {
+      currentCategoryIndex++;
+      currentQuestionIndex = 0;
+    } else {
+      showResults();
+      return;
+    }
+    renderQuestion(getCurrentQuestion());
+    updateButtons();
+  });
 
-      function saveAnswer() {
-        const key = getKey();
-        userAnswers[key] = parseInt(responseSlider.value);
-      }
+  // Previous button
+  prevBtn.addEventListener("click", () => {
+    saveAnswer();
+    if (currentQuestionIndex > 0) {
+      currentQuestionIndex--;
+    } else if (currentCategoryIndex > 0) {
+      currentCategoryIndex--;
+      currentQuestionIndex = categories[currentCategoryIndex].questions.length - 1;
+    }
+    renderQuestion(getCurrentQuestion());
+    updateButtons();
+  });
 
-      function updateButtons() {
-        prevBtn.style.display =
-          currentQuestionIndex === 0 && currentCategoryIndex === 0
-            ? "none"
-            : "inline-block";
+  // Update Next / Prev buttons visibility
+  function updateButtons() {
+    prevBtn.style.display =
+      currentCategoryIndex === 0 && currentQuestionIndex === 0 ? "none" : "inline-block";
+    nextBtn.textContent =
+      currentCategoryIndex === categories.length - 1 &&
+      currentQuestionIndex === categories[currentCategoryIndex].questions.length - 1
+        ? "Finish"
+        : "Next ➡️";
+  }
 
-        nextBtn.textContent =
-          currentCategoryIndex === questions.length - 1 &&
-          currentQuestionIndex === questions[currentCategoryIndex].questions.length - 1
-            ? "Finish"
-            : "Next";
-      }
+  // Update Exit button text dynamically
+  function updateExitButton() {
+    const totalQuestions = categories.reduce((sum, cat) => sum + cat.questions.length, 0);
+    const answeredQuestions = Object.keys(userAnswers).length;
+    exitBtn.textContent = answeredQuestions === totalQuestions ? "Show Report" : "End Test";
+  }
 
-      function updateProgress() {
-        const totalQuestions = questions.reduce(
-          (sum, cat) => sum + cat.questions.length,
-          0
-        );
-        const completedQuestions = Object.keys(userAnswers).length +
-          currentQuestionIndex; // optional progressive bar
-        const percent =
-          ((currentCategoryIndex * 15 + currentQuestionIndex + 1) / totalQuestions) *
-          100;
-        progressBar.style.width = `${percent}%`;
-      }
+  // Exit / Show Report button
+  exitBtn.addEventListener("click", () => {
+    saveAnswer();
+    const totalQuestions = categories.reduce((sum, cat) => sum + cat.questions.length, 0);
+    const answeredQuestions = Object.keys(userAnswers).length;
 
-      // === NAVIGATION ===
-      nextBtn.addEventListener("click", () => {
-        saveAnswer();
-        const category = questions[currentCategoryIndex];
-        if (currentQuestionIndex < category.questions.length - 1) {
-          currentQuestionIndex++;
-        } else if (currentCategoryIndex < questions.length - 1) {
-          currentCategoryIndex++;
-          currentQuestionIndex = 0;
+    questionBox.style.display = "none";
+    nextBtn.style.display = "none";
+    prevBtn.style.display = "none";
+    exitBtn.style.display = "none";
+
+    resultsDiv.classList.remove("hidden");
+
+    if (answeredQuestions < totalQuestions) {
+      resultsDiv.innerHTML = `
+        <h3>Take it easy!</h3>
+        <p>You haven’t completed the test. This is for your personal insight, so take it later when you have enough time and focus.</p>
+      `;
+    } else {
+      showResults();
+    }
+  });
+
+  // Calculate and show results with report loading
+  async function showResults() {
+    let summaryHTML = `<h3>Summary</h3>`;
+    for (let i = 0; i < categories.length; i++) {
+      const cat = categories[i];
+      const answered = cat.questions.filter((_, qIndex) => userAnswers[`${i}-${qIndex}`] !== undefined);
+      const score = answered.reduce((sum, _, qIndex) => sum + parseInt(userAnswers[`${i}-${qIndex}`]), 0);
+      summaryHTML += `<p><strong>${cat.category}:</strong> ${score}/${cat.questions.length * 6}</p>`;
+
+      // Load report based on level (here level = rounded average)
+      const avg = Math.round(score / answered.length || 1);
+      try {
+        const reportRes = await fetch(`./reports/${cat.key}/level${avg}.md`);
+        if (reportRes.ok) {
+          const reportText = await reportRes.text();
+          summaryHTML += `<div class="report"><strong>Report:</strong><p>${reportText}</p></div>`;
         } else {
-          showResults();
-          return;
+          summaryHTML += `<div class="report"><p>Report unavailable.</p></div>`;
         }
-        renderQuestion();
-        updateButtons();
-      });
-
-      prevBtn.addEventListener("click", () => {
-        if (currentQuestionIndex > 0) {
-          currentQuestionIndex--;
-        } else if (currentCategoryIndex > 0) {
-          currentCategoryIndex--;
-          currentQuestionIndex =
-            questions[currentCategoryIndex].questions.length - 1;
-        }
-        renderQuestion();
-        updateButtons();
-      });
-
-      skipBtn.addEventListener("click", () => {
-        if (currentCategoryIndex < questions.length - 1) {
-          currentCategoryIndex++;
-          currentQuestionIndex = 0;
-          renderQuestion();
-        } else {
-          showResults();
-        }
-      });
-
-      // === LANGUAGE CHANGE ===
-      langSelect.addEventListener("change", renderQuestion);
-
-      // === SHOW RESULTS & LOAD REPORTS ===
-      async function showResults() {
-        saveAnswer();
-        document.getElementById("question-box").style.display = "none";
-        document.querySelector(".slider-container").style.display = "none";
-        document.querySelector(".controls").style.display = "none";
-        categoryTitle.textContent = `Results for ${userNameInput.value || "User"}`;
-
-        let html = "";
-        for (let catIndex = 0; catIndex < questions.length; catIndex++) {
-          const cat = questions[catIndex];
-          const total = cat.questions.length;
-          let sum = 0;
-
-          cat.questions.forEach((_, qIndex) => {
-            const key = `${catIndex}-${qIndex}`;
-            sum += userAnswers[key] || 0;
-          });
-
-          const avg = Math.round(sum / total);
-          html += `<h3>${cat.title}</h3>`;
-          html += `<p>Average score: ${avg} / 6</p>`;
-
-          // Load report from Markdown
-          try {
-            const response = await fetch(`./reports/${cat.title.toLowerCase()}/level${avg}.md`);
-            if (!response.ok) throw new Error("Report not found");
-            const reportText = await response.text();
-            html += `<div class="report">${reportText}</div>`;
-          } catch (err) {
-            html += `<p style="color:red;">Report unavailable.</p>`;
-            console.error(err);
-          }
-        }
-
-        resultsDiv.innerHTML = html;
-        resultsDiv.classList.remove("hidden");
+      } catch {
+        summaryHTML += `<div class="report"><p>Report unavailable.</p></div>`;
       }
-    })
-    .catch((err) => console.error("Error loading questions:", err));
+    }
+    resultsDiv.innerHTML = summaryHTML;
+  }
 });

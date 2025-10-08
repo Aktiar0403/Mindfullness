@@ -47,6 +47,11 @@
     <!-- Question -->
     <div id="question-box" class="question-box">
       <p id="question-text">Loading question...</p>
+    </div>
+
+    <!-- Slider for answer -->
+    <div class="slider-container">
+      <label for="response-slider" class="slider-label">Your Response: <span id="slider-value">3</span></label>
       <input id="response-slider" type="range" min="1" max="6" step="1" value="3" />
       <div class="slider-labels">
         <span>Never</span>
@@ -58,15 +63,10 @@
       </div>
     </div>
 
-    <!-- Progress -->
-    <div class="progress-container">
-      <div id="progress-bar" class="progress-bar" style="width:0%"></div>
-    </div>
-
     <!-- Controls -->
     <div class="controls">
       <button id="prev-btn" class="btn secondary">⬅️ Previous</button>
-      <button id="skip-btn" class="btn warning">⏭️ Skip Category</button>
+      <button id="exit-btn" class="btn danger">❌ End Test</button>
       <button id="next-btn" class="btn primary">Next ➡️</button>
     </div>
 
@@ -75,26 +75,15 @@
 
   </div>
 
-  <!-- Scripts -->
-  <script type="module" src="app.js"></script>
+  <script src="app.js" type="module"></script>
+
   <script>
-    // Start button
-    const startBtn = document.getElementById('start-test-btn');
-    const intro = document.getElementById('intro-screen');
-    const app = document.getElementById('app-container');
-
-    startBtn && startBtn.addEventListener('click', () => {
-      intro.classList.add('fade-out');
-      setTimeout(() => {
-        intro.style.display = 'none';
-        app.classList.remove('hidden');
-      }, 450);
+    // Update slider value display
+    const slider = document.getElementById("response-slider");
+    const sliderValue = document.getElementById("slider-value");
+    slider.addEventListener("input", () => {
+      sliderValue.textContent = slider.value;
     });
-
-    const style = document.createElement('style');
-    style.innerHTML = `.fade-out{animation:fadeOut .45s forwards}@keyframes fadeOut{from{opacity:1}to{opacity:0}}`;
-    document.head.appendChild(style);
   </script>
-
 </body>
 </html>
