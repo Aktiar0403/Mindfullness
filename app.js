@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultSection = document.getElementById("resultSection");
   const resultContent = document.getElementById("resultContent");
   const categoryTitle = document.getElementById("categoryTitle");
-
+  const questions = questionsData;
   let currentCategoryIndex = 0;
   let currentQuestionIndex = 0;
   let userAnswers = {};
