@@ -52,6 +52,8 @@ function loadQuestion(categoryIndex, questionIndex) {
 
   html += `</div></div>`;
   questionContainer.innerHTML = html;
+  updateProgress(currentQuestionIndex, questions.length);
+
 }
 
 // ===== Save Answer =====
