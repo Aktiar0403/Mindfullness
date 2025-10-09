@@ -133,6 +133,34 @@ nextBtn.addEventListener("click", () => {
     }
   }
 });
+// ---------------- PROGRESS BAR ----------------
+function updateProgress(currentIndex, totalQuestions) {
+  const progress = Math.round(((currentIndex + 1) / totalQuestions) * 100);
+  const bar = document.getElementById("progress-bar");
+  if (bar) bar.style.width = `${progress}%`;
+}
+
+// Call this function every time user answers or skips a question
+// Example: updateProgress(currentQuestionIndex, questions.length);
+
+// ---------------- REPORT BUTTON ----------------
+document.getElementById("generate-report-btn").addEventListener("click", () => {
+  const completedCategories = Object.keys(userScores || {}).filter(cat => userScores[cat]?.answered === 15);
+  const messageEl = document.getElementById("report-message");
+
+  if (completedCategories.length === 0) {
+    messageEl.textContent = "⚠️ Please complete at least one category before viewing your report.";
+    return;
+  }
+
+  // Load reports for all completed categories
+  messageEl.textContent = "";
+  completedCategories.forEach(cat => {
+    const avgScore = userScores[cat].total / userScores[cat].answered;
+    const level = Math.min(Math.ceil(avgScore / 5 * 6), 6);
+    loadReport(cat, level);
+  });
+});
 
 // ===== Initialize App =====
 document.addEventListener("DOMContentLoaded", () => {
