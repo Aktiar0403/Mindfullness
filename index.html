@@ -1,87 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inside Mind Psychometry Test</title>
-  <link rel="stylesheet" href="style.css">
-  <!-- Marked.js for Markdown rendering -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inside Mind - Psychometry Test</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div id="language-selector">
-  <label for="lang">Select Language: </label>
-  <select id="lang">
-    <option value="en" selected>English</option>
-    <option value="hi">Hindi</option>
-    <option value="bn">Bengali</option>
-  </select>
-</div>
 
-  <!-- =================== Intro Screen =================== -->
-  <section id="intro-screen" class="screen active">
-    <div class="container">
-      <h1>Welcome to Inside Mind</h1>
-      <p>Discover your emotional, growth, resilience, and overthinking profiles.</p>
-      <input type="text" id="user-name" placeholder="Enter your name" required>
-      <button id="start-btn">Start Test</button>
+  <div class="app-container">
+    <h1>🧠 Inside Mind – Psychometric Evaluation</h1>
+
+    <!-- LANGUAGE TOGGLE -->
+    <div class="lang-toggle">
+      <label for="language">Language:</label>
+      <select id="language">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+        <option value="bn">বাংলা</option>
+      </select>
     </div>
-  </section>
 
-  <!-- =================== Test Screen =================== -->
-  <section id="test-screen" class="screen">
-    <div class="container">
-      <div id="progress-container">
-        <span id="progress-text">Question 1 / 60</span>
-        <progress id="progress-bar" value="0" max="60"></progress>
+    <!-- CATEGORY PROGRESS -->
+    <div id="category-progress">
+      <div class="category-progress">
+        <label>Emotional</label>
+        <div class="bar-container"><div id="bar-Emotional" class="bar"></div></div>
       </div>
-      <div id="question-container"></div>
-      <div id="options-container"></div>
-      <div class="navigation-buttons">
-        <button id="prev-btn" class="nav-btn">Previous</button>
-        <button id="skip-btn" class="nav-btn">Skip</button>
-        <button id="next-btn" class="nav-btn">Next</button>
+      <div class="category-progress">
+        <label>Growth</label>
+        <div class="bar-container"><div id="bar-Growth" class="bar"></div></div>
+      </div>
+      <div class="category-progress">
+        <label>Resilience</label>
+        <div class="bar-container"><div id="bar-Resilience" class="bar"></div></div>
+      </div>
+      <div class="category-progress">
+        <label>Overthinking</label>
+        <div class="bar-container"><div id="bar-Overthinking" class="bar"></div></div>
       </div>
     </div>
-  </section>
 
-  <!-- =================== Result Screen =================== -->
-  <section id="result-screen" class="screen">
-    <div class="container">
-      <h2>Hi <span id="result-name"></span>, here are your results:</h2>
+    <!-- QUESTION AREA -->
+    <div id="question-container"></div>
 
-      <div class="category-report">
-        <h3>Emotional</h3>
-        <div id="Emotional-report" class="report-content"></div>
-      </div>
+    <!-- OPTIONS AREA -->
+    <div id="options-container"></div>
 
-      <div class="category-report">
-        <h3>Growth</h3>
-        <div id="Growth-report" class="report-content"></div>
-      </div>
-
-      <div class="category-report">
-        <h3>Resilience</h3>
-        <div id="Resilience-report" class="report-content"></div>
-      </div>
-
-      <div class="category-report">
-        <h3>Overthinking</h3>
-        <div id="Overthinking-report" class="report-content"></div>
-      </div>
-
-      <button id="restart-btn">Retake Test</button>
+    <!-- NAVIGATION BUTTONS -->
+    <div class="nav-buttons">
+      <button id="skipBtn">Skip</button>
+      <button id="nextBtn">Next</button>
     </div>
-  </section>
+
+    <!-- REPORT SECTION -->
+    <div class="report-section">
+      <button id="generate-report-btn">Generate Report</button>
+      <p id="report-message"></p>
+      <div id="report-container"></div>
+    </div>
+  </div>
 
   <script src="questions.js"></script>
   <script src="app.js"></script>
-  <div id="progress-container">
-  <div id="progress-bar"></div>
-</div>
-
-<button id="generate-report-btn" class="report-btn">Generate Report</button>
-<p id="report-message"></p>
-
 </body>
 </html>

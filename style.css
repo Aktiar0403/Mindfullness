@@ -1,251 +1,180 @@
-/* =================== Base Reset =================== */
+/* ---------- GLOBAL RESET ---------- */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 body {
-  background-color: #f5f7fa;
-  color: #333;
-  line-height: 1.6;
-}
-
-/* =================== Screens =================== */
-.screen {
-  display: none;
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
   min-height: 100vh;
-  padding: 40px 20px;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  padding: 40px 10px;
 }
 
-.screen.active {
-  display: flex;
-}
-
-.container {
-  background-color: #fff;
-  padding: 30px 40px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  width: 100%;
+/* ---------- APP CONTAINER ---------- */
+.app-container {
+  background: #fff;
   max-width: 700px;
+  width: 100%;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
-/* =================== Intro Screen =================== */
-#intro-screen h1 {
-  font-size: 2.2rem;
-  margin-bottom: 15px;
-  text-align: center;
-  color: #1a1a1a;
-}
-
-#intro-screen p {
+h1 {
   text-align: center;
   margin-bottom: 25px;
-  color: #555;
+  color: #1e3a8a;
+  font-size: 1.8rem;
 }
 
-#intro-screen input[type="text"] {
-  width: 100%;
-  padding: 12px 15px;
-  font-size: 1rem;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-
-#intro-screen button {
-  width: 100%;
-  padding: 12px;
-  font-size: 1.1rem;
-  background-color: #4a90e2;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-#intro-screen button:hover {
-  background-color: #357ab8;
-}
-
-/* =================== Test Screen =================== */
-#progress-container {
+/* ---------- LANGUAGE TOGGLE ---------- */
+.lang-toggle {
+  text-align: right;
   margin-bottom: 20px;
 }
 
-#progress-bar {
-  width: 100%;
-  height: 12px;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-#question-container {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
+.lang-toggle label {
   font-weight: 500;
-}
-
-#options-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 25px;
-}
-
-#options-container button {
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #4a90e2;
-  background-color: #fff;
-  color: #4a90e2;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-#options-container button:hover {
-  background-color: #4a90e2;
-  color: #fff;
-}
-
-.navigation-buttons {
-  display: flex;
-  justify-content: space-between;
-}
-
-.nav-btn {
-  padding: 10px 20px;
-  font-size: 1rem;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-#prev-btn {
-  background-color: #ccc;
+  margin-right: 8px;
   color: #333;
 }
 
-#prev-btn:hover {
-  background-color: #b3b3b3;
+#language {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f9f9f9;
+  font-size: 0.9rem;
 }
 
-#skip-btn {
-  background-color: #f0ad4e;
-  color: #fff;
-}
-
-#skip-btn:hover {
-  background-color: #ec971f;
-}
-
-#next-btn {
-  background-color: #4a90e2;
-  color: #fff;
-}
-
-#next-btn:hover {
-  background-color: #357ab8;
-}
-
-/* =================== Result Screen =================== */
-#result-screen h2 {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.category-report {
+/* ---------- CATEGORY PROGRESS ---------- */
+#category-progress {
   margin-bottom: 25px;
 }
 
-.category-report h3 {
-  color: #4a90e2;
+.category-progress {
   margin-bottom: 10px;
 }
 
-.report-content {
-  background-color: #f1f5f9;
-  padding: 15px 20px;
-  border-radius: 10px;
-  min-height: 80px;
-  font-size: 1rem;
+.category-progress label {
+  display: block;
+  font-weight: 600;
   color: #333;
+  margin-bottom: 4px;
 }
 
-/* Restart Button */
-#restart-btn {
-  display: block;
-  margin: 30px auto 0;
-  padding: 12px 25px;
-  font-size: 1.1rem;
+.bar-container {
+  background-color: #e5e7eb;
   border-radius: 8px;
-  border: none;
-  background-color: #5cb85c;
+  height: 10px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  width: 0%;
+  background-color: #3b82f6;
+  transition: width 0.4s ease;
+  border-radius: 8px;
+}
+
+/* ---------- QUESTION ---------- */
+#question-container {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #111827;
+  min-height: 60px;
+}
+
+/* ---------- OPTIONS ---------- */
+#options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.option-btn {
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f3f4f6;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.option-btn:hover {
+  background-color: #e0f2fe;
+}
+
+.option-btn.selected {
+  background-color: #3b82f6;
   color: #fff;
+}
+
+/* ---------- NAV BUTTONS ---------- */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.nav-buttons button {
+  flex: 1;
+  margin: 0 5px;
+  padding: 10px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #2563eb;
+  color: white;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
-#restart-btn:hover {
-  background-color: #449d44;
+.nav-buttons button:hover {
+  background-color: #1d4ed8;
 }
 
-/* =================== Responsive =================== */
-@media (max-width: 768px) {
-  .container {
-    padding: 20px 25px;
-  }
-
-  #question-container {
-    font-size: 1.1rem;
-  }
-
-  #options-container button {
-    font-size: 0.95rem;
-  }
-}
-#progress-container {
-  width: 100%;
-  background-color: #e0e0e0;
-  border-radius: 8px;
-  height: 10px;
-  margin: 20px 0;
-  overflow: hidden;
+/* ---------- REPORT SECTION ---------- */
+.report-section {
+  margin-top: 30px;
+  text-align: center;
 }
 
-#progress-bar {
-  height: 100%;
-  width: 0%;
-  background-color: #4CAF50;
-  transition: width 0.3s ease-in-out;
-}
-
-.report-btn {
-  padding: 10px 20px;
-  font-size: 1rem;
+#generate-report-btn {
+  background-color: #059669;
   border: none;
-  border-radius: 8px;
-  background-color: #3b82f6;
   color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
   cursor: pointer;
-  margin-top: 10px;
+  transition: background 0.3s;
+  font-size: 1rem;
 }
 
-.report-btn:hover {
-  background-color: #2563eb;
+#generate-report-btn:hover {
+  background-color: #047857;
 }
 
 #report-message {
   margin-top: 10px;
+  color: #374151;
   font-weight: 500;
-  color: #333;
-  text-align: center;
+}
+
+#report-container {
+  margin-top: 20px;
+  text-align: left;
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: 15px;
+  border: 1px solid #e5e7eb;
 }
