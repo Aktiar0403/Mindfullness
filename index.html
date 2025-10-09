@@ -3,50 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inside Mind - Psychometric Test</title>
+  <title>Inside Mind App</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
   <div class="app-container">
-    <h1>🧠 Inside Mind – Psychometric Evaluation</h1>
+    <header>
+      <h1>Inside Mind Psychometric Test</h1>
+      <div class="language-selector">
+        <label for="language">Language:</label>
+        <select id="language">
+          <option value="en">English</option>
+          <option value="hi">Hindi</option>
+          <option value="bn">Bengali</option>
+        </select>
+      </div>
+    </header>
 
-    <!-- LANGUAGE TOGGLE -->
-    <div class="lang-toggle">
-      <label for="language">Language:</label>
-      <select id="language">
-        <option value="en">English</option>
-        <option value="hi">हिन्दी</option>
-        <option value="bn">বাংলা</option>
-      </select>
-    </div>
+    <main>
+      <!-- Question card -->
+      <div id="question-card">
+        <div id="question-container" class="question"></div>
+        <div id="options-container" class="options"></div>
+        <div id="progress-wrapper">
+          <div id="progress-bar"></div>
+        </div>
+        <div id="progress-text">0% completed</div>
+        <div class="buttons">
+          <button id="skipBtn">Skip</button>
+        </div>
+      </div>
 
-    <!-- QUESTION AREA -->
-    <div id="question-container"></div>
-
-    <!-- PROGRESS BAR -->
-    <div id="progress-container">
-      <div id="progress-bar"></div>
-      <p id="progress-text">0% completed</p>
-    </div>
-
-    <!-- OPTIONS AREA -->
-    <div id="options-container"></div>
-
-    <!-- NAVIGATION BUTTONS -->
-    <div class="nav-buttons">
-      <button id="skipBtn">Skip</button>
-      <button id="nextBtn">Next</button>
-    </div>
-
-    <!-- REPORT SECTION -->
-    <div class="report-section">
-      <button id="generate-report-btn">Generate Report</button>
-      <p id="report-message"></p>
-      <div id="report-container"></div>
-    </div>
+      <!-- Report section -->
+      <div id="report-section">
+        <button id="generate-report-btn">Generate Report</button>
+        <div id="report-message"></div>
+        <div id="report-container"></div>
+      </div>
+    </main>
   </div>
 
+  <!-- Scripts -->
   <script src="questions.js"></script>
   <script src="app.js"></script>
 </body>

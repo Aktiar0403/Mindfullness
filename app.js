@@ -79,22 +79,28 @@ function loadQuestion(index) {
   }
 
   const q = qs[index];
-  questionContainer.textContent = q[currentLanguage];
-  optionsContainer.innerHTML = "";
 
-  for (let i = 1; i <= 5; i++) {
+  // DISPLAY QUESTION
+  questionContainer.textContent = q.question[currentLanguage];
+
+  // DISPLAY OPTIONS
+  optionsContainer.innerHTML = "";
+  q.options.forEach(opt => {
     const btn = document.createElement("button");
-    btn.textContent = i.toString();
     btn.classList.add("option-btn");
-    btn.addEventListener("click", () => selectOption(i));
+    btn.textContent = opt.text[currentLanguage];
+    btn.addEventListener("click", () => selectOption(opt.value, q.reverse));
     optionsContainer.appendChild(btn);
-  }
+  });
 
   updateProgress();
 }
 
 // ---------- SELECT OPTION ----------
-function selectOption(value) {
+function selectOption(value, reverse = false) {
+  // Handle reverse scoring
+  if (reverse) value = 6 - value;
+
   userScores[currentCategory].total += value;
   userScores[currentCategory].answered += 1;
   currentQuestionIndex++;
