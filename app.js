@@ -10,12 +10,18 @@ const questionContainer = document.getElementById("question-container");
 const optionsContainer = document.getElementById("options-container");
 const nextBtn = document.getElementById("nextBtn");
 const skipBtn = document.getElementById("skipBtn");
+const progressBar = document.getElementById("progress-bar");
+const progressText = document.getElementById("progress-text");
+const reportBtn = document.getElementById("generate-report-btn");
+const reportMessage = document.getElementById("report-message");
 const reportContainer = document.getElementById("report-container");
 
 // ---------- INITIALIZATION ----------
 document.addEventListener("DOMContentLoaded", () => {
   if (typeof questions === "undefined" || questions.length === 0) {
     questionContainer.innerHTML = "<p>No questions loaded. Check questions.js</p>";
+    nextBtn.style.display = "none";
+    skipBtn.style.display = "none";
     return;
   }
 
@@ -37,7 +43,7 @@ document.getElementById("language").addEventListener("change", (e) => {
   loadQuestion(currentQuestionIndex);
 });
 
-// ---------- GROUP QUESTIONS ----------
+// ---------- GROUP QUESTIONS BY CATEGORY ----------
 function groupByCategory(all) {
   const grouped = {};
   all.forEach(q => {
@@ -84,7 +90,7 @@ function loadQuestion(index) {
     optionsContainer.appendChild(btn);
   }
 
-  updateCategoryProgress(currentCategory);
+  updateProgress();
 }
 
 // ---------- SELECT OPTION ----------
@@ -92,52 +98,57 @@ function selectOption(value) {
   userScores[currentCategory].total += value;
   userScores[currentCategory].answered += 1;
   currentQuestionIndex++;
-
-  updateCategoryProgress(currentCategory);
+  updateProgress();
   loadQuestion(currentQuestionIndex);
 }
 
 // ---------- SKIP ----------
 skipBtn.addEventListener("click", () => {
   currentQuestionIndex++;
+  updateProgress();
   loadQuestion(currentQuestionIndex);
 });
 
-// ---------- PROGRESS ----------
-function updateCategoryProgress(category) {
-  const catQuestions = questionsByCategory[category].length;
-  const answered = userScores[category].answered;
-  const percent = Math.round((answered / catQuestions) * 100);
-  const bar = document.getElementById(`bar-${category}`);
-  if (bar) bar.style.width = `${percent}%`;
+// ---------- UPDATE PROGRESS ----------
+function updateProgress() {
+  let answeredCount = 0;
+  let totalQuestions = 0;
+
+  Object.keys(questionsByCategory).forEach(cat => {
+    answeredCount += userScores[cat].answered;
+    totalQuestions += questionsByCategory[cat].length;
+  });
+
+  const percent = Math.round((answeredCount / totalQuestions) * 100);
+  progressBar.style.width = `${percent}%`;
+  progressText.textContent = `${percent}% completed`;
 }
 
-// ---------- REPORT GENERATION ----------
-document.getElementById("generate-report-btn").addEventListener("click", () => {
+// ---------- GENERATE REPORT ----------
+reportBtn.addEventListener("click", async () => {
   const completed = Object.keys(userScores).filter(
     cat => userScores[cat].answered === questionsByCategory[cat].length
   );
 
-  const msg = document.getElementById("report-message");
   if (completed.length === 0) {
-    msg.textContent = "⚠️ Please complete at least one category before viewing your report.";
+    reportMessage.textContent = "⚠️ Please complete at least one category before viewing your report.";
+    reportContainer.innerHTML = "";
     return;
   }
 
-  msg.textContent = "";
+  reportMessage.textContent = "";
   reportContainer.innerHTML = "";
 
-  completed.forEach(cat => {
+  for (const cat of completed) {
     const avg = userScores[cat].total / userScores[cat].answered;
     const level = Math.min(Math.ceil((avg / 5) * 6), 6);
-    loadReport(cat, level);
-  });
+    await loadReport(cat, level);
+  }
 });
 
 // ---------- LOAD REPORT ----------
 async function loadReport(category, level) {
   const path = `Reports/${category}/level${level}.md`;
-
   try {
     const res = await fetch(path);
     if (!res.ok) throw new Error("File not found");
