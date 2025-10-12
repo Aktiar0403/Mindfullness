@@ -39,6 +39,26 @@
         </div>
     </div>
 
+    <!-- Analysis Screen (Hidden initially) -->
+    <div id="analysisScreen" class="analysis-screen" style="display: none;">
+        <div class="analyzing-animation">
+            <div class="brain-pulse">🧠</div>
+            <h2>Analyzing Your Responses</h2>
+            <p>We're carefully reviewing your answers to create personalized insights...</p>
+            <div class="progress-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <div class="analysis-steps">
+                <div class="step" data-step="1">Processing emotional patterns</div>
+                <div class="step" data-step="2">Evaluating resilience factors</div>
+                <div class="step" data-step="3">Assessing growth mindset</div>
+                <div class="step" data-step="4">Compiling insights</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <div class="app-container">
         <!-- Header -->
@@ -234,17 +254,9 @@
         <!-- Result Screen -->
         <div id="resultScreen" class="screen">
             <div class="screen-content">
-                <div class="results-header">
-                    <h1>Assessment <span class="gradient-text">Complete</span></h1>
-                    <p class="user-greeting" id="userGreeting">Here are your personalized insights</p>
-                </div>
-                
-                <div class="results-summary" id="resultsSummary">
-                    <!-- Results summary will be populated here -->
-                </div>
-                
+                <!-- Cards Reveal Section -->
                 <div id="reportsContainer">
-                    <!-- Reports will be populated here -->
+                    <!-- Cards will be populated here -->
                 </div>
                 
                 <div class="action-section">

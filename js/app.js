@@ -1,4 +1,4 @@
-// js/app.js - COMPLETE PSYCHOMETRIC ASSESSMENT APPLICATION WITH GLOBAL LANGUAGE
+// js/app.js - COMPLETE PSYCHOMETRIC APP WITH CARD REVEAL SYSTEM
 class PsychometricApp {
     constructor() {
         this.state = {
@@ -197,7 +197,16 @@ class PsychometricApp {
                 viewReports: 'View Detailed Reports',
                 printReports: 'Print Reports',
                 takeAgain: 'Take Again',
-                viewAnalytics: 'View Analytics'
+                viewAnalytics: 'View Analytics',
+                analyzing: 'Analyzing Your Responses',
+                analyzingDesc: "We're carefully reviewing your answers to create personalized insights...",
+                step1: 'Processing emotional patterns',
+                step2: 'Evaluating resilience factors',
+                step3: 'Assessing growth mindset',
+                step4: 'Compiling insights',
+                profileReady: 'Your Psychological Profile is Ready! 🎉',
+                tapToReveal: 'Tap each card to reveal your personalized insights',
+                startWithStrongest: 'Start with your strongest area'
             },
             hi: {
                 name: 'अपना नाम दर्ज करें',
@@ -213,7 +222,16 @@ class PsychometricApp {
                 viewReports: 'विस्तृत रिपोर्ट देखें',
                 printReports: 'रिपोर्ट प्रिंट करें',
                 takeAgain: 'फिर से करें',
-                viewAnalytics: 'विश्लेषण देखें'
+                viewAnalytics: 'विश्लेषण देखें',
+                analyzing: 'आपके उत्तरों का विश्लेषण',
+                analyzingDesc: 'हम आपके उत्तरों का सावधानीपूर्वक विश्लेषण कर व्यक्तिगत अंतर्दृष्टि बना रहे हैं...',
+                step1: 'भावनात्मक पैटर्न संसाधित करना',
+                step2: 'लचीलापन कारकों का मूल्यांकन',
+                step3: 'विकास मानसिकता का आकलन',
+                step4: 'अंतर्दृष्टि संकलित करना',
+                profileReady: 'आपका मनोवैज्ञानिक प्रोफाइल तैयार है! 🎉',
+                tapToReveal: 'अपनी व्यक्तिगत अंतर्दृष्टि देखने के लिए प्रत्येक कार्ड टैप करें',
+                startWithStrongest: 'अपने सबसे मजबूत क्षेत्र से शुरू करें'
             },
             bn: {
                 name: 'আপনার নাম লিখুন',
@@ -229,7 +247,16 @@ class PsychometricApp {
                 viewReports: 'বিস্তারিত রিপোর্ট দেখুন',
                 printReports: 'রিপোর্ট প্রিন্ট করুন',
                 takeAgain: 'আবার করুন',
-                viewAnalytics: 'বিশ্লেষণ দেখুন'
+                viewAnalytics: 'বিশ্লেষণ দেখুন',
+                analyzing: 'আপনার উত্তর বিশ্লেষণ করা হচ্ছে',
+                analyzingDesc: 'আমরা আপনার উত্তরগুলি সাবধানে পর্যালোচনা করে ব্যক্তিগত অন্তর্দৃষ্টি তৈরি করছি...',
+                step1: 'মানসিক নমুনা প্রক্রিয়া করা',
+                step2: 'স্থিতিস্থাপকতা ফ্যাক্টর মূল্যায়ন',
+                step3: 'বৃদ্ধির মানসিকতা মূল্যায়ন',
+                step4: 'অন্তর্দৃষ্টি কম্পাইল করা',
+                profileReady: 'আপনার মনস্তাত্ত্বিক প্রোফাইল প্রস্তুত! 🎉',
+                tapToReveal: 'আপনার ব্যক্তিগত অন্তর্দৃষ্টি প্রকাশ করতে প্রতিটি কার্ড ট্যাপ করুন',
+                startWithStrongest: 'আপনার শক্তিশালী এলাকা দিয়ে শুরু করুন'
             }
         };
         
@@ -625,214 +652,271 @@ class PsychometricApp {
         return card;
     }
     
+    // ===== NEW CARD REVEAL SYSTEM =====
+    
     async showReports() {
-        this.showScreen('resultScreen');
-        await this.renderReports();
+        // Show analysis screen first
+        this.showAnalysisScreen();
+        
+        // Simulate analysis delay (3-4 seconds)
+        await this.simulateAnalysis();
+        
+        // Hide analysis screen and show cards
+        this.hideAnalysisScreen();
+        this.showCardsReveal();
     }
     
-    async renderReports() {
-        // Update user greeting
-        const userGreetingElement = document.getElementById('userGreeting');
-        if (userGreetingElement) userGreetingElement.textContent = `Here are your personalized insights, ${this.state.userName}.`;
-        
-        // Display results summary
-        const resultsSummary = document.getElementById('resultsSummary');
-        if (!resultsSummary) return;
-        
-        resultsSummary.innerHTML = '';
-        
-        for (const [category, result] of Object.entries(this.state.results)) {
-            const levelText = ScoringAlgorithm.getLevelLabel(result.level);
-            const levelColor = ScoringAlgorithm.getLevelColor(result.level);
-            
-            const categoryResult = document.createElement('div');
-            categoryResult.className = 'category-result';
-            categoryResult.style.borderLeft = `4px solid ${levelColor}`;
-            categoryResult.innerHTML = `
-                <div class="category-name">${category}</div>
-                <div class="category-score" style="color: ${levelColor}">${result.overall.toFixed(1)}</div>
-                <div class="category-level">${levelText}</div>
-            `;
-            
-            resultsSummary.appendChild(categoryResult);
-        }
-        
-        // Load and display reports
-        const reportsContainer = document.getElementById('reportsContainer');
-        if (!reportsContainer) return;
-        
-        reportsContainer.innerHTML = '<div class="loading-reports">Loading your personalized reports...</div>';
-        
-        try {
-            await this.loadAndDisplayReports();
-        } catch (error) {
-            console.error('Error loading reports:', error);
-            reportsContainer.innerHTML = '<div class="error-message">Unable to load reports. Please try again later.</div>';
+    showAnalysisScreen() {
+        const analysisScreen = document.getElementById('analysisScreen');
+        if (analysisScreen) {
+            analysisScreen.style.display = 'flex';
+            this.animateAnalysisSteps();
         }
     }
     
-    async loadAndDisplayReports() {
-        const reportsContainer = document.getElementById('reportsContainer');
-        if (!reportsContainer) return;
+    animateAnalysisSteps() {
+        const steps = document.querySelectorAll('.analysis-steps .step');
+        let currentStep = 0;
         
-        reportsContainer.innerHTML = '';
-        
-        for (const [category, result] of Object.entries(this.state.results)) {
-            try {
-                const reportContent = await ReportLoader.loadReport(category, result.level);
-                
-                const reportSection = document.createElement('div');
-                reportSection.className = 'report-section';
-                
-                const reportHeader = document.createElement('div');
-                reportHeader.className = 'report-header';
-                reportHeader.innerHTML = `
-                    <h3 class="report-title">${category} Intelligence - Level ${result.level}</h3>
-                    <div class="report-meta">
-                        <span class="score-badge" style="background: ${ScoringAlgorithm.getLevelColor(result.level)}">
-                            Score: ${result.overall.toFixed(1)}/5.0
-                        </span>
-                        <span class="level-label">${ScoringAlgorithm.getLevelLabel(result.level)}</span>
-                    </div>
-                `;
-                
-                const reportContentDiv = document.createElement('div');
-                reportContentDiv.className = 'report-content';
-                reportContentDiv.innerHTML = reportContent;
-                
-                reportSection.appendChild(reportHeader);
-                reportSection.appendChild(reportContentDiv);
-                
-                reportsContainer.appendChild(reportSection);
-            } catch (error) {
-                console.error(`Error loading report for ${category}:`, error);
-                // Show fallback content
-                const fallbackSection = document.createElement('div');
-                fallbackSection.className = 'report-section';
-                fallbackSection.innerHTML = `
-                    <div class="report-header">
-                        <h3 class="report-title">${category} Intelligence - Level ${result.level}</h3>
-                        <div class="report-meta">
-                            <span class="score-badge" style="background: ${ScoringAlgorithm.getLevelColor(result.level)}">
-                                Score: ${result.overall.toFixed(1)}/5.0
-                            </span>
-                            <span class="level-label">${ScoringAlgorithm.getLevelLabel(result.level)}</span>
-                        </div>
-                    </div>
-                    <div class="report-content">
-                        <p>Detailed report for ${category} intelligence is currently unavailable.</p>
-                        <p>Your score of ${result.overall.toFixed(1)} indicates a ${ScoringAlgorithm.getLevelLabel(result.level).toLowerCase()} level of proficiency in this area.</p>
-                    </div>
-                `;
-                reportsContainer.appendChild(fallbackSection);
+        const stepInterval = setInterval(() => {
+            if (currentStep > 0) {
+                steps[currentStep - 1].classList.remove('active');
             }
-        }
-        
-        // Add print button after reports are loaded
-        this.addPrintButton();
+            
+            if (currentStep < steps.length) {
+                steps[currentStep].classList.add('active');
+                currentStep++;
+            } else {
+                clearInterval(stepInterval);
+            }
+        }, 800); // Change step every 800ms
     }
     
-    addPrintButton() {
-        const actionButtons = document.querySelector('.action-section');
-        if (!actionButtons) return;
-        
-        // Remove existing print button if any
-        const existingPrintBtn = document.getElementById('printReportsBtn');
-        if (existingPrintBtn) {
-            existingPrintBtn.remove();
-        }
-        
-        const printBtn = document.createElement('button');
-        printBtn.id = 'printReportsBtn';
-        printBtn.className = 'action-button secondary';
-        printBtn.innerHTML = '🖨️ Print Reports';
-        printBtn.addEventListener('click', () => this.printReports());
-        
-        // Insert before the first button
-        actionButtons.insertBefore(printBtn, actionButtons.firstChild);
+    simulateAnalysis() {
+        return new Promise(resolve => {
+            // Random delay between 3-5 seconds for realism
+            const delay = 3000 + Math.random() * 2000;
+            setTimeout(resolve, delay);
+        });
     }
     
-    printReports() {
-        const printWindow = window.open('', '_blank');
+    hideAnalysisScreen() {
+        const analysisScreen = document.getElementById('analysisScreen');
+        if (analysisScreen) {
+            analysisScreen.style.opacity = '0';
+            setTimeout(() => {
+                analysisScreen.style.display = 'none';
+                analysisScreen.style.opacity = '1';
+            }, 500);
+        }
+    }
+    
+    showCardsReveal() {
+        this.showScreen('resultScreen');
+        
         const reportsContainer = document.getElementById('reportsContainer');
+        const texts = this.getCurrentLanguageTexts();
         
-        if (!reportsContainer) {
-            alert('No reports available to print.');
-            return;
-        }
-        
-        const userInfo = `
-            <h2>Mind Insight Pro - Assessment Report</h2>
-            <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                <strong>User:</strong> ${this.state.userName}<br>
-                <strong>Date:</strong> ${new Date().toLocaleDateString()}<br>
-                <strong>Overall Profile:</strong> ${this.getOverallLevel()}
+        reportsContainer.innerHTML = `
+            <div class="cards-reveal-container">
+                <div class="reveal-message">
+                    <h2>${texts.profileReady}</h2>
+                    <p>${texts.tapToReveal}</p>
+                    <div class="reveal-hint">${texts.startWithStrongest}</div>
+                </div>
+                <div class="cards-grid" id="cardsGrid">
+                    <!-- Cards will be populated here -->
+                </div>
             </div>
         `;
         
-        printWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Mind Insight Pro - ${this.state.userName}'s Assessment Report</title>
-                <style>
-                    body { 
-                        font-family: Arial, sans-serif; 
-                        line-height: 1.6; 
-                        color: #333; 
-                        max-width: 800px; 
-                        margin: 0 auto; 
-                        padding: 20px;
-                    }
-                    .report-section { 
-                        margin-bottom: 30px; 
-                        page-break-inside: avoid;
-                        border: 1px solid #ddd; 
-                        border-radius: 8px; 
-                        padding: 20px;
-                    }
-                    .report-header { 
-                        background: #f8f9fa; 
-                        padding: 15px; 
-                        margin: -20px -20px 20px -20px;
-                        border-bottom: 1px solid #ddd;
-                        border-radius: 8px 8px 0 0;
-                    }
-                    .report-title { 
-                        color: #2d3748; 
-                        margin: 0 0 10px 0;
-                    }
-                    .report-content h1 { color: #2d3748; margin-top: 20px; }
-                    .report-content h2 { color: #4a5568; margin-top: 15px; }
-                    .report-content p { margin-bottom: 10px; }
-                    .report-content ul { margin: 10px 0; padding-left: 20px; }
-                    .report-content li { margin-bottom: 5px; }
-                    @media print {
-                        body { padding: 0; }
-                        .report-section { border: none; margin-bottom: 20px; }
-                    }
-                </style>
-            </head>
-            <body>
-                ${userInfo}
-                ${reportsContainer.innerHTML}
-                <script>
-                    window.onload = function() {
-                        window.print();
-                    }
-                </script>
-            </body>
-            </html>
-        `);
-        
-        printWindow.document.close();
+        this.renderCards();
     }
     
-    getOverallLevel() {
-        const overallScore = Object.values(this.state.results).reduce((sum, result) => sum + result.overall, 0) / Object.keys(this.state.results).length;
-        const overallLevel = ScoringAlgorithm.determineLevel(overallScore);
-        return ScoringAlgorithm.getLevelLabel(overallLevel);
+    getCurrentLanguageTexts() {
+        const lang = LanguageManager.getLanguage();
+        const translations = {
+            en: {
+                profileReady: 'Your Psychological Profile is Ready! 🎉',
+                tapToReveal: 'Tap each card to reveal your personalized insights',
+                startWithStrongest: 'Start with your strongest area'
+            },
+            hi: {
+                profileReady: 'आपका मनोवैज्ञानिक प्रोफाइल तैयार है! 🎉',
+                tapToReveal: 'अपनी व्यक्तिगत अंतर्दृष्टि देखने के लिए प्रत्येक कार्ड टैप करें',
+                startWithStrongest: 'अपने सबसे मजबूत क्षेत्र से शुरू करें'
+            },
+            bn: {
+                profileReady: 'আপনার মনস্তাত্ত্বিক প্রোফাইল প্রস্তুত! 🎉',
+                tapToReveal: 'আপনার ব্যক্তিগত অন্তর্দৃষ্টি প্রকাশ করতে প্রতিটি কার্ড ট্যাপ করুন',
+                startWithStrongest: 'আপনার শক্তিশালী এলাকা দিয়ে শুরু করুন'
+            }
+        };
+        
+        return translations[lang] || translations.en;
     }
+    
+    renderCards() {
+        const cardsGrid = document.getElementById('cardsGrid');
+        if (!cardsGrid) return;
+        
+        cardsGrid.innerHTML = '';
+        
+        // Sort categories by score (highest first for better UX)
+        const sortedCategories = Object.entries(this.state.results)
+            .sort(([,a], [,b]) => b.overall - a.overall);
+        
+        for (const [category, result] of sortedCategories) {
+            const cardHTML = this.createPsychCard(category, result);
+            cardsGrid.innerHTML += cardHTML;
+        }
+        
+        // Add card interaction listeners
+        this.setupCardInteractions();
+    }
+    
+    createPsychCard(category, result) {
+        const level = result.level;
+        const score = result.overall;
+        const levelLabel = ScoringAlgorithm.getLevelLabel(level);
+        const levelColor = ScoringAlgorithm.getLevelColor(level);
+        
+        const categoryIcons = {
+            'Emotional': '💖',
+            'Resilience': '🛡️',
+            'Growth': '🌱',
+            'Overthinking': '🧠'
+        };
+        
+        const rarityClass = score >= 4.5 ? 'epic' : score >= 4.0 ? 'rare' : 'common';
+        const quickInsight = this.generateQuickInsight(category, score);
+        
+        return `
+            <div class="psych-card ${rarityClass}" data-category="${category}" data-score="${score}">
+                <div class="card-inner">
+                    <div class="card-back">
+                        <div class="mystery-shape">🔮</div>
+                        <div class="card-prompt">Tap to Reveal</div>
+                    </div>
+                    <div class="card-front">
+                        <div class="card-header">
+                            <span class="category-icon">${categoryIcons[category]}</span>
+                            <h3>${category} Intelligence</h3>
+                        </div>
+                        <div class="score-display">
+                            <div class="score-ring" style="--score: ${score}">
+                                <span class="score-value">${score.toFixed(1)}</span>
+                            </div>
+                            <span class="level-badge" style="background: ${levelColor}">${levelLabel}</span>
+                        </div>
+                        <div class="key-insight">
+                            ${quickInsight}
+                        </div>
+                        <button class="view-details" onclick="psychometricApp.expandCard('${category}')">
+                            See Full Analysis →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    generateQuickInsight(category, score) {
+        const insights = {
+            Emotional: {
+                high: "You have exceptional emotional awareness and empathy skills",
+                medium: "You demonstrate good emotional understanding with room for growth",
+                low: "Developing emotional awareness can enhance your relationships"
+            },
+            Resilience: {
+                high: "You bounce back quickly from challenges with strong adaptability",
+                medium: "You handle stress well but could strengthen coping strategies",
+                low: "Building resilience will help you navigate life's challenges"
+            },
+            Growth: {
+                high: "You actively seek learning and embrace new opportunities",
+                medium: "You're open to growth with potential for more proactive learning",
+                low: "Developing a growth mindset can unlock new possibilities"
+            },
+            Overthinking: {
+                high: "You maintain balanced thinking without excessive analysis",
+                medium: "You occasionally overthink but generally make decisive choices",
+                low: "Practicing mindfulness can help reduce overthinking patterns"
+            }
+        };
+        
+        const categoryInsights = insights[category];
+        let insightKey = 'medium';
+        
+        if (score >= 4.0) insightKey = 'high';
+        else if (score <= 2.5) insightKey = 'low';
+        
+        return categoryInsights[insightKey];
+    }
+    
+    setupCardInteractions() {
+        document.querySelectorAll('.psych-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('.view-details')) {
+                    this.revealCard(card);
+                }
+            });
+        });
+    }
+    
+    revealCard(card) {
+        if (card.classList.contains('revealed')) return;
+        
+        card.classList.add('revealing');
+        
+        setTimeout(() => {
+            card.classList.remove('revealing');
+            card.classList.add('revealed');
+            
+            // Add celebration for high scores
+            const score = parseFloat(card.dataset.score);
+            if (score >= 4.0) {
+                this.celebrateCard(card);
+            }
+        }, 600);
+    }
+    
+    celebrateCard(card) {
+        const score = parseFloat(card.dataset.score);
+        const confettiCount = score >= 4.5 ? 8 : 5;
+        
+        for (let i = 0; i < confettiCount; i++) {
+            this.createConfetti(card);
+        }
+    }
+    
+    createConfetti(card) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.textContent = '✨';
+        confetti.style.left = Math.random() * 80 + 10 + '%';
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        
+        card.appendChild(confetti);
+        
+        setTimeout(() => {
+            if (confetti.parentNode) {
+                confetti.remove();
+            }
+        }, 1500);
+    }
+    
+    expandCard(category) {
+        // For now, just alert - you can expand this to show detailed reports
+        alert(`Detailed analysis for ${category} intelligence would open here with full markdown reports from your files.`);
+        
+        // Future implementation:
+        // 1. Load the corresponding markdown report
+        // 2. Show in a modal or expand the card
+        // 3. Include actionable recommendations
+    }
+    
+    // ===== EXISTING FUNCTIONALITY =====
     
     refreshCurrentQuestion() {
         // Only refresh if we're on the question screen
@@ -985,26 +1069,3 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing app...');
     window.psychometricApp = new PsychometricApp();
 });
-
-// Add CSS for progress indicator
-const progressIndicatorCSS = `
-.progress-dots {
-    display: flex;
-    gap: 6px;
-}
-.progress-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--text-muted);
-    transition: background 0.3s ease;
-}
-.progress-dot.active {
-    background: var(--primary);
-}
-`;
-
-// Inject progress indicator styles
-const style = document.createElement('style');
-style.textContent = progressIndicatorCSS;
-document.head.appendChild(style);
