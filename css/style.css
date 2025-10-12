@@ -60,13 +60,7 @@ body {
     z-index: 10;
 }
 
-/* Language Selector */
-.language-selector {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 100;
-}
+
 
 .lang-btn {
     background: rgba(255, 255, 255, 0.9);
@@ -538,4 +532,103 @@ body {
         border-color: #4a5568;
         color: white;
     }
+}
+/* css/style.css - Language Selector Fixes */
+
+/* Beautiful Prominent Language Selector */
+.language-selector-prominent {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+.language-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.language-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.language-option-prominent {
+    padding: 20px 15px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid #e2e8f0;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.language-option-prominent::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gradient-primary);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.language-option-prominent:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-3px);
+    box-shadow: var(--box-shadow);
+}
+
+.language-option-prominent:hover::before {
+    opacity: 0.05;
+}
+
+.language-option-prominent.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.language-option-prominent.active::before {
+    opacity: 0;
+}
+
+.language-flag {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.language-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: block;
+}
+
+/* Remove the old language selector styles */
+.language-selector {
+    display: none; /* Hide the old small selector */
+}
+
+/* Keep the old styles for reference but hide them */
+.lang-btn, .lang-dropdown {
+    display: none;
 }

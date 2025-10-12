@@ -1,4 +1,4 @@
-// js/app.js - Complete Corrected Version
+// js/app.js - Complete Updated Version with Enhanced Language Support
 class PsychometricApp {
     constructor() {
         this.state = {
@@ -30,7 +30,15 @@ class PsychometricApp {
     }
     
     bindEvents() {
-        // Intro screen
+        // New prominent language selector events
+        document.querySelectorAll('.language-option-prominent').forEach(option => {
+            option.addEventListener('click', (e) => {
+                const lang = e.currentTarget.dataset.lang;
+                this.changeLanguage(lang);
+            });
+        });
+
+        // ... rest of your existing event bindings
         document.getElementById('startBtn').addEventListener('click', () => this.startTest());
         document.getElementById('userName').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.startTest();
@@ -79,24 +87,73 @@ class PsychometricApp {
     
     changeLanguage(lang) {
         if (LanguageManager.setLanguage(lang)) {
-            this.updateLanguageUI();
-            if (this.state.currentCategoryIndex !== 0 || this.state.currentQuestionIndex !== 0) {
-                this.loadCurrentQuestion(); // Refresh current question
-            }
+            this.updateLanguageUI(lang);
+            this.refreshCurrentQuestion();
         }
     }
 
-    updateLanguageUI() {
-        const currentLang = LanguageManager.getLanguage();
-        const langData = LanguageManager.languages[currentLang];
+    updateLanguageUI(lang) {
+        // Update prominent language selector
+        document.querySelectorAll('.language-option-prominent').forEach(option => {
+            option.classList.toggle('active', option.dataset.lang === lang);
+        });
         
+        // Update dropdown language selector
+        const langData = LanguageManager.languages[lang];
         document.getElementById('currentLangFlag').textContent = langData.flag;
         document.getElementById('currentLangName').textContent = langData.name;
         
         // Update active state in dropdown
         document.querySelectorAll('.lang-option').forEach(option => {
-            option.classList.toggle('active', option.dataset.lang === currentLang);
+            option.classList.toggle('active', option.dataset.lang === lang);
         });
+        
+        // Update any language-specific text
+        this.updateStaticText(lang);
+    }
+
+    updateStaticText(lang) {
+        // Update placeholder texts based on language
+        const placeholders = {
+            en: {
+                name: 'Enter your name',
+                age: 'Your age',
+                start: 'Start Assessment'
+            },
+            hi: {
+                name: 'अपना नाम दर्ज करें',
+                age: 'आपकी उम्र',
+                start: 'मूल्यांकन शुरू करें'
+            },
+            bn: {
+                name: 'আপনার নাম লিখুন',
+                age: 'আপনার বয়স',
+                start: 'মূল্যায়ন শুরু করুন'
+            }
+        };
+        
+        const texts = placeholders[lang] || placeholders.en;
+        
+        // Update form placeholders
+        const nameInput = document.getElementById('userName');
+        const ageInput = document.getElementById('userAge');
+        if (nameInput) nameInput.placeholder = texts.name;
+        if (ageInput) ageInput.placeholder = texts.age;
+        
+        // Update button text
+        const startBtn = document.getElementById('startBtn');
+        if (startBtn) {
+            const span = startBtn.querySelector('span:first-child');
+            if (span) {
+                span.textContent = texts.start;
+            }
+        }
+    }
+
+    refreshCurrentQuestion() {
+        if (this.state.currentCategoryIndex !== 0 || this.state.currentQuestionIndex !== 0) {
+            this.loadCurrentQuestion(); // Refresh current question with new language
+        }
     }
     
     loadExistingSession() {
