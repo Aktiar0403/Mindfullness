@@ -1,4 +1,4 @@
-// Main Application Controller
+// js/app.js - Complete Corrected Version
 class PsychometricApp {
     constructor() {
         this.state = {
@@ -19,6 +19,13 @@ class PsychometricApp {
     
     initializeApp() {
         this.bindEvents();
+        
+        // Clean up any corrupted data on startup
+        const cleanedCount = DataManager.cleanupCorruptedData();
+        if (cleanedCount > 0) {
+            console.log(`Cleaned up ${cleanedCount} corrupted data entries`);
+        }
+        
         this.loadExistingSession();
     }
     
@@ -43,7 +50,6 @@ class PsychometricApp {
         
         // Analytics screen
         document.getElementById('viewReportsBtn').addEventListener('click', () => this.showReports());
-     
         
         // Result screen
         document.getElementById('restartBtn').addEventListener('click', () => this.restartTest());
@@ -51,61 +57,70 @@ class PsychometricApp {
         document.getElementById('viewAnalyticsBtn').addEventListener('click', () => this.showAnalytics());
     }
     
-    // Add the new download method
-async downloadPDFReport() {
-    try {
-        // Show loading state
-        const downloadBtn = document.getElementById('downloadBtn');
-        const originalText = downloadBtn.textContent;
-        downloadBtn.textContent = 'Generating PDF...';
-        downloadBtn.disabled = true;
+    loadExistingSession() {
+        try {
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('psychometric_')) {
+                    const userData = JSON.parse(localStorage.getItem(key));
+                    if (userData && !userData.completed) {
+                        const continueTest = confirm(
+                            `We found an incomplete assessment for ${userData.demographics.name || 'a user'}. ` +
+                            `Would you like to continue where you left off?`
+                        );
+                        
+                        if (continueTest) {
+                            this.state.userId = userData.userId;
+                            this.state.demographics = userData.demographics;
+                            this.state.answers = userData.responses || {};
+                            this.state.responseTimestamps = userData.timestamps || [];
+                            
+                            // Find current position
+                            this.findCurrentPosition();
+                            this.showScreen('questionScreen');
+                            this.loadCurrentQuestion();
+                            return;
+                        } else {
+                            // Clear the incomplete session
+                            DataManager.clearUserData(userData.userId);
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error loading existing session:', error);
+        }
+    }
+    
+    findCurrentPosition() {
+        const categories = QuestionManager.getCategories();
         
-        // Collect all report content
-        const reportsContent = {};
-        for (const [category, result] of Object.entries(this.state.results)) {
-            try {
-                const report = await ReportLoader.loadReport(category, result.level);
-                reportsContent[category] = this.stripHTML(report);
-            } catch (error) {
-                console.error(`Error loading report for ${category}:`, error);
-                reportsContent[category] = `Report for ${category} - Level ${result.level} not available.`;
+        for (let catIdx = 0; catIdx < categories.length; catIdx++) {
+            const category = categories[catIdx];
+            const subcategories = QuestionManager.getSubcategories(category);
+            
+            for (let subIdx = 0; subIdx < subcategories.length; subIdx++) {
+                const subcategory = subcategories[subIdx];
+                const questions = QuestionManager.getQuestions(category, subcategory);
+                
+                for (let qIdx = 0; qIdx < questions.length; qIdx++) {
+                    const hasAnswer = this.state.answers[category] && 
+                                     this.state.answers[category][subcategory] && 
+                                     this.state.answers[category][subcategory][qIdx] !== undefined;
+                    
+                    if (!hasAnswer) {
+                        this.state.currentCategoryIndex = catIdx;
+                        this.state.currentSubcategoryIndex = subIdx;
+                        this.state.currentQuestionIndex = qIdx;
+                        return;
+                    }
+                }
             }
         }
         
-        // Get user data
-        const userData = DataManager.getUserData(this.state.userId) || {
-            demographics: this.state.demographics,
-            responses: this.state.answers
-        };
-        
-        // Generate PDF
-        const success = await PDFGenerator.generateReport(
-            userData, 
-            this.state.results, 
-            reportsContent
-        );
-        
-        if (success) {
-            console.log('PDF report generated successfully');
-        }
-        
-    } catch (error) {
-        console.error('Error generating PDF report:', error);
-        alert('Error generating PDF report. Please try again.');
-    } finally {
-        // Restore button state
-        const downloadBtn = document.getElementById('downloadBtn');
-        downloadBtn.textContent = 'Download Full Report';
-        downloadBtn.disabled = false;
+        // If all questions are answered, go to results
+        this.calculateResults();
     }
-}
-
-// Helper method to strip HTML from reports
-stripHTML(html) {
-    const tmp = document.createElement('div');
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || '';
-}
     
     startTest() {
         const name = document.getElementById('userName').value.trim();
@@ -206,7 +221,7 @@ stripHTML(html) {
         const category = QuestionManager.getCategories()[this.state.currentCategoryIndex];
         const subcategory = QuestionManager.getSubcategories(category)[this.state.currentSubcategoryIndex];
         
-        // Store answer
+        // Store answer in state first
         if (!this.state.answers[category]) {
             this.state.answers[category] = {};
         }
@@ -215,8 +230,8 @@ stripHTML(html) {
         }
         this.state.answers[category][subcategory][this.state.currentQuestionIndex] = answerValue;
         
-        // Save to storage
-        DataManager.saveResponse(
+        // Then save to storage (automatically saves to Firebase)
+        const saved = DataManager.saveResponse(
             this.state.userId,
             category,
             subcategory,
@@ -224,6 +239,11 @@ stripHTML(html) {
             answerValue,
             Date.now()
         );
+        
+        if (!saved) {
+            console.warn('Failed to save response to storage');
+            // Continue anyway, data is in memory
+        }
         
         this.moveToNextQuestion();
     }
@@ -299,13 +319,17 @@ stripHTML(html) {
         
         document.getElementById('progressPercentage').textContent = `${Math.round(progress)}%`;
         document.getElementById('progressFill').style.width = `${progress}%`;
+        
+        // Also update browser tab title with progress
+        document.title = `Psychometric Test (${Math.round(progress)}%)`;
     }
     
     getAnsweredQuestionsCount() {
         let answered = 0;
         for (const category in this.state.answers) {
             for (const subcategory in this.state.answers[category]) {
-                answered += this.state.answers[category][subcategory].filter(a => a !== null && a !== undefined).length;
+                const answers = this.state.answers[category][subcategory];
+                answered += answers.filter(a => a !== null && a !== undefined).length;
             }
         }
         return answered;
@@ -329,7 +353,7 @@ stripHTML(html) {
         this.state.analytics.consistency = ScoringAlgorithm.calculateConsistency(this.state.answers);
         this.state.analytics.responseTime = ScoringAlgorithm.calculateResponseTimeAnalysis(this.state.responseTimestamps);
         
-        // Mark as complete
+        // Mark as complete (automatically saves to Firebase)
         DataManager.markComplete(this.state.userId, this.state.results);
         
         this.showAnalytics();
@@ -493,18 +517,59 @@ stripHTML(html) {
         }
     }
     
-    saveUserData() {
-        const success = DataManager.exportUserData(this.state.userId);
-        if (success) {
-            alert("Your data has been saved successfully!");
-        } else {
-            alert("Error saving your data. Please try again.");
+    async downloadPDFReport() {
+        try {
+            // Show loading state
+            const downloadBtn = document.getElementById('downloadBtn');
+            const originalText = downloadBtn.textContent;
+            downloadBtn.textContent = 'Generating PDF...';
+            downloadBtn.disabled = true;
+            
+            // Collect all report content
+            const reportsContent = {};
+            for (const [category, result] of Object.entries(this.state.results)) {
+                try {
+                    const report = await ReportLoader.loadReport(category, result.level);
+                    reportsContent[category] = this.stripHTML(report);
+                } catch (error) {
+                    console.error(`Error loading report for ${category}:`, error);
+                    reportsContent[category] = `Report for ${category} - Level ${result.level} not available.`;
+                }
+            }
+            
+            // Get user data
+            const userData = DataManager.getUserData(this.state.userId) || {
+                demographics: this.state.demographics,
+                responses: this.state.answers
+            };
+            
+            // Generate PDF
+            const success = await PDFGenerator.generateReport(
+                userData, 
+                this.state.results, 
+                reportsContent
+            );
+            
+            if (success) {
+                console.log('PDF report generated successfully');
+            }
+            
+        } catch (error) {
+            console.error('Error generating PDF report:', error);
+            alert('Error generating PDF report. Please try again.');
+        } finally {
+            // Restore button state
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.textContent = 'Download Full Report';
+            downloadBtn.disabled = false;
         }
     }
     
-    downloadReport() {
-        alert("In a complete implementation, this would generate a comprehensive PDF report with all analytics.");
-        // This would use libraries like jsPDF and html2canvas
+    // Helper method to strip HTML from reports
+    stripHTML(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
     }
     
     restartTest() {
