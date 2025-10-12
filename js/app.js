@@ -1,4 +1,4 @@
-// js/app.js - COMPLETE PSYCHOMETRIC ASSESSMENT APPLICATION
+// js/app.js - COMPLETE PSYCHOMETRIC ASSESSMENT APPLICATION WITH GLOBAL LANGUAGE
 class PsychometricApp {
     constructor() {
         this.state = {
@@ -27,6 +27,7 @@ class PsychometricApp {
         }
         
         this.loadExistingSession();
+        this.initializeGlobalLanguage();
     }
     
     bindEvents() {
@@ -41,18 +42,41 @@ class PsychometricApp {
     setupEventListeners() {
         console.log('Setting up event listeners...');
         
-        // New language selector events
-        const languageCards = document.querySelectorAll('.language-card');
-        if (languageCards.length > 0) {
-            languageCards.forEach(card => {
-                card.addEventListener('click', (e) => {
+        // Compact language buttons in intro
+        const languageBtns = document.querySelectorAll('.language-btn');
+        if (languageBtns.length > 0) {
+            languageBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
                     const lang = e.currentTarget.dataset.lang;
                     console.log('Language selected:', lang);
                     this.changeLanguage(lang);
+                    this.updateCompactLanguageButtons(lang);
                 });
             });
-            console.log('Language event listeners added');
         }
+        
+        // Global language selector
+        const languageToggle = document.getElementById('languageToggle');
+        if (languageToggle) {
+            languageToggle.addEventListener('click', () => this.toggleLanguageDropdown());
+        }
+        
+        // Global language options
+        const langOptions = document.querySelectorAll('.lang-option');
+        langOptions.forEach(option => {
+            option.addEventListener('click', (e) => {
+                const lang = e.currentTarget.dataset.lang;
+                this.changeLanguage(lang);
+                this.hideLanguageDropdown();
+            });
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.global-language-selector')) {
+                this.hideLanguageDropdown();
+            }
+        });
         
         // Start button
         const startBtn = document.getElementById('startBtn');
@@ -78,7 +102,7 @@ class PsychometricApp {
         const nextBtn = document.getElementById('nextBtn');
         if (nextBtn) nextBtn.addEventListener('click', () => this.handleAnswer());
         
-        // New answer selection with emojis
+        // Answer selection with emojis
         document.querySelectorAll('.answer-input').forEach(input => {
             input.addEventListener('change', () => {
                 const nextBtn = document.getElementById('nextBtn');
@@ -96,54 +120,120 @@ class PsychometricApp {
         const viewAnalyticsBtn = document.getElementById('viewAnalyticsBtn');
         if (viewAnalyticsBtn) viewAnalyticsBtn.addEventListener('click', () => this.showAnalytics());
         
-        // Print button will be added dynamically
         console.log('All event listeners setup complete');
+    }
+    
+    initializeGlobalLanguage() {
+        // Set initial language from localStorage or default to English
+        const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+        this.changeLanguage(savedLang);
     }
     
     changeLanguage(lang) {
         console.log('Changing language to:', lang);
         if (LanguageManager.setLanguage(lang)) {
-            this.updateLanguageUI(lang);
+            this.updateGlobalLanguageSelector(lang);
+            this.updateCompactLanguageButtons(lang);
+            this.updateStaticText(lang);
             this.refreshCurrentQuestion();
         }
     }
     
-    updateLanguageUI(lang) {
-        console.log('Updating UI for language:', lang);
+    updateGlobalLanguageSelector(lang) {
+        const languageToggle = document.getElementById('languageToggle');
+        const currentLanguageSpan = languageToggle?.querySelector('.current-language');
         
-        // Update new language cards
-        const languageCards = document.querySelectorAll('.language-card');
-        if (languageCards.length > 0) {
-            languageCards.forEach(card => {
-                card.classList.toggle('active', card.dataset.lang === lang);
-            });
+        if (currentLanguageSpan) {
+            const flags = { en: '🇺🇸', hi: '🇮🇳', bn: '🇧🇩' };
+            currentLanguageSpan.textContent = flags[lang] || '🌐';
         }
         
-        // Update any language-specific text
-        this.updateStaticText(lang);
+        // Update active state in dropdown
+        document.querySelectorAll('.lang-option').forEach(option => {
+            option.classList.toggle('active', option.dataset.lang === lang);
+        });
+    }
+    
+    updateCompactLanguageButtons(lang) {
+        document.querySelectorAll('.language-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.lang === lang);
+        });
+    }
+    
+    toggleLanguageDropdown() {
+        const dropdown = document.getElementById('languageDropdown');
+        const chevron = document.querySelector('.chevron');
+        
+        if (dropdown && chevron) {
+            dropdown.classList.toggle('show');
+            chevron.style.transform = dropdown.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0)';
+        }
+    }
+    
+    hideLanguageDropdown() {
+        const dropdown = document.getElementById('languageDropdown');
+        const chevron = document.querySelector('.chevron');
+        
+        if (dropdown && chevron) {
+            dropdown.classList.remove('show');
+            chevron.style.transform = 'rotate(0)';
+        }
     }
     
     updateStaticText(lang) {
         console.log('Updating static text for:', lang);
-        const placeholders = {
+        const translations = {
             en: {
                 name: 'Enter your name',
                 age: 'Your age',
-                start: 'Begin Assessment'
+                start: 'Begin Assessment',
+                chooseLang: 'Choose Language:',
+                questionProgress: 'Question',
+                of: 'of',
+                assessmentProgress: 'Assessment Progress',
+                previous: 'Previous',
+                skip: 'Skip',
+                next: 'Next Question',
+                viewReports: 'View Detailed Reports',
+                printReports: 'Print Reports',
+                takeAgain: 'Take Again',
+                viewAnalytics: 'View Analytics'
             },
             hi: {
                 name: 'अपना नाम दर्ज करें',
                 age: 'आपकी उम्र',
-                start: 'मूल्यांकन शुरू करें'
+                start: 'मूल्यांकन शुरू करें',
+                chooseLang: 'भाषा चुनें:',
+                questionProgress: 'प्रश्न',
+                of: 'में से',
+                assessmentProgress: 'मूल्यांकन प्रगति',
+                previous: 'पिछला',
+                skip: 'छोड़ें',
+                next: 'अगला प्रश्न',
+                viewReports: 'विस्तृत रिपोर्ट देखें',
+                printReports: 'रिपोर्ट प्रिंट करें',
+                takeAgain: 'फिर से करें',
+                viewAnalytics: 'विश्लेषण देखें'
             },
             bn: {
                 name: 'আপনার নাম লিখুন',
                 age: 'আপনার বয়স',
-                start: 'মূল্যায়ন শুরু করুন'
+                start: 'মূল্যায়ন শুরু করুন',
+                chooseLang: 'ভাষা নির্বাচন করুন:',
+                questionProgress: 'প্রশ্ন',
+                of: 'এর',
+                assessmentProgress: 'মূল্যায়ন অগ্রগতি',
+                previous: 'পূর্ববর্তী',
+                skip: 'এড়িয়ে যান',
+                next: 'পরবর্তী প্রশ্ন',
+                viewReports: 'বিস্তারিত রিপোর্ট দেখুন',
+                printReports: 'রিপোর্ট প্রিন্ট করুন',
+                takeAgain: 'আবার করুন',
+                viewAnalytics: 'বিশ্লেষণ দেখুন'
             }
         };
         
-        const texts = placeholders[lang] || placeholders.en;
+        const texts = translations[lang] || translations.en;
         
         // Update form placeholders
         const userNameInput = document.getElementById('userName');
@@ -152,12 +242,29 @@ class PsychometricApp {
         const userAgeInput = document.getElementById('userAge');
         if (userAgeInput) userAgeInput.placeholder = texts.age;
         
-        // Update button text
-        const startBtn = document.getElementById('startBtn');
-        if (startBtn) {
-            const firstSpan = startBtn.querySelector('span:first-child');
-            if (firstSpan) firstSpan.textContent = texts.start;
-        }
+        // Update buttons and labels
+        this.updateButtonText('#startBtn span:first-child', texts.start);
+        this.updateTextContent('.language-label', texts.chooseLang);
+        this.updateButtonText('#backBtn', texts.previous);
+        this.updateButtonText('#skipBtn', texts.skip);
+        this.updateButtonText('#nextBtn', texts.next);
+        this.updateButtonText('#viewReportsBtn', texts.viewReports);
+        this.updateButtonText('#printReportsBtn', texts.printReports);
+        this.updateButtonText('#restartBtn', texts.takeAgain);
+        this.updateButtonText('#viewAnalyticsBtn', texts.viewAnalytics);
+        
+        // Update progress labels
+        this.updateTextContent('.progress-info span:first-child', texts.assessmentProgress);
+    }
+    
+    updateButtonText(selector, text) {
+        const element = document.querySelector(selector);
+        if (element) element.textContent = text;
+    }
+    
+    updateTextContent(selector, text) {
+        const element = document.querySelector(selector);
+        if (element) element.textContent = text;
     }
     
     startTest() {

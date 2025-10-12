@@ -15,6 +15,30 @@
         <div class="gradient-circle circle-3"></div>
     </div>
 
+    <!-- Global Language Selector -->
+    <div class="global-language-selector">
+        <button class="language-toggle" id="languageToggle">
+            <span class="current-language">🇺🇸</span>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none">
+                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2"/>
+            </svg>
+        </button>
+        <div class="language-dropdown" id="languageDropdown">
+            <button class="lang-option" data-lang="en">
+                <span class="lang-flag">🇺🇸</span>
+                <span class="lang-name">English</span>
+            </button>
+            <button class="lang-option" data-lang="hi">
+                <span class="lang-flag">🇮🇳</span>
+                <span class="lang-name">हिन्दी</span>
+            </button>
+            <button class="lang-option" data-lang="bn">
+                <span class="lang-flag">🇧🇩</span>
+                <span class="lang-name">বাংলা</span>
+            </button>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <div class="app-container">
         <!-- Header -->
@@ -39,22 +63,13 @@
                     <p class="hero-subtitle">Unlock your psychological potential with our comprehensive assessment</p>
                 </div>
 
-                <!-- Language Selector -->
-                <div class="language-section">
-                    <h3>Choose Your Language</h3>
-                    <div class="language-grid">
-                        <div class="language-card active" data-lang="en">
-                            <div class="language-flag">🇺🇸</div>
-                            <div class="language-name">English</div>
-                        </div>
-                        <div class="language-card" data-lang="hi">
-                            <div class="language-flag">🇮🇳</div>
-                            <div class="language-name">हिन्दी</div>
-                        </div>
-                        <div class="language-card" data-lang="bn">
-                            <div class="language-flag">🇧🇩</div>
-                            <div class="language-name">বাংলা</div>
-                        </div>
+                <!-- Compact Language Selector -->
+                <div class="language-section compact">
+                    <div class="language-label">Choose Language:</div>
+                    <div class="language-buttons">
+                        <button class="language-btn active" data-lang="en">🇺🇸 English</button>
+                        <button class="language-btn" data-lang="hi">🇮🇳 हिन्दी</button>
+                        <button class="language-btn" data-lang="bn">🇧🇩 বাংলা</button>
                     </div>
                 </div>
 
@@ -76,6 +91,7 @@
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
                                 <option value="other">Other</option>
+                                <option value="prefer-not-to-say">Prefer not to say</option>
                             </select>
                         </div>
                         <div class="input-group">
@@ -86,6 +102,7 @@
                                 <option value="employed">Employed</option>
                                 <option value="self-employed">Self-Employed</option>
                                 <option value="unemployed">Unemployed</option>
+                                <option value="retired">Retired</option>
                             </select>
                         </div>
                     </div>
@@ -99,6 +116,11 @@
                             <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2"/>
                         </svg>
                     </button>
+                </div>
+
+                <!-- Privacy Notice -->
+                <div class="privacy-notice">
+                    <p><strong>Privacy Notice:</strong> Your responses are automatically saved for research and analytics purposes. All data is anonymized and used only to improve the assessment quality.</p>
                 </div>
             </div>
         </div>
@@ -198,9 +220,11 @@
                     <h1>Your <span class="gradient-text">Insights</span></h1>
                     <p>Detailed analysis of your psychological profile</p>
                 </div>
+                
                 <div class="analytics-grid" id="analyticsGrid">
-                    <!-- Analytics content -->
+                    <!-- Analytics will be populated here -->
                 </div>
+                
                 <div class="action-section">
                     <button id="viewReportsBtn" class="cta-button">View Detailed Reports</button>
                 </div>
@@ -216,15 +240,14 @@
                 </div>
                 
                 <div class="results-summary" id="resultsSummary">
-                    <!-- Results summary -->
+                    <!-- Results summary will be populated here -->
                 </div>
                 
                 <div id="reportsContainer">
-                    <!-- Reports content -->
+                    <!-- Reports will be populated here -->
                 </div>
                 
                 <div class="action-section">
-                    <button id="printReportsBtn" class="action-button secondary">Print Reports</button>
                     <button id="restartBtn" class="action-button secondary">Take Again</button>
                     <button id="viewAnalyticsBtn" class="action-button primary">View Analytics</button>
                 </div>
