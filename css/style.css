@@ -1421,4 +1421,73 @@ body {
     .card-header h3 {
         font-size: 1.3rem;
     }
+}/* Fix modal z-index to appear above cards */
+.report-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999; /* Much higher z-index */
+    padding: 20px;
+    animation: modalFadeIn 0.3s ease;
+}
+
+/* Ensure modal content has proper stacking context */
+.modal-content {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border-radius: var(--border-radius);
+    border: var(--border-glow);
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease;
+    position: relative;
+    z-index: 10000;
+}
+
+/* Fix cards grid to not interfere with modal */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1; /* Lower than modal */
+}
+
+/* When modal is open, prevent body scroll */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* Add backdrop blur to content behind modal */
+.report-modal::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: -1;
+}
+.loading-subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 10px;
+    font-style: italic;
 }

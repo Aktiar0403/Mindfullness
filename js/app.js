@@ -53,6 +53,9 @@ class PsychometricApp {
                     this.updateCompactLanguageButtons(lang);
                 });
             });
+
+
+
         }
         
         // Global language selector
@@ -120,6 +123,21 @@ class PsychometricApp {
         const viewAnalyticsBtn = document.getElementById('viewAnalyticsBtn');
         if (viewAnalyticsBtn) viewAnalyticsBtn.addEventListener('click', () => this.showAnalytics());
         
+
+           // Close modal when clicking on background
+    document.addEventListener('click', (e) => {
+        const modal = document.getElementById('reportModal');
+        if (modal && modal.style.display === 'flex' && e.target === modal) {
+            this.closeReportModal();
+        }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            this.closeReportModal();
+        }
+    });
         console.log('All event listeners setup complete');
     }
     
@@ -962,6 +980,108 @@ showReportLoading(category) {
     `;
     
     modal.style.display = 'flex';
+    // Prevent body scroll when modal is open
+    document.body.classList.add('modal-open');
+}
+
+showReportModal(category, result, reportContent) {
+    const modal = document.getElementById('reportModal');
+    const levelLabel = ScoringAlgorithm.getLevelLabel(result.level);
+    const levelColor = ScoringAlgorithm.getLevelColor(result.level);
+    
+    const categoryIcons = {
+        'Emotional': '💖',
+        'Resilience': '🛡️',
+        'Growth': '🌱',
+        'Overthinking': '🧠'
+    };
+
+    modal.innerHTML = `
+        <div class="modal-content detailed-report">
+            <div class="modal-header">
+                <div class="report-title-section">
+                    <span class="category-icon-large">${categoryIcons[category]}</span>
+                    <div>
+                        <h2>${category} Intelligence Report</h2>
+                        <div class="report-meta">
+                            <span class="score-badge-large" style="background: ${levelColor}">
+                                Score: ${result.overall.toFixed(1)}/5.0
+                            </span>
+                            <span class="level-label-large">${levelLabel} Level</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="psychometricApp.closeReportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="detailed-report-content">
+                    ${reportContent}
+                </div>
+                <div class="report-actions">
+                    <button class="action-button secondary" onclick="psychometricApp.printReport('${category}')">
+                        🖨️ Print Report
+                    </button>
+                    <button class="action-button primary" onclick="psychometricApp.closeReportModal()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+    document.body.classList.add('modal-open');
+}
+
+closeReportModal() {
+    const modal = document.getElementById('reportModal');
+    if (modal) {
+        modal.style.display = 'none';
+        // Re-enable body scroll
+        document.body.classList.remove('modal-open');
+    }
+}
+
+showReportError(category, errorMessage) {
+    const modal = document.getElementById('reportModal');
+    const result = this.state.results[category];
+    
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>${category} Report</h2>
+                <button class="modal-close" onclick="psychometricApp.closeReportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="error-message">
+                    <div class="error-icon">⚠️</div>
+                    <h3>Report Loading Issue</h3>
+                    <p>We encountered an issue loading the detailed report for ${category.toLowerCase()} intelligence.</p>
+                    <p><strong>Error:</strong> ${errorMessage}</p>
+                    <p>Your score of ${result.overall.toFixed(1)} indicates a <strong>${ScoringAlgorithm.getLevelLabel(result.level).toLowerCase()}</strong> level of proficiency in this area.</p>
+                    
+                    <div class="fallback-content">
+                        <h4>Quick Summary</h4>
+                        <p>${this.generateQuickInsight(category, result.overall)}</p>
+                        
+                        <h4>Next Steps</h4>
+                        <ul>
+                            <li>Try refreshing the page</li>
+                            <li>Check your internet connection</li>
+                            <li>Contact support if the issue persists</li>
+                        </ul>
+                    </div>
+                    
+                    <button class="action-button primary" onclick="psychometricApp.closeReportModal()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+    document.body.classList.add('modal-open');
 }
 
 showReportModal(category, result, reportContent) {
