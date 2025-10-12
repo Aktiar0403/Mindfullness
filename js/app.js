@@ -31,79 +31,29 @@ class PsychometricApp {
     
     bindEvents() {
         // Intro screen
-         // Language selector events
-    document.getElementById('langBtn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        document.getElementById('langDropdown').classList.toggle('active');
-    });
-
-    document.querySelectorAll('.lang-option').forEach(option => {
-        option.addEventListener('click', (e) => {
-            const lang = e.currentTarget.dataset.lang;
-            this.changeLanguage(lang);
-        });
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', () => {
-        document.getElementById('langDropdown').classList.remove('active');
-    });
-
-    // ... rest of your event bindings
-}
-
-changeLanguage(lang) {
-    if (LanguageManager.setLanguage(lang)) {
-        this.updateLanguageUI();
-        if (this.state.currentCategoryIndex !== 0 || this.state.currentQuestionIndex !== 0) {
-            this.loadCurrentQuestion(); // Refresh current question
-        }
-    }
-}
-
-updateLanguageUI() {
-    const currentLang = LanguageManager.getLanguage();
-    const langData = LanguageManager.languages[currentLang];
-    
-    document.getElementById('currentLangFlag').textContent = langData.flag;
-    document.getElementById('currentLangName').textContent = langData.name;
-    
-    // Update active state in dropdown
-    document.querySelectorAll('.lang-option').forEach(option => {
-        option.classList.toggle('active', option.dataset.lang === currentLang);
-    });
-}
-
-// Update loadCurrentQuestion to use multi-language
-loadCurrentQuestion() {
-    const category = QuestionManager.getCategories()[this.state.currentCategoryIndex];
-    const subcategories = QuestionManager.getSubcategories(category);
-    
-    if (subcategories.length === 0) {
-        this.moveToNextQuestion();
-        return;
-    }
-    
-    const subcategory = subcategories[this.state.currentSubcategoryIndex];
-    const questions = QuestionManager.getQuestions(category, subcategory);
-    
-    if (questions.length === 0) {
-        this.moveToNextQuestion();
-        return;
-    }
-    
-    const question = questions[this.state.currentQuestionIndex];
-    
-    // Use multi-language text
-    document.getElementById('currentCategory').textContent = `${category} - ${subcategory}`;
-    document.getElementById('currentQuestionNumber').textContent = this.state.currentQuestionIndex + 1;
-    document.getElementById('totalQuestions').textContent = questions.length;
-    document.getElementById('questionText').textContent = QuestionManager.getQuestionText(question);
-    
-
         document.getElementById('startBtn').addEventListener('click', () => this.startTest());
         document.getElementById('userName').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.startTest();
+        });
+        
+        // Language selector events
+        document.getElementById('langBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('langDropdown').classList.toggle('active');
+        });
+
+        document.querySelectorAll('.lang-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                const lang = e.currentTarget.dataset.lang;
+                this.changeLanguage(lang);
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#langDropdown') && !e.target.closest('#langBtn')) {
+                document.getElementById('langDropdown').classList.remove('active');
+            }
         });
         
         // Question screen
@@ -112,10 +62,10 @@ loadCurrentQuestion() {
         document.getElementById('nextBtn').addEventListener('click', () => this.handleAnswer());
         
         // Option selection
-        document.querySelectorAll('.option-input').forEach(input => {
-            input.addEventListener('change', () => {
+        document.addEventListener('change', (e) => {
+            if (e.target.matches('input[name="answer"]')) {
                 document.getElementById('nextBtn').disabled = false;
-            });
+            }
         });
         
         // Analytics screen
@@ -127,6 +77,28 @@ loadCurrentQuestion() {
         document.getElementById('viewAnalyticsBtn').addEventListener('click', () => this.showAnalytics());
     }
     
+    changeLanguage(lang) {
+        if (LanguageManager.setLanguage(lang)) {
+            this.updateLanguageUI();
+            if (this.state.currentCategoryIndex !== 0 || this.state.currentQuestionIndex !== 0) {
+                this.loadCurrentQuestion(); // Refresh current question
+            }
+        }
+    }
+
+    updateLanguageUI() {
+        const currentLang = LanguageManager.getLanguage();
+        const langData = LanguageManager.languages[currentLang];
+        
+        document.getElementById('currentLangFlag').textContent = langData.flag;
+        document.getElementById('currentLangName').textContent = langData.name;
+        
+        // Update active state in dropdown
+        document.querySelectorAll('.lang-option').forEach(option => {
+            option.classList.toggle('active', option.dataset.lang === currentLang);
+        });
+    }
+    
     loadExistingSession() {
         try {
             for (let i = 0; i < localStorage.length; i++) {
@@ -135,13 +107,13 @@ loadCurrentQuestion() {
                     const userData = JSON.parse(localStorage.getItem(key));
                     if (userData && !userData.completed) {
                         const continueTest = confirm(
-                            `We found an incomplete assessment for ${userData.demographics.name || 'a user'}. ` +
+                            `We found an incomplete assessment for ${userData.demographics?.name || 'a user'}. ` +
                             `Would you like to continue where you left off?`
                         );
                         
                         if (continueTest) {
                             this.state.userId = userData.userId;
-                            this.state.demographics = userData.demographics;
+                            this.state.demographics = userData.demographics || {};
                             this.state.answers = userData.responses || {};
                             this.state.responseTimestamps = userData.timestamps || [];
                             
@@ -257,15 +229,23 @@ loadCurrentQuestion() {
         
         const question = questions[this.state.currentQuestionIndex];
         
-        // Update UI
+        // Use multi-language text
         document.getElementById('currentCategory').textContent = `${category} - ${subcategory}`;
         document.getElementById('currentQuestionNumber').textContent = this.state.currentQuestionIndex + 1;
         document.getElementById('totalQuestions').textContent = questions.length;
-        document.getElementById('questionText').textContent = question.q;
+        document.getElementById('questionText').textContent = QuestionManager.getQuestionText(question);
         
-        // Reset radio buttons
+        // Reset radio buttons and check for existing answer
+        let hasExistingAnswer = false;
         document.querySelectorAll('.option-input').forEach(input => {
             input.checked = false;
+            
+            // Check if this question was already answered
+            const existingAnswer = this.getCurrentAnswer();
+            if (existingAnswer !== undefined && parseInt(input.value) === existingAnswer) {
+                input.checked = true;
+                hasExistingAnswer = true;
+            }
         });
         
         // Update progress
@@ -273,10 +253,17 @@ loadCurrentQuestion() {
         
         // Enable/disable navigation
         document.getElementById('backBtn').disabled = this.isFirstQuestion();
-        document.getElementById('nextBtn').disabled = true;
+        document.getElementById('nextBtn').disabled = !hasExistingAnswer;
         
         // Record timestamp
         this.state.responseTimestamps.push(Date.now());
+    }
+    
+    getCurrentAnswer() {
+        const category = QuestionManager.getCategories()[this.state.currentCategoryIndex];
+        const subcategory = QuestionManager.getSubcategories(category)[this.state.currentSubcategoryIndex];
+        
+        return this.state.answers[category]?.[subcategory]?.[this.state.currentQuestionIndex];
     }
     
     handleAnswer() {
@@ -343,6 +330,18 @@ loadCurrentQuestion() {
     }
     
     skipQuestion() {
+        // Mark as skipped (null value)
+        const category = QuestionManager.getCategories()[this.state.currentCategoryIndex];
+        const subcategory = QuestionManager.getSubcategories(category)[this.state.currentSubcategoryIndex];
+        
+        if (!this.state.answers[category]) {
+            this.state.answers[category] = {};
+        }
+        if (!this.state.answers[category][subcategory]) {
+            this.state.answers[category][subcategory] = [];
+        }
+        this.state.answers[category][subcategory][this.state.currentQuestionIndex] = null;
+        
         this.moveToNextQuestion();
     }
     
@@ -351,6 +350,13 @@ loadCurrentQuestion() {
         
         const category = QuestionManager.getCategories()[this.state.currentCategoryIndex];
         const subcategories = QuestionManager.getSubcategories(category);
+        
+        // Check if we have more categories
+        if (this.state.currentCategoryIndex >= QuestionManager.getCategories().length) {
+            this.calculateResults();
+            return;
+        }
+        
         const subcategory = subcategories[this.state.currentSubcategoryIndex];
         const questions = QuestionManager.getQuestions(category, subcategory);
         
@@ -385,7 +391,7 @@ loadCurrentQuestion() {
     updateProgress() {
         const totalQuestions = QuestionManager.getTotalQuestionsCount();
         const answeredQuestions = this.getAnsweredQuestionsCount();
-        const progress = (answeredQuestions / totalQuestions) * 100;
+        const progress = totalQuestions > 0 ? (answeredQuestions / totalQuestions) * 100 : 0;
         
         document.getElementById('progressPercentage').textContent = `${Math.round(progress)}%`;
         document.getElementById('progressFill').style.width = `${progress}%`;
@@ -436,10 +442,15 @@ loadCurrentQuestion() {
     
     renderAnalytics() {
         const analyticsGrid = document.getElementById('analyticsGrid');
+        if (!analyticsGrid) return;
+        
         analyticsGrid.innerHTML = '';
         
         // Overall Score Card
-        const overallScore = Object.values(this.state.results).reduce((sum, result) => sum + result.overall, 0) / Object.keys(this.state.results).length;
+        const categories = Object.keys(this.state.results);
+        const overallScore = categories.length > 0 
+            ? categories.reduce((sum, category) => sum + this.state.results[category].overall, 0) / categories.length
+            : 0;
         const overallLevel = ScoringAlgorithm.determineLevel(overallScore);
         
         analyticsGrid.appendChild(this.createAnalyticsCard('Overall Psychological Profile', `
@@ -449,15 +460,15 @@ loadCurrentQuestion() {
             </div>
             <div class="stat-item">
                 <span>Response Consistency:</span>
-                <span class="stat-value">${this.state.analytics.consistency.toFixed(1)}%</span>
+                <span class="stat-value">${(this.state.analytics.consistency || 0).toFixed(1)}%</span>
             </div>
             <div class="stat-item">
                 <span>Average Response Time:</span>
-                <span class="stat-value">${this.state.analytics.responseTime.avgTime.toFixed(1)}s</span>
+                <span class="stat-value">${((this.state.analytics.responseTime?.avgTime) || 0).toFixed(1)}s</span>
             </div>
             <div class="stat-item">
                 <span>Response Pattern:</span>
-                <span class="stat-value">${this.state.analytics.responseTime.pattern}</span>
+                <span class="stat-value">${this.state.analytics.responseTime?.pattern || 'Normal'}</span>
             </div>
         `));
         
@@ -471,13 +482,15 @@ loadCurrentQuestion() {
                 </div>
             `;
             
-            for (const [subcategory, subResult] of Object.entries(result.subcategories)) {
-                categoryContent += `
-                    <div style="padding-left: 20px; font-size: 0.9rem; color: #666;">
-                        <span>${subcategory}:</span>
-                        <span>${subResult.score.toFixed(1)}</span>
-                    </div>
-                `;
+            if (result.subcategories) {
+                for (const [subcategory, subResult] of Object.entries(result.subcategories)) {
+                    categoryContent += `
+                        <div style="padding-left: 20px; font-size: 0.9rem; color: #666;">
+                            <span>${subcategory}:</span>
+                            <span>${subResult.score.toFixed(1)}</span>
+                        </div>
+                    `;
+                }
             }
         }
         
@@ -488,7 +501,7 @@ loadCurrentQuestion() {
         if (aggregateData && aggregateData.totalUsers > 1) {
             let comparisonContent = `<div style="margin-bottom: 15px;">Based on ${aggregateData.totalUsers} completed assessments</div>`;
             
-            for (const [category, avgScore] of Object.entries(aggregateData.categoryAverages)) {
+            for (const [category, avgScore] of Object.entries(aggregateData.categoryAverages || {})) {
                 const userScore = this.state.results[category] ? this.state.results[category].overall : 0;
                 const difference = userScore - avgScore;
                 const differenceText = difference >= 0 ? `+${difference.toFixed(1)} above average` : `${difference.toFixed(1)} below average`;
@@ -509,17 +522,19 @@ loadCurrentQuestion() {
         const insights = AnalyticsEngine.generateInsights(this.state.results, comparison);
         
         let insightsContent = '';
-        if (insights.keyStrengths.length > 0) {
+        if (insights?.keyStrengths?.length > 0) {
             insightsContent += `<div style="margin-bottom: 15px;"><strong>Key Strengths:</strong> ${insights.keyStrengths.map(s => s.category).join(', ')}</div>`;
         }
-        if (insights.developmentAreas.length > 0) {
+        if (insights?.developmentAreas?.length > 0) {
             insightsContent += `<div style="margin-bottom: 15px;"><strong>Areas for Development:</strong> ${insights.developmentAreas.map(a => a.category).join(', ')}</div>`;
         }
-        if (insights.recommendations.length > 0) {
+        if (insights?.recommendations?.length > 0) {
             insightsContent += `<div><strong>Recommendations:</strong><ul style="margin-top: 10px;">${insights.recommendations.map(r => `<li>${r}</li>`).join('')}</ul></div>`;
         }
         
-        analyticsGrid.appendChild(this.createAnalyticsCard('Key Insights', insightsContent));
+        if (insightsContent) {
+            analyticsGrid.appendChild(this.createAnalyticsCard('Key Insights', insightsContent));
+        }
     }
     
     createAnalyticsCard(title, content) {
@@ -536,30 +551,37 @@ loadCurrentQuestion() {
     
     async renderReports() {
         // Update user greeting
-        document.getElementById('userGreeting').textContent = `Here are your personalized insights, ${this.state.userName}.`;
+        const userGreeting = document.getElementById('userGreeting');
+        if (userGreeting) {
+            userGreeting.textContent = `Here are your personalized insights, ${this.state.userName}.`;
+        }
         
         // Display results summary
         const resultsSummary = document.getElementById('resultsSummary');
-        resultsSummary.innerHTML = '';
-        
-        for (const [category, result] of Object.entries(this.state.results)) {
-            const levelText = ScoringAlgorithm.getLevelLabel(result.level);
-            const levelColor = ScoringAlgorithm.getLevelColor(result.level);
+        if (resultsSummary) {
+            resultsSummary.innerHTML = '';
             
-            const categoryResult = document.createElement('div');
-            categoryResult.className = 'category-result';
-            categoryResult.style.borderLeft = `4px solid ${levelColor}`;
-            categoryResult.innerHTML = `
-                <div class="category-name">${category}</div>
-                <div class="category-score" style="color: ${levelColor}">${result.overall.toFixed(1)}</div>
-                <div class="category-level">${levelText}</div>
-            `;
-            
-            resultsSummary.appendChild(categoryResult);
+            for (const [category, result] of Object.entries(this.state.results)) {
+                const levelText = ScoringAlgorithm.getLevelLabel(result.level);
+                const levelColor = ScoringAlgorithm.getLevelColor(result.level);
+                
+                const categoryResult = document.createElement('div');
+                categoryResult.className = 'category-result';
+                categoryResult.style.borderLeft = `4px solid ${levelColor}`;
+                categoryResult.innerHTML = `
+                    <div class="category-name">${category}</div>
+                    <div class="category-score" style="color: ${levelColor}">${result.overall.toFixed(1)}</div>
+                    <div class="category-level">${levelText}</div>
+                `;
+                
+                resultsSummary.appendChild(categoryResult);
+            }
         }
         
         // Load and display reports
         const reportsContainer = document.getElementById('reportsContainer');
+        if (!reportsContainer) return;
+        
         reportsContainer.innerHTML = '';
         
         for (const [category, result] of Object.entries(this.state.results)) {
@@ -583,6 +605,19 @@ loadCurrentQuestion() {
                 reportsContainer.appendChild(reportSection);
             } catch (error) {
                 console.error(`Error loading report for ${category}:`, error);
+                
+                // Create a fallback report section
+                const reportSection = document.createElement('div');
+                reportSection.className = 'report-section';
+                reportSection.innerHTML = `
+                    <div class="report-header">
+                        <h3 class="report-title">${category} - Level ${result.level}</h3>
+                    </div>
+                    <div class="report-content">
+                        <p>Report content is currently unavailable. Please try again later.</p>
+                    </div>
+                `;
+                reportsContainer.appendChild(reportSection);
             }
         }
     }
@@ -622,6 +657,8 @@ loadCurrentQuestion() {
             
             if (success) {
                 console.log('PDF report generated successfully');
+            } else {
+                throw new Error('PDF generation failed');
             }
             
         } catch (error) {
@@ -630,8 +667,10 @@ loadCurrentQuestion() {
         } finally {
             // Restore button state
             const downloadBtn = document.getElementById('downloadBtn');
-            downloadBtn.textContent = 'Download Full Report';
-            downloadBtn.disabled = false;
+            if (downloadBtn) {
+                downloadBtn.textContent = 'Download Full Report';
+                downloadBtn.disabled = false;
+            }
         }
     }
     
@@ -680,7 +719,10 @@ loadCurrentQuestion() {
         });
         
         // Show target screen
-        document.getElementById(screenId).classList.add('active');
+        const targetScreen = document.getElementById(screenId);
+        if (targetScreen) {
+            targetScreen.classList.add('active');
+        }
     }
 }
 
