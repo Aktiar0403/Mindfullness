@@ -5,66 +5,105 @@ const DataManager = {
     },
     
     saveResponse: function(userId, category, subcategory, questionIndex, answer, timestamp) {
-        const key = `psychometric_${userId}`;
-        let userData = JSON.parse(localStorage.getItem(key)) || {
-            userId: userId,
-            demographics: {},
-            responses: {},
-            timestamps: [],
-            completed: false,
-            date: new Date().toISOString()
-        };
-        
-        if (!userData.responses[category]) {
-            userData.responses[category] = {};
+        try {
+            const key = `psychometric_${userId}`;
+            let userData = JSON.parse(localStorage.getItem(key)) || {
+                userId: userId,
+                demographics: {},
+                responses: {},
+                timestamps: [],
+                completed: false,
+                date: new Date().toISOString(),
+                lastUpdated: new Date().toISOString()
+            };
+            
+            // Initialize nested objects if they don't exist
+            if (!userData.responses) userData.responses = {};
+            if (!userData.responses[category]) userData.responses[category] = {};
+            if (!userData.responses[category][subcategory]) userData.responses[category][subcategory] = [];
+            if (!userData.timestamps) userData.timestamps = [];
+            
+            // Ensure the array is long enough
+            while (userData.responses[category][subcategory].length <= questionIndex) {
+                userData.responses[category][subcategory].push(null);
+            }
+            
+            // Save the answer
+            userData.responses[category][subcategory][questionIndex] = answer;
+            userData.timestamps.push(timestamp);
+            userData.lastUpdated = new Date().toISOString();
+            
+            localStorage.setItem(key, JSON.stringify(userData));
+            console.log(`Saved response: ${category}/${subcategory}/Q${questionIndex} = ${answer}`);
+            return userData;
+        } catch (error) {
+            console.error('Error saving response:', error);
+            return null;
         }
-        
-        if (!userData.responses[category][subcategory]) {
-            userData.responses[category][subcategory] = [];
-        }
-        
-        userData.responses[category][subcategory][questionIndex] = answer;
-        userData.timestamps.push(timestamp);
-        
-        localStorage.setItem(key, JSON.stringify(userData));
-        return userData;
     },
     
     saveDemographics: function(userId, demographics) {
-        const key = `psychometric_${userId}`;
-        let userData = JSON.parse(localStorage.getItem(key)) || {
-            userId: userId,
-            demographics: {},
-            responses: {},
-            timestamps: [],
-            completed: false,
-            date: new Date().toISOString()
-        };
-        
-        userData.demographics = demographics;
-        localStorage.setItem(key, JSON.stringify(userData));
-        return userData;
+        try {
+            const key = `psychometric_${userId}`;
+            let userData = JSON.parse(localStorage.getItem(key)) || {
+                userId: userId,
+                demographics: {},
+                responses: {},
+                timestamps: [],
+                completed: false,
+                date: new Date().toISOString(),
+                lastUpdated: new Date().toISOString()
+            };
+            
+            userData.demographics = demographics;
+            userData.lastUpdated = new Date().toISOString();
+            localStorage.setItem(key, JSON.stringify(userData));
+            console.log('Saved demographics for user:', userId);
+            return userData;
+        } catch (error) {
+            console.error('Error saving demographics:', error);
+            return null;
+        }
     },
     
     markComplete: function(userId, results) {
-        const key = `psychometric_${userId}`;
-        let userData = JSON.parse(localStorage.getItem(key));
-        
-        if (userData) {
-            userData.completed = true;
-            userData.results = results;
-            userData.completionDate = new Date().toISOString();
-            localStorage.setItem(key, JSON.stringify(userData));
+        try {
+            const key = `psychometric_${userId}`;
+            let userData = JSON.parse(localStorage.getItem(key));
+            
+            if (userData) {
+                userData.completed = true;
+                userData.results = results;
+                userData.completionDate = new Date().toISOString();
+                userData.lastUpdated = new Date().toISOString();
+                localStorage.setItem(key, JSON.stringify(userData));
+                console.log('Marked user as complete:', userId);
+            }
+            
+            return userData;
+        } catch (error) {
+            console.error('Error marking complete:', error);
+            return null;
         }
-        
-        return userData;
     },
     
     getUserData: function(userId) {
-        const key = `psychometric_${userId}`;
-        const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : null;
+        try {
+            const key = `psychometric_${userId}`;
+            const data = localStorage.getItem(key);
+            if (!data) return null;
+            
+            const userData = JSON.parse(data);
+            console.log('Retrieved user data for:', userId);
+            return userData;
+        } catch (error) {
+            console.error('Error getting user data:', error);
+            return null;
+        }
     },
+    
+    // ... rest of the methods remain the same as previous corrected version ...
+
     
     getAllUserData: function() {
         const allData = [];
