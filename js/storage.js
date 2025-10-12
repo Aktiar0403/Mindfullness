@@ -1,91 +1,155 @@
-// Data Storage and Analytics Manager
+// js/storage.js - Automatic Firebase Saving
 const DataManager = {
     generateUserId: function() {
         return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     },
     
-    saveResponse: function(userId, category, subcategory, questionIndex, answer, timestamp) {
+    async saveResponse(userId, category, subcategory, questionIndex, answer, timestamp) {
         try {
-            const key = `psychometric_${userId}`;
-            let userData = JSON.parse(localStorage.getItem(key)) || {
+            // Always save to localStorage for immediate access
+            const localKey = `psychometric_${userId}`;
+            let userData = JSON.parse(localStorage.getItem(localKey)) || {
                 userId: userId,
                 demographics: {},
                 responses: {},
                 timestamps: [],
                 completed: false,
                 date: new Date().toISOString(),
-                lastUpdated: new Date().toISOString()
+                lastUpdated: new Date().toISOString(),
+                consentedToResearch: true // Auto-consent for analytics
             };
             
-            // Initialize nested objects if they don't exist
+            // Initialize nested objects
             if (!userData.responses) userData.responses = {};
             if (!userData.responses[category]) userData.responses[category] = {};
             if (!userData.responses[category][subcategory]) userData.responses[category][subcategory] = [];
             if (!userData.timestamps) userData.timestamps = [];
             
-            // Ensure the array is long enough
+            // Ensure array length
             while (userData.responses[category][subcategory].length <= questionIndex) {
                 userData.responses[category][subcategory].push(null);
             }
             
-            // Save the answer
+            // Update data
             userData.responses[category][subcategory][questionIndex] = answer;
             userData.timestamps.push(timestamp);
             userData.lastUpdated = new Date().toISOString();
             
-            localStorage.setItem(key, JSON.stringify(userData));
-            console.log(`Saved response: ${category}/${subcategory}/Q${questionIndex} = ${answer}`);
+            // Save to localStorage
+            localStorage.setItem(localKey, JSON.stringify(userData));
+            
+            // Auto-save to Firebase for analytics
+            await this.autoSaveToFirebase(userId, userData);
+            
             return userData;
         } catch (error) {
             console.error('Error saving response:', error);
-            return null;
+            // Continue with localStorage only
+            return this.saveToLocalStorageOnly(userId, category, subcategory, questionIndex, answer, timestamp);
         }
     },
     
-    saveDemographics: function(userId, demographics) {
+    async autoSaveToFirebase(userId, userData) {
         try {
-            const key = `psychometric_${userId}`;
-            let userData = JSON.parse(localStorage.getItem(key)) || {
+            if (!window.db) {
+                console.log('Firebase not available, skipping cloud save');
+                return;
+            }
+            
+            // Save responses to Firebase
+            await db.collection('userResponses').doc(userId).set({
+                responses: userData.responses,
+                timestamps: userData.timestamps,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            
+            // Save demographics if available
+            if (userData.demographics && Object.keys(userData.demographics).length > 0) {
+                await db.collection('users').doc(userId).set({
+                    demographics: userData.demographics,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                    consentedToResearch: true
+                }, { merge: true });
+            }
+            
+            console.log('Data auto-saved to Firebase for analytics');
+        } catch (error) {
+            console.error('Auto-save to Firebase failed:', error);
+            // Don't throw error - continue silently
+        }
+    },
+    
+    async saveDemographics(userId, demographics) {
+        try {
+            const localKey = `psychometric_${userId}`;
+            let userData = JSON.parse(localStorage.getItem(localKey)) || {
                 userId: userId,
                 demographics: {},
                 responses: {},
                 timestamps: [],
                 completed: false,
                 date: new Date().toISOString(),
-                lastUpdated: new Date().toISOString()
+                lastUpdated: new Date().toISOString(),
+                consentedToResearch: true
             };
             
             userData.demographics = demographics;
             userData.lastUpdated = new Date().toISOString();
-            localStorage.setItem(key, JSON.stringify(userData));
-            console.log('Saved demographics for user:', userId);
+            localStorage.setItem(localKey, JSON.stringify(userData));
+            
+            // Auto-save to Firebase
+            await this.autoSaveToFirebase(userId, userData);
+            
             return userData;
         } catch (error) {
             console.error('Error saving demographics:', error);
-            return null;
+            return this.saveDemographicsToLocalStorageOnly(userId, demographics);
         }
     },
     
-    markComplete: function(userId, results) {
+    async markComplete(userId, results) {
         try {
-            const key = `psychometric_${userId}`;
-            let userData = JSON.parse(localStorage.getItem(key));
+            const localKey = `psychometric_${userId}`;
+            let userData = JSON.parse(localStorage.getItem(localKey));
             
             if (userData) {
                 userData.completed = true;
                 userData.results = results;
                 userData.completionDate = new Date().toISOString();
                 userData.lastUpdated = new Date().toISOString();
-                localStorage.setItem(key, JSON.stringify(userData));
-                console.log('Marked user as complete:', userId);
+                localStorage.setItem(localKey, JSON.stringify(userData));
+                
+                // Auto-save completion to Firebase
+                if (window.db) {
+                    const completionData = {
+                        completed: true,
+                        results: results,
+                        completionDate: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                        demographics: userData.demographics,
+                        consentedToResearch: true
+                    };
+                    
+                    await db.collection('completedAssessments').doc(userId).set(completionData, { merge: true });
+                    await db.collection('users').doc(userId).set(completionData, { merge: true });
+                    
+                    console.log('Completion auto-saved to Firebase');
+                }
             }
             
             return userData;
         } catch (error) {
             console.error('Error marking complete:', error);
-            return null;
+            return this.markCompleteLocalStorageOnly(userId, results);
         }
     },
+    
+    // Remove the exportUserData function since we're auto-saving
+    // exportUserData: function(userId) { ... } // REMOVED
+    
+    // ... keep other methods the same (getUserData, getAllUserData, getAggregateData, etc.)
+
     
     getUserData: function(userId) {
         try {
@@ -184,25 +248,7 @@ const DataManager = {
         return aggregates;
     },
     
-    exportUserData: function(userId) {
-        const userData = this.getUserData(userId);
-        if (userData && userData.demographics) {
-            const dataStr = JSON.stringify(userData, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            const userName = userData.demographics.name || 'user';
-            const date = new Date().toISOString().split('T')[0];
-            a.download = `psychometric_data_${userName}_${date}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            return true;
-        }
-        return false;
-    },
+    
     
     clearUserData: function(userId) {
         const key = `psychometric_${userId}`;

@@ -43,34 +43,69 @@ class PsychometricApp {
         
         // Analytics screen
         document.getElementById('viewReportsBtn').addEventListener('click', () => this.showReports());
-        document.getElementById('saveDataBtn').addEventListener('click', () => this.saveUserData());
+     
         
         // Result screen
         document.getElementById('restartBtn').addEventListener('click', () => this.restartTest());
-        document.getElementById('downloadBtn').addEventListener('click', () => this.downloadReport());
+        document.getElementById('downloadBtn').addEventListener('click', () => this.downloadPDFReport());
         document.getElementById('viewAnalyticsBtn').addEventListener('click', () => this.showAnalytics());
     }
     
-    loadExistingSession() {
-        // Check for existing incomplete session
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key.startsWith('psychometric_')) {
-                const userData = JSON.parse(localStorage.getItem(key));
-                if (!userData.completed) {
-                    if (confirm('We found an incomplete assessment. Would you like to continue?')) {
-                        this.state.userId = userData.userId;
-                        this.state.demographics = userData.demographics;
-                        this.state.answers = userData.responses || {};
-                        this.state.responseTimestamps = userData.timestamps || [];
-                        this.showScreen('questionScreen');
-                        this.loadCurrentQuestion();
-                        return;
-                    }
-                }
+    // Add the new download method
+async downloadPDFReport() {
+    try {
+        // Show loading state
+        const downloadBtn = document.getElementById('downloadBtn');
+        const originalText = downloadBtn.textContent;
+        downloadBtn.textContent = 'Generating PDF...';
+        downloadBtn.disabled = true;
+        
+        // Collect all report content
+        const reportsContent = {};
+        for (const [category, result] of Object.entries(this.state.results)) {
+            try {
+                const report = await ReportLoader.loadReport(category, result.level);
+                reportsContent[category] = this.stripHTML(report);
+            } catch (error) {
+                console.error(`Error loading report for ${category}:`, error);
+                reportsContent[category] = `Report for ${category} - Level ${result.level} not available.`;
             }
         }
+        
+        // Get user data
+        const userData = DataManager.getUserData(this.state.userId) || {
+            demographics: this.state.demographics,
+            responses: this.state.answers
+        };
+        
+        // Generate PDF
+        const success = await PDFGenerator.generateReport(
+            userData, 
+            this.state.results, 
+            reportsContent
+        );
+        
+        if (success) {
+            console.log('PDF report generated successfully');
+        }
+        
+    } catch (error) {
+        console.error('Error generating PDF report:', error);
+        alert('Error generating PDF report. Please try again.');
+    } finally {
+        // Restore button state
+        const downloadBtn = document.getElementById('downloadBtn');
+        downloadBtn.textContent = 'Download Full Report';
+        downloadBtn.disabled = false;
     }
+}
+
+// Helper method to strip HTML from reports
+stripHTML(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+}
     
     startTest() {
         const name = document.getElementById('userName').value.trim();
