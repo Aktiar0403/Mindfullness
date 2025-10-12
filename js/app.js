@@ -19,7 +19,7 @@ class PsychometricApp {
     
     initializeApp() {
         this.bindEvents();
-        
+        LanguageManager.init();
         // Clean up any corrupted data on startup
         const cleanedCount = DataManager.cleanupCorruptedData();
         if (cleanedCount > 0) {
@@ -31,6 +31,76 @@ class PsychometricApp {
     
     bindEvents() {
         // Intro screen
+         // Language selector events
+    document.getElementById('langBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('langDropdown').classList.toggle('active');
+    });
+
+    document.querySelectorAll('.lang-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+            const lang = e.currentTarget.dataset.lang;
+            this.changeLanguage(lang);
+        });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+        document.getElementById('langDropdown').classList.remove('active');
+    });
+
+    // ... rest of your event bindings
+}
+
+changeLanguage(lang) {
+    if (LanguageManager.setLanguage(lang)) {
+        this.updateLanguageUI();
+        if (this.state.currentCategoryIndex !== 0 || this.state.currentQuestionIndex !== 0) {
+            this.loadCurrentQuestion(); // Refresh current question
+        }
+    }
+}
+
+updateLanguageUI() {
+    const currentLang = LanguageManager.getLanguage();
+    const langData = LanguageManager.languages[currentLang];
+    
+    document.getElementById('currentLangFlag').textContent = langData.flag;
+    document.getElementById('currentLangName').textContent = langData.name;
+    
+    // Update active state in dropdown
+    document.querySelectorAll('.lang-option').forEach(option => {
+        option.classList.toggle('active', option.dataset.lang === currentLang);
+    });
+}
+
+// Update loadCurrentQuestion to use multi-language
+loadCurrentQuestion() {
+    const category = QuestionManager.getCategories()[this.state.currentCategoryIndex];
+    const subcategories = QuestionManager.getSubcategories(category);
+    
+    if (subcategories.length === 0) {
+        this.moveToNextQuestion();
+        return;
+    }
+    
+    const subcategory = subcategories[this.state.currentSubcategoryIndex];
+    const questions = QuestionManager.getQuestions(category, subcategory);
+    
+    if (questions.length === 0) {
+        this.moveToNextQuestion();
+        return;
+    }
+    
+    const question = questions[this.state.currentQuestionIndex];
+    
+    // Use multi-language text
+    document.getElementById('currentCategory').textContent = `${category} - ${subcategory}`;
+    document.getElementById('currentQuestionNumber').textContent = this.state.currentQuestionIndex + 1;
+    document.getElementById('totalQuestions').textContent = questions.length;
+    document.getElementById('questionText').textContent = QuestionManager.getQuestionText(question);
+    
+
         document.getElementById('startBtn').addEventListener('click', () => this.startTest());
         document.getElementById('userName').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.startTest();

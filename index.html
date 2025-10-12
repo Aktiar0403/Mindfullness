@@ -8,32 +8,69 @@
 </head>
 <body>
     <div class="container">
-        <!-- Intro Screen -->
-        <div id="introScreen" class="screen active">
-            <div class="intro-content">
-                <h1>Advanced Psychometric Analysis</h1>
-                <p>Gain deep insights into your psychological profile with our comprehensive assessment.</p>
-                
-                <div class="user-input">
-                    <input type="text" id="userName" placeholder="Enter your name" maxlength="30">
-                    <input type="number" id="userAge" placeholder="Age" min="16" max="100">
-                    <select id="userGender">
-                        <option value="">Select Gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                        <option value="prefer-not-to-say">Prefer not to say</option>
-                    </select>
-                    <select id="userOccupation">
-                        <option value="">Select Occupation</option>
-                        <option value="student">Student</option>
-                        <option value="employed">Employed</option>
-                        <option value="self-employed">Self-Employed</option>
-                        <option value="unemployed">Unemployed</option>
-                        <option value="retired">Retired</option>
-                    </select>
-                </div>
-                
+        <!-- Language Selector -->
+<div class="language-selector">
+    <button class="lang-btn" id="langBtn">
+        <span id="currentLangFlag">🇺🇸</span>
+        <span id="currentLangName">English</span>
+        <span>▼</span>
+    </button>
+    <div class="lang-dropdown" id="langDropdown">
+        <div class="lang-option" data-lang="en">
+            <span>🇺🇸</span>
+            <span>English</span>
+        </div>
+        <div class="lang-option" data-lang="bn">
+            <span>🇧🇩</span>
+            <span>বাংলা</span>
+        </div>
+        <div class="lang-option" data-lang="hi">
+            <span>🇮🇳</span>
+            <span>हिन्दी</span>
+        </div>
+    </div>
+</div>
+
+<!-- Updated Intro Content -->
+<div class="intro-content">
+    <div class="app-logo">🧠</div>
+    <h1>Mind Insight Pro</h1>
+    <p>Discover your psychological strengths with our comprehensive multi-language assessment</p>
+    
+    <div class="user-input">
+        <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="userName" class="form-control" placeholder="Enter your name">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Age</label>
+            <input type="number" id="userAge" class="form-control" placeholder="Your age">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Gender</label>
+            <select id="userGender" class="form-control">
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Occupation</label>
+            <select id="userOccupation" class="form-control">
+                <option value="">Select Occupation</option>
+                <option value="student">Student</option>
+                <option value="employed">Employed</option>
+                <option value="self-employed">Self-Employed</option>
+            </select>
+        </div>
+    </div>
+    
+    <button id="startBtn" class="btn primary">
+        <span>Start Assessment</span>
+        <span>→</span>
+    </button>
+</div>
                 <button id="startBtn" class="btn primary">Start Advanced Assessment</button>
                 
                <div class="privacy-notice">
