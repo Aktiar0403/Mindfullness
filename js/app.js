@@ -1,4 +1,4 @@
-// js/app.js - Complete Psychometric Test Application
+// js/app.js - COMPLETE PSYCHOMETRIC ASSESSMENT APPLICATION
 class PsychometricApp {
     constructor() {
         this.state = {
@@ -41,19 +41,17 @@ class PsychometricApp {
     setupEventListeners() {
         console.log('Setting up event listeners...');
         
-        // Language selector events
-        const languageOptions = document.querySelectorAll('.language-option-prominent');
-        if (languageOptions.length > 0) {
-            languageOptions.forEach(option => {
-                option.addEventListener('click', (e) => {
+        // New language selector events
+        const languageCards = document.querySelectorAll('.language-card');
+        if (languageCards.length > 0) {
+            languageCards.forEach(card => {
+                card.addEventListener('click', (e) => {
                     const lang = e.currentTarget.dataset.lang;
                     console.log('Language selected:', lang);
                     this.changeLanguage(lang);
                 });
             });
             console.log('Language event listeners added');
-        } else {
-            console.warn('Language options not found');
         }
         
         // Start button
@@ -80,8 +78,8 @@ class PsychometricApp {
         const nextBtn = document.getElementById('nextBtn');
         if (nextBtn) nextBtn.addEventListener('click', () => this.handleAnswer());
         
-        // Option selection
-        document.querySelectorAll('.option-input').forEach(input => {
+        // New answer selection with emojis
+        document.querySelectorAll('.answer-input').forEach(input => {
             input.addEventListener('change', () => {
                 const nextBtn = document.getElementById('nextBtn');
                 if (nextBtn) nextBtn.disabled = false;
@@ -95,12 +93,10 @@ class PsychometricApp {
         const restartBtn = document.getElementById('restartBtn');
         if (restartBtn) restartBtn.addEventListener('click', () => this.restartTest());
         
-        const downloadBtn = document.getElementById('downloadBtn');
-        if (downloadBtn) downloadBtn.addEventListener('click', () => this.downloadPDFReport());
-        
         const viewAnalyticsBtn = document.getElementById('viewAnalyticsBtn');
         if (viewAnalyticsBtn) viewAnalyticsBtn.addEventListener('click', () => this.showAnalytics());
         
+        // Print button will be added dynamically
         console.log('All event listeners setup complete');
     }
     
@@ -115,11 +111,11 @@ class PsychometricApp {
     updateLanguageUI(lang) {
         console.log('Updating UI for language:', lang);
         
-        // Update prominent language selector
-        const languageOptions = document.querySelectorAll('.language-option-prominent');
-        if (languageOptions.length > 0) {
-            languageOptions.forEach(option => {
-                option.classList.toggle('active', option.dataset.lang === lang);
+        // Update new language cards
+        const languageCards = document.querySelectorAll('.language-card');
+        if (languageCards.length > 0) {
+            languageCards.forEach(card => {
+                card.classList.toggle('active', card.dataset.lang === lang);
             });
         }
         
@@ -133,7 +129,7 @@ class PsychometricApp {
             en: {
                 name: 'Enter your name',
                 age: 'Your age',
-                start: 'Start Assessment'
+                start: 'Begin Assessment'
             },
             hi: {
                 name: 'अपना नाम दर्ज करें',
@@ -232,9 +228,12 @@ class PsychometricApp {
         // Use multi-language text
         const questionText = QuestionManager.getQuestionText(question);
         
-        // Update UI
-        const currentCategoryElement = document.getElementById('currentCategory');
-        if (currentCategoryElement) currentCategoryElement.textContent = `${category} - ${subcategory}`;
+        // Update UI with new design
+        const currentCategoryElement = document.getElementById('currentCategoryBadge');
+        if (currentCategoryElement) currentCategoryElement.textContent = category;
+        
+        const currentSubcategoryElement = document.getElementById('currentCategory');
+        if (currentSubcategoryElement) currentSubcategoryElement.textContent = subcategory;
         
         const currentQuestionNumberElement = document.getElementById('currentQuestionNumber');
         if (currentQuestionNumberElement) currentQuestionNumberElement.textContent = this.state.currentQuestionIndex + 1;
@@ -246,7 +245,7 @@ class PsychometricApp {
         if (questionTextElement) questionTextElement.textContent = questionText;
         
         // Reset radio buttons
-        document.querySelectorAll('.option-input').forEach(input => {
+        document.querySelectorAll('.answer-input').forEach(input => {
             input.checked = false;
         });
         
@@ -265,7 +264,7 @@ class PsychometricApp {
     }
     
     handleAnswer() {
-        const selectedOption = document.querySelector('input[name="answer"]:checked');
+        const selectedOption = document.querySelector('.answer-input:checked');
         
         if (!selectedOption) {
             alert("Please select an answer before continuing.");
@@ -379,7 +378,7 @@ class PsychometricApp {
         if (progressFillElement) progressFillElement.style.width = `${progress}%`;
         
         // Also update browser tab title with progress
-        document.title = `Psychometric Test (${Math.round(progress)}%)`;
+        document.title = `Mind Insight (${Math.round(progress)}%)`;
     }
     
     getAnsweredQuestionsCount() {
@@ -435,7 +434,7 @@ class PsychometricApp {
         analyticsGrid.appendChild(this.createAnalyticsCard('Overall Psychological Profile', `
             <div style="text-align: center; margin: 20px 0;">
                 <div style="font-size: 3rem; font-weight: bold; color: ${ScoringAlgorithm.getLevelColor(overallLevel)}">${overallScore.toFixed(1)}</div>
-                <div style="font-size: 1.2rem; color: #666;">Level ${overallLevel} - ${ScoringAlgorithm.getLevelLabel(overallLevel)}</div>
+                <div style="font-size: 1.2rem; color: var(--text-secondary);">Level ${overallLevel} - ${ScoringAlgorithm.getLevelLabel(overallLevel)}</div>
             </div>
             <div class="stat-item">
                 <span>Response Consistency:</span>
@@ -463,7 +462,7 @@ class PsychometricApp {
             
             for (const [subcategory, subResult] of Object.entries(result.subcategories)) {
                 categoryContent += `
-                    <div style="padding-left: 20px; font-size: 0.9rem; color: #666;">
+                    <div style="padding-left: 20px; font-size: 0.9rem; color: var(--text-secondary);">
                         <span>${subcategory}:</span>
                         <span>${subResult.score.toFixed(1)}</span>
                     </div>
@@ -476,7 +475,7 @@ class PsychometricApp {
         // Comparative Analytics
         const aggregateData = DataManager.getAggregateData();
         if (aggregateData && aggregateData.totalUsers > 1) {
-            let comparisonContent = `<div style="margin-bottom: 15px;">Based on ${aggregateData.totalUsers} completed assessments</div>`;
+            let comparisonContent = `<div style="margin-bottom: 15px; color: var(--text-secondary);">Based on ${aggregateData.totalUsers} completed assessments</div>`;
             
             for (const [category, avgScore] of Object.entries(aggregateData.categoryAverages)) {
                 const userScore = this.state.results[category] ? this.state.results[category].overall : 0;
@@ -506,7 +505,7 @@ class PsychometricApp {
             insightsContent += `<div style="margin-bottom: 15px;"><strong>Areas for Development:</strong> ${insights.developmentAreas.map(a => a.category).join(', ')}</div>`;
         }
         if (insights.recommendations.length > 0) {
-            insightsContent += `<div><strong>Recommendations:</strong><ul style="margin-top: 10px;">${insights.recommendations.map(r => `<li>${r}</li>`).join('')}</ul></div>`;
+            insightsContent += `<div><strong>Recommendations:</strong><ul style="margin-top: 10px; padding-left: 20px;">${insights.recommendations.map(r => `<li style="margin-bottom: 8px;">${r}</li>`).join('')}</ul></div>`;
         }
         
         analyticsGrid.appendChild(this.createAnalyticsCard('Key Insights', insightsContent));
@@ -555,6 +554,20 @@ class PsychometricApp {
         const reportsContainer = document.getElementById('reportsContainer');
         if (!reportsContainer) return;
         
+        reportsContainer.innerHTML = '<div class="loading-reports">Loading your personalized reports...</div>';
+        
+        try {
+            await this.loadAndDisplayReports();
+        } catch (error) {
+            console.error('Error loading reports:', error);
+            reportsContainer.innerHTML = '<div class="error-message">Unable to load reports. Please try again later.</div>';
+        }
+    }
+    
+    async loadAndDisplayReports() {
+        const reportsContainer = document.getElementById('reportsContainer');
+        if (!reportsContainer) return;
+        
         reportsContainer.innerHTML = '';
         
         for (const [category, result] of Object.entries(this.state.results)) {
@@ -566,7 +579,15 @@ class PsychometricApp {
                 
                 const reportHeader = document.createElement('div');
                 reportHeader.className = 'report-header';
-                reportHeader.innerHTML = `<h3 class="report-title">${category} - Level ${result.level} (${ScoringAlgorithm.getLevelLabel(result.level)})</h3>`;
+                reportHeader.innerHTML = `
+                    <h3 class="report-title">${category} Intelligence - Level ${result.level}</h3>
+                    <div class="report-meta">
+                        <span class="score-badge" style="background: ${ScoringAlgorithm.getLevelColor(result.level)}">
+                            Score: ${result.overall.toFixed(1)}/5.0
+                        </span>
+                        <span class="level-label">${ScoringAlgorithm.getLevelLabel(result.level)}</span>
+                    </div>
+                `;
                 
                 const reportContentDiv = document.createElement('div');
                 reportContentDiv.className = 'report-content';
@@ -578,70 +599,132 @@ class PsychometricApp {
                 reportsContainer.appendChild(reportSection);
             } catch (error) {
                 console.error(`Error loading report for ${category}:`, error);
+                // Show fallback content
+                const fallbackSection = document.createElement('div');
+                fallbackSection.className = 'report-section';
+                fallbackSection.innerHTML = `
+                    <div class="report-header">
+                        <h3 class="report-title">${category} Intelligence - Level ${result.level}</h3>
+                        <div class="report-meta">
+                            <span class="score-badge" style="background: ${ScoringAlgorithm.getLevelColor(result.level)}">
+                                Score: ${result.overall.toFixed(1)}/5.0
+                            </span>
+                            <span class="level-label">${ScoringAlgorithm.getLevelLabel(result.level)}</span>
+                        </div>
+                    </div>
+                    <div class="report-content">
+                        <p>Detailed report for ${category} intelligence is currently unavailable.</p>
+                        <p>Your score of ${result.overall.toFixed(1)} indicates a ${ScoringAlgorithm.getLevelLabel(result.level).toLowerCase()} level of proficiency in this area.</p>
+                    </div>
+                `;
+                reportsContainer.appendChild(fallbackSection);
             }
         }
+        
+        // Add print button after reports are loaded
+        this.addPrintButton();
     }
     
-    async downloadPDFReport() {
-        try {
-            // Show loading state
-            const downloadBtn = document.getElementById('downloadBtn');
-            if (downloadBtn) {
-                const originalText = downloadBtn.textContent;
-                downloadBtn.textContent = 'Generating PDF...';
-                downloadBtn.disabled = true;
-                
-                // Collect all report content
-                const reportsContent = {};
-                for (const [category, result] of Object.entries(this.state.results)) {
-                    try {
-                        const report = await ReportLoader.loadReport(category, result.level);
-                        reportsContent[category] = this.stripHTML(report);
-                    } catch (error) {
-                        console.error(`Error loading report for ${category}:`, error);
-                        reportsContent[category] = `Report for ${category} - Level ${result.level} not available.`;
+    addPrintButton() {
+        const actionButtons = document.querySelector('.action-section');
+        if (!actionButtons) return;
+        
+        // Remove existing print button if any
+        const existingPrintBtn = document.getElementById('printReportsBtn');
+        if (existingPrintBtn) {
+            existingPrintBtn.remove();
+        }
+        
+        const printBtn = document.createElement('button');
+        printBtn.id = 'printReportsBtn';
+        printBtn.className = 'action-button secondary';
+        printBtn.innerHTML = '🖨️ Print Reports';
+        printBtn.addEventListener('click', () => this.printReports());
+        
+        // Insert before the first button
+        actionButtons.insertBefore(printBtn, actionButtons.firstChild);
+    }
+    
+    printReports() {
+        const printWindow = window.open('', '_blank');
+        const reportsContainer = document.getElementById('reportsContainer');
+        
+        if (!reportsContainer) {
+            alert('No reports available to print.');
+            return;
+        }
+        
+        const userInfo = `
+            <h2>Mind Insight Pro - Assessment Report</h2>
+            <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <strong>User:</strong> ${this.state.userName}<br>
+                <strong>Date:</strong> ${new Date().toLocaleDateString()}<br>
+                <strong>Overall Profile:</strong> ${this.getOverallLevel()}
+            </div>
+        `;
+        
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Mind Insight Pro - ${this.state.userName}'s Assessment Report</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        line-height: 1.6; 
+                        color: #333; 
+                        max-width: 800px; 
+                        margin: 0 auto; 
+                        padding: 20px;
                     }
-                }
-                
-                // Get user data
-                const userData = DataManager.getUserData(this.state.userId) || {
-                    demographics: this.state.demographics,
-                    responses: this.state.answers
-                };
-                
-                // Generate PDF
-                const success = await PDFGenerator.generateReport(
-                    userData, 
-                    this.state.results, 
-                    reportsContent
-                );
-                
-                if (success) {
-                    console.log('PDF report generated successfully');
-                }
-                
-                // Restore button state
-                downloadBtn.textContent = originalText;
-                downloadBtn.disabled = false;
-            }
-        } catch (error) {
-            console.error('Error generating PDF report:', error);
-            alert('Error generating PDF report. Please try again.');
-            
-            // Restore button state on error
-            const downloadBtn = document.getElementById('downloadBtn');
-            if (downloadBtn) {
-                downloadBtn.textContent = 'Download Full Report';
-                downloadBtn.disabled = false;
-            }
-        }
+                    .report-section { 
+                        margin-bottom: 30px; 
+                        page-break-inside: avoid;
+                        border: 1px solid #ddd; 
+                        border-radius: 8px; 
+                        padding: 20px;
+                    }
+                    .report-header { 
+                        background: #f8f9fa; 
+                        padding: 15px; 
+                        margin: -20px -20px 20px -20px;
+                        border-bottom: 1px solid #ddd;
+                        border-radius: 8px 8px 0 0;
+                    }
+                    .report-title { 
+                        color: #2d3748; 
+                        margin: 0 0 10px 0;
+                    }
+                    .report-content h1 { color: #2d3748; margin-top: 20px; }
+                    .report-content h2 { color: #4a5568; margin-top: 15px; }
+                    .report-content p { margin-bottom: 10px; }
+                    .report-content ul { margin: 10px 0; padding-left: 20px; }
+                    .report-content li { margin-bottom: 5px; }
+                    @media print {
+                        body { padding: 0; }
+                        .report-section { border: none; margin-bottom: 20px; }
+                    }
+                </style>
+            </head>
+            <body>
+                ${userInfo}
+                ${reportsContainer.innerHTML}
+                <script>
+                    window.onload = function() {
+                        window.print();
+                    }
+                </script>
+            </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
     }
     
-    // Helper method to strip HTML from reports
-    stripHTML(html) {
-        const tmp = document.createElement('div');
-        tmp.innerHTML = html;
-        return tmp.textContent || tmp.innerText || '';
+    getOverallLevel() {
+        const overallScore = Object.values(this.state.results).reduce((sum, result) => sum + result.overall, 0) / Object.keys(this.state.results).length;
+        const overallLevel = ScoringAlgorithm.determineLevel(overallScore);
+        return ScoringAlgorithm.getLevelLabel(overallLevel);
     }
     
     refreshCurrentQuestion() {
@@ -700,6 +783,27 @@ class PsychometricApp {
         const targetScreen = document.getElementById(screenId);
         if (targetScreen) {
             targetScreen.classList.add('active');
+        }
+        
+        // Update progress indicator in header
+        this.updateProgressIndicator(screenId);
+    }
+    
+    updateProgressIndicator(screenId) {
+        const progressIndicator = document.getElementById('progressIndicator');
+        if (!progressIndicator) return;
+        
+        const screens = ['introScreen', 'questionScreen', 'analyticsScreen', 'resultScreen'];
+        const currentIndex = screens.indexOf(screenId);
+        const progressDots = progressIndicator.querySelector('.progress-dots');
+        
+        if (progressDots && currentIndex >= 0) {
+            progressDots.innerHTML = '';
+            for (let i = 0; i < screens.length; i++) {
+                const dot = document.createElement('div');
+                dot.className = `progress-dot ${i <= currentIndex ? 'active' : ''}`;
+                progressDots.appendChild(dot);
+            }
         }
     }
     
@@ -774,3 +878,26 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing app...');
     window.psychometricApp = new PsychometricApp();
 });
+
+// Add CSS for progress indicator
+const progressIndicatorCSS = `
+.progress-dots {
+    display: flex;
+    gap: 6px;
+}
+.progress-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: background 0.3s ease;
+}
+.progress-dot.active {
+    background: var(--primary);
+}
+`;
+
+// Inject progress indicator styles
+const style = document.createElement('style');
+style.textContent = progressIndicatorCSS;
+document.head.appendChild(style);
