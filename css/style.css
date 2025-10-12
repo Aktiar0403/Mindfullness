@@ -774,3 +774,39 @@ body {
         transition-duration: 0.01ms !important;
     }
 }
+/* 🌟 HORIZONTAL COMPACT OPTIONS */
+.options-container.horizontal {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.options-container.horizontal .option-label {
+    padding: 10px 6px;
+    min-height: 45px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    word-break: break-word;
+    line-height: 1.2;
+}
+
+/* Mobile horizontal adjustments */
+@media (max-width: 768px) {
+    .options-container.horizontal {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+    }
+    
+    .options-container.horizontal .option-label {
+        padding: 8px 4px;
+        min-height: 40px;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .options-container.horizontal {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
