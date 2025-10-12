@@ -400,32 +400,32 @@ body {
     font-weight: 600;
     text-align: center;
 }
-
-/* 🌟 ENHANCED OPTIONS - MOBILE FRIENDLY */
+/* 🌟 COMPACT ANSWER OPTIONS */
 .options-container {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 15px;
+    gap: 8px;
     margin-bottom: 10px;
 }
 
 .option-label {
     text-align: center;
-    padding: 25px 20px;
+    padding: 16px 12px;
     background: var(--bg-card);
     border: 2px solid #334155;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-sm);
     cursor: pointer;
     transition: var(--transition);
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     backdrop-filter: blur(10px);
     position: relative;
     overflow: hidden;
-    min-height: 80px;
+    min-height: 55px;
     display: flex;
     align-items: center;
     justify-content: center;
+    line-height: 1.3;
 }
 
 .option-label::before {
@@ -442,16 +442,39 @@ body {
 
 .option-label:hover {
     border-color: var(--primary-color);
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: var(--shadow-card);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .option-input:checked + .option-label {
     background: var(--gradient-primary);
     color: white;
     border-color: var(--primary-color);
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+/* Even more compact for mobile */
+@media (max-width: 768px) {
+    .options-container {
+        gap: 6px;
+    }
+    
+    .option-label {
+        padding: 14px 10px;
+        min-height: 50px;
+        font-size: 0.9rem;
+        border-radius: 10px;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .option-label {
+        padding: 12px 8px;
+        min-height: 45px;
+        font-size: 0.85rem;
+    }
 }
 
 /* 🌟 ENHANCED PROGRESS BAR */
