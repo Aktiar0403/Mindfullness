@@ -1,5 +1,5 @@
-// Enhanced Questions with Subcategories and Weights
-   const questions = {
+// js/questions.js - Multi-language Support
+const questions = {
     "Emotional": {
         "Self-Awareness": [
             { 
@@ -57,8 +57,8 @@
             { 
                 q: {
                     en: "I can sense what others are feeling without being told",
-                    bn: "কিছু না বললেও আমি বুঝতে পারি অন্যরা কী অনুভব করছে",
-                    hi: "मैं बिना बताए ही समझ सकता हूं कि दूसरे क्या महसूस कर रहे हैं"
+                    bn: "কাউকে কিছু না বললেও আমি বুঝতে পারি অন্যরা কী অনুভব করছে",
+                    hi: "मैं बिना बताए महसूस कर सकता हूं कि दूसरे क्या महसूस कर रहे हैं"
                 },
                 weight: 1.1 
             },
@@ -73,7 +73,7 @@
             { 
                 q: {
                     en: "I can anticipate people's emotional needs",
-                    bn: "আমি মানুষের আবেগিক প্রয়োজনগুলি আগাম অনুমান করতে পারি",
+                    bn: "আমি মানুষের আবেগজনিত প্রয়োজনগুলি আগে থেকে অনুমান করতে পারি",
                     hi: "मैं लोगों की भावनात्मक जरूरतों का अंदाजा लगा सकता हूं"
                 },
                 weight: 1.3 
@@ -99,8 +99,8 @@
             { 
                 q: {
                     en: "I communicate my ideas clearly and persuasively",
-                    bn: "আমি আমার ধারণাগুলি স্পষ্ট এবং প্রতিপন্নভাবে যোগাযোগ করি",
-                    hi: "मैं अपने विचारों को स्पष्ट और प्रभावशाली ढंग से संप्रेषित करता हूं"
+                    bn: "আমি আমার ধারণাগুলি স্পষ্টভাবে এবং প্রতিপন্নভাবে যোগাযোগ করি",
+                    hi: "मैं अपने विचारों को स्पष्ट और प्रेरक ढंग से संप्रेषित करता हूं"
                 },
                 weight: 1.2 
             }
@@ -137,8 +137,8 @@
             { 
                 q: {
                     en: "I persist in pursuing goals despite difficulties",
-                    bn: "কঠিনতা সত্ত্বেও আমি লক্ষ্য অর্জনের জন্য অবিচল থাকি",
-                    hi: "कठिनाइयों के बावजूद मैं लक्ष्यों का पीछा करना जारी रखता हूं"
+                    bn: "কঠিনতা সত্ত্বেও আমি লক্ষ্য অর্জনে অটল থাকি",
+                    hi: "कठिनाइयों के बावजूद मैं लक्ष्यों का पीछा करता रहता हूं"
                 },
                 weight: 1.4 
             },
@@ -153,7 +153,7 @@
             { 
                 q: {
                     en: "I complete tasks I start even when they become difficult",
-                    bn: "কাজ কঠিন হয়ে গেলেও আমি শুরু করা কাজগুলি সম্পূর্ণ করি",
+                    bn: "কাজ কঠিন হয়ে উঠলেও আমি শুরু করা কাজগুলি সম্পন্ন করি",
                     hi: "मैं उन कार्यों को पूरा करता हूं जो मैं शुरू करता हूं, भले ही वे कठिन हो जाएं"
                 },
                 weight: 1.3 
@@ -171,7 +171,7 @@
             { 
                 q: {
                     en: "I believe I can overcome most challenges I face",
-                    bn: "আমি বিশ্বাস করি আমি আমার সম্মুখীন বেশিরভাগ চ্যালেঞ্জ কাটিয়ে উঠতে পারি",
+                    bn: "আমি বিশ্বাস করি আমি আমার সম্মুখীন বেশিরভাগ চ্যালেঞ্জ কাটিয়ে উঠতে পারব",
                     hi: "मेरा मानना है कि मैं अपने सामने आने वाली अधिकांश चुनौतियों पर काबू पा सकता हूं"
                 },
                 weight: 1.4 
@@ -179,7 +179,7 @@
             { 
                 q: {
                     en: "I expect good things to happen in the future",
-                    bn: "আমি ভবিষ্যতে ভালো কিছু ঘটার আশা করি",
+                    bn: "আমি ভবিষ্যতে ভালো কিছু ঘটবে বলে আশা করি",
                     hi: "मुझे उम्मीद है कि भविष्य में अच्छी चीजें होंगी"
                 },
                 weight: 1.2 
@@ -207,8 +207,8 @@
             { 
                 q: {
                     en: "I apply feedback to improve my performance",
-                    bn: "আমি আমার কর্মক্ষমতা উন্নত করতে প্রতিক্রিয়া প্রয়োগ করি",
-                    hi: "मैं अपने प्रदर्शन को सुधारने के लिए प्रतिक्रिया लागू करता हूं"
+                    bn: "আমি আমার performance উন্নত করতে feedback প্রয়োগ করি",
+                    hi: "मैं अपने प्रदर्शन को सुधारने के लिए feedback लागू करता हूं"
                 },
                 weight: 1.4 
             }
@@ -217,7 +217,7 @@
             { 
                 q: {
                     en: "I frequently explore unfamiliar topics and ideas",
-                    bn: "আমি প্রায়শই অপরিচিত বিষয় এবং ধারণা অন্বেষণ করি",
+                    bn: "আমি প্রায়শই অপরিচিত বিষয় এবং ধারণাগুলি অন্বেষণ করি",
                     hi: "मैं अक्सर अपरिचित विषयों और विचारों का पता लगाता हूं"
                 },
                 weight: 1.1 
@@ -225,7 +225,7 @@
             { 
                 q: {
                     en: "I ask questions to deepen my understanding",
-                    bn: "আমি আমার বোঝাপড়া গভীর করতে প্রশ্ন করি",
+                    bn: "আমার বোঝাপড়া গভীর করতে আমি প্রশ্ন করি",
                     hi: "मैं अपनी समझ को गहरा करने के लिए सवाल पूछता हूं"
                 },
                 weight: 1.2 
@@ -233,7 +233,7 @@
             { 
                 q: {
                     en: "I enjoy thinking about complex problems",
-                    bn: "আমি জটিল সমস্যা নিয়ে চিন্তা করতে উপভোগ করি",
+                    bn: "জটিল সমস্যা নিয়ে চিন্তা করতে আমি উপভোগ করি",
                     hi: "मुझे जटिल समस्याओं के बारे में सोचने में आनंद आता है"
                 },
                 weight: 1.3 
@@ -243,7 +243,7 @@
             { 
                 q: {
                     en: "I willingly try new approaches and methods",
-                    bn: "আমি ইচ্ছাপূর্বক নতুন পদ্ধতি এবং উপায় চেষ্টা করি",
+                    bn: "আমি ইচ্ছাপূর্বক নতুন পদ্ধতি এবং পদ্ধতি চেষ্টা করি",
                     hi: "मैं स्वेच्छा से नए दृष्टिकोण और तरीके आजमाता हूं"
                 },
                 weight: 1.3 
@@ -251,7 +251,7 @@
             { 
                 q: {
                     en: "I adapt quickly to new technologies and systems",
-                    bn: "আমি নতুন প্রযুক্তি এবং সিস্টেমে দ্রুত অভ্যস্ত হয়ে যাই",
+                    bn: "আমি নতুন প্রযুক্তি এবং সিস্টেমে দ্রুত খাপ খাইয়ে নিই",
                     hi: "मैं नई तकनीकों और प्रणालियों के लिए जल्दी से अनुकूल हो जाता हूं"
                 },
                 weight: 1.2 
@@ -259,8 +259,8 @@
             { 
                 q: {
                     en: "I embrace rather than resist organizational changes",
-                    bn: "আমি সাংগঠনিক পরিবর্তনগুলিকে প্রতিরোধ করার পরিবর্তে গ্রহণ করি",
-                    hi: "मैं संगठनात्मक परिवर्तनों का विरोध करने के बजाय उन्हें अपनाता हूं"
+                    bn: "আমি organizational পরিবর্তনগুলিকে প্রতিরোধ করার পরিবর্তে গ্রহণ করি",
+                    hi: "मैं organizational परिवर्तनों का विरोध करने के बजाय उन्हें अपनाता हूं"
                 },
                 weight: 1.4 
             }
@@ -275,16 +275,16 @@
                     hi: "मैं बार-बार पिछली गलतियों या पछतावों के बारे में सोचता हूं"
                 },
                 weight: 1.5,
-                reverse: true 
+                reverse: true
             },
             { 
                 q: {
                     en: "I have difficulty letting go of negative thoughts",
-                    bn: "আমার নেতিবাচক চিন্তা ছেড়ে দিতে সমস্যা হয়",
+                    bn: "নেতিবাচক চিন্তা ছেড়ে দিতে আমার অসুবিধা হয়",
                     hi: "मुझे नकारात्मक विचारों को छोड़ने में कठिनाई होती है"
                 },
                 weight: 1.4,
-                reverse: true 
+                reverse: true
             },
             { 
                 q: {
@@ -293,27 +293,27 @@
                     hi: "मैं आवश्यकता से अधिक समय तक समस्याओं पर ध्यान देता हूं"
                 },
                 weight: 1.6,
-                reverse: true 
+                reverse: true
             }
         ],
         "Indecisiveness": [
             { 
                 q: {
                     en: "I struggle to make decisions for fear of making mistakes",
-                    bn: "ভুল করার ভয়ে আমি সিদ্ধান্ত নিতে সংগ্রাম করি",
-                    hi: "गलतियाँ करने के डर से मुझे निर्णय लेने में संघर्ष करना पड़ता है"
+                    bn: "ভুল করার ভয়ে সিদ্ধান্ত নিতে আমার struggle হয়",
+                    hi: "गलतियाँ करने के डर से मुझे निर्णय लेने में संघर्ष होता है"
                 },
                 weight: 1.3,
-                reverse: true 
+                reverse: true
             },
             { 
                 q: {
                     en: "I frequently second-guess my choices",
-                    bn: "আমি প্রায়শই আমার পছন্দগুলি নিয়ে সন্দেহ করি",
-                    hi: "मैं अक्सर अपनी पसंद पर संदेह करता हूं"
+                    bn: "আমি প্রায়শই আমার পছন্দগুলিকে দ্বিতীয়বার চিন্তা করি",
+                    hi: "मैं अक्सर अपनी पसंद पर दोबारा विचार करता हूं"
                 },
                 weight: 1.4,
-                reverse: true 
+                reverse: true
             },
             { 
                 q: {
@@ -322,18 +322,18 @@
                     hi: "निर्णय लेने से पहले मैं विकल्पों का विश्लेषण करने में अत्यधिक समय बिताता हूं"
                 },
                 weight: 1.2,
-                reverse: true 
+                reverse: true
             }
         ],
         "Worry": [
             { 
                 q: {
                     en: "I worry about things that might never happen",
-                    bn: "আমি এমন জিনিস নিয়ে চিন্তা করি যা কখনও ঘটবে না",
+                    bn: "আমি এমন জিনিসগুলি নিয়ে চিন্তিত হই যা কখনও ঘটতে পারে না",
                     hi: "मैं उन चीजों के बारे में चिंता करता हूं जो शायद कभी नहीं होंगी"
                 },
                 weight: 1.5,
-                reverse: true 
+                reverse: true
             },
             { 
                 q: {
@@ -342,23 +342,22 @@
                     hi: "मैं सबसे खराब स्थितियों की कल्पना करता हूं"
                 },
                 weight: 1.4,
-                reverse: true 
+                reverse: true
             },
             { 
                 q: {
                     en: "I have trouble sleeping due to racing thoughts",
-                    bn: "দ্রুতগতির চিন্তার কারণে আমার ঘুমাতে সমস্যা হয়",
-                    hi: "दौड़ते विचारों के कारण मुझे सोने में परेशानी होती है"
+                    bn: "দ্রুত চলমান চিন্তার কারণে আমার ঘুমাতে সমস্যা হয়",
+                    hi: "तेज दौड़ने वाले विचारों के कारण मुझे सोने में परेशानी होती है"
                 },
                 weight: 1.6,
-                reverse: true 
+                reverse: true
             }
         ]
     }
 };
 
-
-// Language Manager
+// Language Manager - FIXED VERSION
 const LanguageManager = {
     currentLanguage: 'en',
     
@@ -372,7 +371,7 @@ const LanguageManager = {
         if (this.languages[lang]) {
             this.currentLanguage = lang;
             localStorage.setItem('preferredLanguage', lang);
-            this.applyLanguage();
+            this.updateUIElements(); // FIXED: Changed from applyLanguage to updateUIElements
             return true;
         }
         return false;
@@ -386,11 +385,20 @@ const LanguageManager = {
         return textObj[this.currentLanguage] || textObj.en || 'Text not available';
     },
 
-    applyLanguage() {
-        // Update all dynamic text in the app
-        if (window.psychometricApp) {
-            window.psychometricApp.updateLanguage();
+    updateUIElements() { // FIXED: Renamed from applyLanguage to updateUIElements
+        // Update static UI elements that need translation
+        this.updateStaticText();
+        
+        // Update current question if test is in progress
+        if (window.psychometricApp && typeof window.psychometricApp.refreshCurrentQuestion === 'function') {
+            window.psychometricApp.refreshCurrentQuestion();
         }
+    },
+
+    updateStaticText() {
+        // Update any static text that needs translation
+        // This can be expanded as needed
+        console.log('Updating static text for language:', this.currentLanguage);
     },
 
     init() {
@@ -398,7 +406,7 @@ const LanguageManager = {
         if (savedLang && this.languages[savedLang]) {
             this.currentLanguage = savedLang;
         }
-        this.applyLanguage();
+        this.updateUIElements(); // FIXED: Changed from applyLanguage to updateUIElements
     }
 };
 
@@ -440,3 +448,6 @@ const QuestionManager = {
         return subcategoryQuestions[index];
     }
 };
+
+// Initialize language manager when the script loads
+LanguageManager.init();
