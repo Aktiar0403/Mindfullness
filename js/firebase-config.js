@@ -1,51 +1,32 @@
-// js/firebase-config.js
+// js/firebase-config.js - Updated with better error handling
 const firebaseConfig = {
-  apiKey: "AIzaSyCWnHcorRuoumO3kgIbz_toZXZDpTplPaw",
-  authDomain: "insight-458f6.firebaseapp.com",
-  projectId: "insight-458f6",
-  storageBucket: "insight-458f6.firebasestorage.app",
-  messagingSenderId: "407501507239",
-  appId: "1:407501507239:web:48505fb7100ca4f121e982",
-  measurementId: "G-W8ZLN84YY2"
+    apiKey: "your-api-key-here",
+    authDomain: "your-project-id.firebaseapp.com",
+    projectId: "your-project-id",
+    storageBucket: "your-project-id.appspot.com",
+    messagingSenderId: "your-sender-id",
+    appId: "your-app-id"
 };
+
 // Initialize Firebase
 try {
-    firebase.initializeApp(firebaseConfig);
-    console.log("Firebase initialized successfully");
-    
-    // Initialize Firestore
-    window.db = firebase.firestore();
-    
-    // Optional: Enable offline persistence
-    db.enablePersistence()
-      .catch((err) => {
-          console.log('Firebase persistence failed: ', err);
-      });
-      
+    if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "your-api-key-here") {
+        firebase.initializeApp(firebaseConfig);
+        console.log("Firebase initialized successfully");
+        
+        // Initialize Firestore
+        window.db = firebase.firestore();
+        
+        // Enable offline persistence with better error handling
+        if (window.db) {
+            db.enablePersistence()
+              .catch((err) => {
+                  console.log('Firebase persistence failed: ', err);
+              });
+        }
+    } else {
+        console.warn('Firebase not configured. Please update firebase-config.js with your Firebase project details.');
+    }
 } catch (error) {
     console.error("Firebase initialization error:", error);
 }
-// Add to firebase-config.js or app.js
-function testFirebaseConnection() {
-    if (window.db) {
-        console.log('Firebase is connected!');
-        
-        // Test write operation
-        const testRef = db.collection('test').doc('connection');
-        testRef.set({
-            test: true,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            console.log('Firebase write test successful');
-            // Clean up test document
-            testRef.delete();
-        }).catch(error => {
-            console.error('Firebase write test failed:', error);
-        });
-    } else {
-        console.log('Firebase not available');
-    }
-}
-
-// Call this in your app initialization
-// testFirebaseConnection();
