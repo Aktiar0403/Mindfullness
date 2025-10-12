@@ -793,51 +793,52 @@ class PsychometricApp {
         this.setupCardInteractions();
     }
     
-    createPsychCard(category, result) {
-        const level = result.level;
-        const score = result.overall;
-        const levelLabel = ScoringAlgorithm.getLevelLabel(level);
-        const levelColor = ScoringAlgorithm.getLevelColor(level);
-        
-        const categoryIcons = {
-            'Emotional': '💖',
-            'Resilience': '🛡️',
-            'Growth': '🌱',
-            'Overthinking': '🧠'
-        };
-        
-        const rarityClass = score >= 4.5 ? 'epic' : score >= 4.0 ? 'rare' : 'common';
-        const quickInsight = this.generateQuickInsight(category, score);
-        
-        return `
-            <div class="psych-card ${rarityClass}" data-category="${category}" data-score="${score}">
-                <div class="card-inner">
-                    <div class="card-back">
-                        <div class="mystery-shape">🔮</div>
-                        <div class="card-prompt">Tap to Reveal</div>
+   // In createPsychCard method - UPDATE THIS:
+createPsychCard(category, result) {
+    const level = result.level;
+    const score = result.overall;
+    const levelLabel = ScoringAlgorithm.getLevelLabel(level);
+    const levelColor = ScoringAlgorithm.getLevelColor(level);
+    
+    const categoryIcons = {
+        'Emotional': '💖',
+        'Resilience': '🛡️',
+        'Growth': '🌱',
+        'Overthinking': '🧠'
+    };
+    
+    const rarityClass = score >= 4.5 ? 'epic' : score >= 4.0 ? 'rare' : 'common';
+    const quickInsight = this.generateQuickInsight(category, score);
+    
+    return `
+        <div class="psych-card ${rarityClass}" data-category="${category}" data-score="${score}">
+            <div class="card-inner">
+                <div class="card-back">
+                    <div class="mystery-shape">🔮</div>
+                    <div class="card-prompt">Tap to Reveal</div>
+                </div>
+                <div class="card-front">
+                    <div class="card-header">
+                        <span class="category-icon">${categoryIcons[category]}</span>
+                        <h3>${category} Intelligence</h3>
                     </div>
-                    <div class="card-front">
-                        <div class="card-header">
-                            <span class="category-icon">${categoryIcons[category]}</span>
-                            <h3>${category} Intelligence</h3>
+                    <div class="score-display">
+                        <div class="score-ring" style="--score: ${score}">
+                            <span class="score-value">${score.toFixed(1)}</span>
                         </div>
-                        <div class="score-display">
-                            <div class="score-ring" style="--score: ${score}">
-                                <span class="score-value">${score.toFixed(1)}</span>
-                            </div>
-                            <span class="level-badge" style="background: ${levelColor}">${levelLabel}</span>
-                        </div>
-                        <div class="key-insight">
-                            ${quickInsight}
-                        </div>
-                        <button class="view-details" onclick="psychometricApp.expandCard('${category}')">
-                            See Full Analysis →
-                        </button>
+                        <span class="level-badge" style="background: ${levelColor}">${levelLabel}</span>
                     </div>
+                    <div class="key-insight">
+                        ${quickInsight}
+                    </div>
+                    <button class="view-details" data-category="${category}">
+                        See Full Analysis →
+                    </button>
                 </div>
             </div>
-        `;
-    }
+        </div>
+    `;
+}
     
     generateQuickInsight(category, score) {
         const insights = {
@@ -872,15 +873,27 @@ class PsychometricApp {
         return categoryInsights[insightKey];
     }
     
-    setupCardInteractions() {
-        document.querySelectorAll('.psych-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                if (!e.target.closest('.view-details')) {
-                    this.revealCard(card);
-                }
-            });
+   setupCardInteractions() {
+    // Card flip on click (only for the card itself, not buttons)
+    document.querySelectorAll('.psych-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            // Don't flip if clicking the view details button
+            if (e.target.closest('.view-details')) {
+                return;
+            }
+            this.revealCard(card);
         });
-    }
+    });
+    
+    // View details button click - opens modal without flipping
+    document.querySelectorAll('.view-details').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent card flip
+            const category = button.getAttribute('data-category');
+            this.expandCard(category);
+        });
+    });
+}
     
     revealCard(card) {
         if (card.classList.contains('revealed')) return;
@@ -956,7 +969,118 @@ async showDetailedReport(category) {
     }
 }
 
-showReportLoading(category) {
+sshowReportLoading(category) {
+    // Create or show loading modal
+    let modal = document.getElementById('reportModal');
+    if (!modal) {
+        modal = this.createReportModal();
+    }
+    
+    // Force modal to top
+    modal.style.display = 'flex';
+    modal.style.zIndex = '9999';
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="z-index: 10000;">
+            <div class="modal-header">
+                <h2>Loading ${category} Report</h2>
+                <button class="modal-close" onclick="psychometricApp.closeReportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="loading-report">
+                    <div class="loading-spinner"></div>
+                    <p>Loading your detailed ${category.toLowerCase()} intelligence analysis...</p>
+                    <p class="loading-subtitle">Level ${this.state.results[category].level} - ${ScoringAlgorithm.getLevelLabel(this.state.results[category].level)}</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add modal-open class to body
+    document.body.classList.add('modal-open');
+    
+    // Force focus to modal
+    setTimeout(() => {
+        modal.focus();
+    }, 100);
+}
+
+showReportModal(category, result, reportContent) {
+    const modal = document.getElementById('reportModal');
+    const levelLabel = ScoringAlgorithm.getLevelLabel(result.level);
+    const levelColor = ScoringAlgorithm.getLevelColor(result.level);
+    
+    const categoryIcons = {
+        'Emotional': '💖',
+        'Resilience': '🛡️',
+        'Growth': '🌱',
+        'Overthinking': '🧠'
+    };
+
+    modal.innerHTML = `
+        <div class="modal-content detailed-report" style="z-index: 10000;">
+            <div class="modal-header">
+                <div class="report-title-section">
+                    <span class="category-icon-large">${categoryIcons[category]}</span>
+                    <div>
+                        <h2>${category} Intelligence Report</h2>
+                        <div class="report-meta">
+                            <span class="score-badge-large" style="background: ${levelColor}">
+                                Score: ${result.overall.toFixed(1)}/5.0
+                            </span>
+                            <span class="level-label-large">${levelLabel} Level</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="psychometricApp.closeReportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="detailed-report-content">
+                    ${reportContent}
+                </div>
+                <div class="report-actions">
+                    <button class="action-button secondary" onclick="psychometricApp.printReport('${category}')">
+                        🖨️ Print Report
+                    </button>
+                    <button class="action-button primary" onclick="psychometricApp.closeReportModal()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+    document.body.classList.add('modal-open');
+    
+    // Force focus
+    setTimeout(() => {
+        modal.focus();
+    }, 100);
+}
+createReportModal() {
+    const modal = document.createElement('div');
+    modal.id = 'reportModal';
+    modal.className = 'report-modal';
+    modal.setAttribute('tabindex', '-1'); // Make it focusable
+    document.body.appendChild(modal);
+    
+    // Add emergency close on background click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            this.closeReportModal();
+        }
+    });
+    
+    return modal;
+}
+closeReportModal() {
+    const modal = document.getElementById('reportModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.classList.remove('modal-open');
+    }
+}howReportLoading(category) {
     // Create or show loading modal
     let modal = document.getElementById('reportModal');
     if (!modal) {
