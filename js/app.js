@@ -759,6 +759,113 @@ class PsychometricApp {
     
     // Render interactive cards instead of psych cards
     this.renderInteractiveCards();
+    // Add this method to your PsychometricApp class, around line 760
+renderInteractiveCards() {
+    const interactiveGrid = document.getElementById('interactiveReportsGrid');
+    if (!interactiveGrid) return;
+
+    interactiveGrid.innerHTML = '';
+
+    // Sort categories by score (highest first for better UX)
+    const sortedCategories = Object.entries(this.state.results)
+        .sort(([,a], [,b]) => b.overall - a.overall);
+
+    for (const [category, result] of sortedCategories) {
+        const card = this.createInteractiveCard(category, result);
+        interactiveGrid.appendChild(card);
+    }
+
+    // Setup card interactions
+    this.setupInteractiveCardInteractions();
+}
+
+createInteractiveCard(category, result) {
+    const card = document.createElement('div');
+    card.className = 'interactive-card';
+    card.setAttribute('data-category', category);
+    card.setAttribute('data-score', result.overall);
+    
+    const level = result.level;
+    const levelLabel = ScoringAlgorithm.getLevelLabel(level);
+    const levelColor = ScoringAlgorithm.getLevelColor(level);
+    
+    const categoryIcons = {
+        'Emotional': '💖',
+        'Resilience': '🛡️',
+        'Growth': '🌱',
+        'Overthinking': '🧠'
+    };
+
+    const rarityClass = result.overall >= 4.5 ? 'epic' : result.overall >= 4.0 ? 'rare' : 'common';
+    
+    card.innerHTML = `
+        <div class="card-inner ${rarityClass}">
+            <div class="card-back">
+                <div class="mystery-shape">🔮</div>
+                <div class="card-prompt">Tap to Reveal</div>
+                <div class="card-category-hint">${category}</div>
+            </div>
+            <div class="card-front">
+                <div class="card-header">
+                    <span class="category-icon">${categoryIcons[category]}</span>
+                    <h3>${category} Intelligence</h3>
+                </div>
+                <div class="score-display">
+                    <div class="score-ring" style="--score: ${result.overall}">
+                        <span class="score-value">${result.overall.toFixed(1)}</span>
+                    </div>
+                    <span class="level-badge" style="background: ${levelColor}">${levelLabel}</span>
+                </div>
+                <div class="key-insight">
+                    ${this.generateQuickInsight(category, result.overall)}
+                </div>
+                <button class="view-details-btn" onclick="psychometricApp.expandCard('${category}')">
+                    See Full Analysis →
+                </button>
+            </div>
+        </div>
+    `;
+
+    return card;
+}
+
+setupInteractiveCardInteractions() {
+    document.querySelectorAll('.interactive-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            // Don't flip if clicking the view details button
+            if (e.target.closest('.view-details-btn')) {
+                return;
+            }
+            this.revealInteractiveCard(card);
+        });
+    });
+}
+
+revealInteractiveCard(card) {
+    if (card.classList.contains('revealed')) return;
+    
+    card.classList.add('revealing');
+    
+    setTimeout(() => {
+        card.classList.remove('revealing');
+        card.classList.add('revealed');
+        
+        // Add celebration for high scores
+        const score = parseFloat(card.dataset.score);
+        if (score >= 4.0) {
+            this.celebrateInteractiveCard(card);
+        }
+    }, 600);
+}
+
+celebrateInteractiveCard(card) {
+    const score = parseFloat(card.dataset.score);
+    const confettiCount = score >= 4.5 ? 8 : 5;
+    
+    for (let i = 0; i < confettiCount; i++) {
+        this.createConfetti(card);
+    }
+}
 }
     getCurrentLanguageTexts() {
         const lang = LanguageManager.getLanguage();
