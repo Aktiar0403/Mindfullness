@@ -758,9 +758,10 @@ class PsychometricApp {
     `;
     
     // Render interactive cards instead of psych cards
-    this.renderInteractiveCards();
+  
     // Add this method to your PsychometricApp class, around line 760
-renderInteractiveCards() {
+     renderInteractiveCards() {
+          this.renderInteractiveCards();
     const interactiveGrid = document.getElementById('interactiveReportsGrid');
     if (!interactiveGrid) return;
 
