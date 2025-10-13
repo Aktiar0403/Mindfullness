@@ -136,6 +136,64 @@ class PsychometricApp {
         });
         
         console.log('All event listeners setup complete');
+// ===== ADD THIS METHOD TO YOUR CLASS =====
+
+getCurrentLanguageTexts() {
+    const lang = LanguageManager.getLanguage();
+    const translations = {
+        en: {
+            profileReady: 'Your Psychological Profile is Ready! 🎉',
+            tapToReveal: 'Tap each card to reveal your personalized insights',
+            startWithStrongest: 'Start with your strongest area'
+        },
+        hi: {
+            profileReady: 'आपका मनोवैज्ञानिक प्रोफाइल तैयार है! 🎉',
+            tapToReveal: 'अपनी व्यक्तिगत अंतर्दृष्टि देखने के लिए प्रत्येक कार्ड टैप करें',
+            startWithStrongest: 'अपने सबसे मजबूत क्षेत्र से शुरू करें'
+        },
+        bn: {
+            profileReady: 'আপনার মনস্তাত্ত্বিক প্রোফাইল প্রস্তুত! 🎉',
+            tapToReveal: 'আপনার ব্যক্তিগত অন্তর্দৃষ্টি প্রকাশ করতে প্রতিটি কার্ড ট্যাপ করুন',
+            startWithStrongest: 'আপনার শক্তিশালী এলাকা দিয়ে শুরু করুন'
+        }
+    };
+    
+    return translations[lang] || translations.en;
+}
+// ===== ADD THIS METHOD IF IT'S MISSING TOO =====
+
+generateQuickInsight(category, score) {
+    const insights = {
+        Emotional: {
+            high: "You have exceptional emotional awareness and empathy skills",
+            medium: "You demonstrate good emotional understanding with room for growth",
+            low: "Developing emotional awareness can enhance your relationships"
+        },
+        Resilience: {
+            high: "You bounce back quickly from challenges with strong adaptability",
+            medium: "You handle stress well but could strengthen coping strategies",
+            low: "Building resilience will help you navigate life's challenges"
+        },
+        Growth: {
+            high: "You actively seek learning and embrace new opportunities",
+            medium: "You're open to growth with potential for more proactive learning",
+            low: "Developing a growth mindset can unlock new possibilities"
+        },
+        Overthinking: {
+            high: "You maintain balanced thinking without excessive analysis",
+            medium: "You occasionally overthink but generally make decisive choices",
+            low: "Practicing mindfulness can help reduce overthinking patterns"
+        }
+    };
+    
+    const categoryInsights = insights[category];
+    let insightKey = 'medium';
+    
+    if (score >= 4.0) insightKey = 'high';
+    else if (score <= 2.5) insightKey = 'low';
+    
+    return categoryInsights[insightKey];
+}
     }
     
     initializeGlobalLanguage() {
