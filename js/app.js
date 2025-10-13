@@ -758,20 +758,27 @@ class PsychometricApp {
     `;
     
     // Render interactive cards instead of psych cards
-    this.renderInteractiveCards(); // JUST CALL IT, DON'T DEFINE IT HERE
-}
+    this.renderInteractiveCards();
+} // END OF METHOD - DON'T ADD ANYTHING ELSE HERE
 
 // ===== MOVE THESE METHODS OUTSIDE (add them as separate class methods) =====
 
+// ===== INTERACTIVE CARD METHODS =====
+
 renderInteractiveCards() {
     const interactiveGrid = document.getElementById('interactiveReportsGrid');
-    if (!interactiveGrid) return;
+    if (!interactiveGrid) {
+        console.error('Interactive grid not found');
+        return;
+    }
 
     interactiveGrid.innerHTML = '';
 
     // Sort categories by score (highest first for better UX)
     const sortedCategories = Object.entries(this.state.results)
         .sort(([,a], [,b]) => b.overall - a.overall);
+
+    console.log('Rendering interactive cards:', sortedCategories.length);
 
     for (const [category, result] of sortedCategories) {
         const card = this.createInteractiveCard(category, result);
@@ -869,190 +876,22 @@ celebrateInteractiveCard(card) {
         this.createConfetti(card);
     }
 }
-    getCurrentLanguageTexts() {
-        const lang = LanguageManager.getLanguage();
-        const translations = {
-            en: {
-                profileReady: 'Your Psychological Profile is Ready! 🎉',
-                tapToReveal: 'Tap each card to reveal your personalized insights',
-                startWithStrongest: 'Start with your strongest area'
-            },
-            hi: {
-                profileReady: 'आपका मनोवैज्ञानिक प्रोफाइल तैयार है! 🎉',
-                tapToReveal: 'अपनी व्यक्तिगत अंतर्दृष्टि देखने के लिए प्रत्येक कार्ड टैप करें',
-                startWithStrongest: 'अपने सबसे मजबूत क्षेत्र से शुरू करें'
-            },
-            bn: {
-                profileReady: 'আপনার মনস্তাত্ত্বিক প্রোফাইল প্রস্তুত! 🎉',
-                tapToReveal: 'আপনার ব্যক্তিগত অন্তর্দৃষ্টি প্রকাশ করতে প্রতিটি কার্ড ট্যাপ করুন',
-                startWithStrongest: 'আপনার শক্তিশালী এলাকা দিয়ে শুরু করুন'
-            }
-        };
-        
-        return translations[lang] || translations.en;
-    }
+
+createConfetti(card) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.textContent = '✨';
+    confetti.style.left = Math.random() * 80 + 10 + '%';
+    confetti.style.animationDelay = Math.random() * 0.5 + 's';
     
-    renderCards() {
-        const cardsGrid = document.getElementById('cardsGrid');
-        if (!cardsGrid) return;
-        
-        cardsGrid.innerHTML = '';
-        
-        // Sort categories by score (highest first for better UX)
-        const sortedCategories = Object.entries(this.state.results)
-            .sort(([,a], [,b]) => b.overall - a.overall);
-        
-        for (const [category, result] of sortedCategories) {
-            const cardHTML = this.createPsychCard(category, result);
-            cardsGrid.innerHTML += cardHTML;
+    card.appendChild(confetti);
+    
+    setTimeout(() => {
+        if (confetti.parentNode) {
+            confetti.remove();
         }
-        
-        // Add card interaction listeners
-        this.setupCardInteractions();
-    }
-    
-    createPsychCard(category, result) {
-        const level = result.level;
-        const score = result.overall;
-        const levelLabel = ScoringAlgorithm.getLevelLabel(level);
-        const levelColor = ScoringAlgorithm.getLevelColor(level);
-        
-        const categoryIcons = {
-            'Emotional': '💖',
-            'Resilience': '🛡️',
-            'Growth': '🌱',
-            'Overthinking': '🧠'
-        };
-        
-        const rarityClass = score >= 4.5 ? 'epic' : score >= 4.0 ? 'rare' : 'common';
-        const quickInsight = this.generateQuickInsight(category, score);
-        
-        return `
-            <div class="psych-card ${rarityClass}" data-category="${category}" data-score="${score}">
-                <div class="card-inner">
-                    <div class="card-back">
-                        <div class="mystery-shape">🔮</div>
-                        <div class="card-prompt">Tap to Reveal</div>
-                    </div>
-                    <div class="card-front">
-                        <div class="card-header">
-                            <span class="category-icon">${categoryIcons[category]}</span>
-                            <h3>${category} Intelligence</h3>
-                        </div>
-                        <div class="score-display">
-                            <div class="score-ring" style="--score: ${score}">
-                                <span class="score-value">${score.toFixed(1)}</span>
-                            </div>
-                            <span class="level-badge" style="background: ${levelColor}">${levelLabel}</span>
-                        </div>
-                        <div class="key-insight">
-                            ${quickInsight}
-                        </div>
-                        <button class="view-details" data-category="${category}">
-                            See Full Analysis →
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    
-    generateQuickInsight(category, score) {
-        const insights = {
-            Emotional: {
-                high: "You have exceptional emotional awareness and empathy skills",
-                medium: "You demonstrate good emotional understanding with room for growth",
-                low: "Developing emotional awareness can enhance your relationships"
-            },
-            Resilience: {
-                high: "You bounce back quickly from challenges with strong adaptability",
-                medium: "You handle stress well but could strengthen coping strategies",
-                low: "Building resilience will help you navigate life's challenges"
-            },
-            Growth: {
-                high: "You actively seek learning and embrace new opportunities",
-                medium: "You're open to growth with potential for more proactive learning",
-                low: "Developing a growth mindset can unlock new possibilities"
-            },
-            Overthinking: {
-                high: "You maintain balanced thinking without excessive analysis",
-                medium: "You occasionally overthink but generally make decisive choices",
-                low: "Practicing mindfulness can help reduce overthinking patterns"
-            }
-        };
-        
-        const categoryInsights = insights[category];
-        let insightKey = 'medium';
-        
-        if (score >= 4.0) insightKey = 'high';
-        else if (score <= 2.5) insightKey = 'low';
-        
-        return categoryInsights[insightKey];
-    }
-    
-    setupCardInteractions() {
-        // Card flip on click (only for the card itself, not buttons)
-        document.querySelectorAll('.psych-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                // Don't flip if clicking the view details button
-                if (e.target.closest('.view-details')) {
-                    return;
-                }
-                this.revealCard(card);
-            });
-        });
-        
-        // View details button click - opens modal without flipping
-        document.querySelectorAll('.view-details').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent card flip
-                const category = button.getAttribute('data-category');
-                this.expandCard(category);
-            });
-        });
-    }
-    
-    revealCard(card) {
-        if (card.classList.contains('revealed')) return;
-        
-        card.classList.add('revealing');
-        
-        setTimeout(() => {
-            card.classList.remove('revealing');
-            card.classList.add('revealed');
-            
-            // Add celebration for high scores
-            const score = parseFloat(card.dataset.score);
-            if (score >= 4.0) {
-                this.celebrateCard(card);
-            }
-        }, 600);
-    }
-    
-    celebrateCard(card) {
-        const score = parseFloat(card.dataset.score);
-        const confettiCount = score >= 4.5 ? 8 : 5;
-        
-        for (let i = 0; i < confettiCount; i++) {
-            this.createConfetti(card);
-        }
-    }
-    
-    createConfetti(card) {
-        const confetti = document.createElement('div');
-        confetti.className = 'confetti';
-        confetti.textContent = '✨';
-        confetti.style.left = Math.random() * 80 + 10 + '%';
-        confetti.style.animationDelay = Math.random() * 0.5 + 's';
-        
-        card.appendChild(confetti);
-        
-        setTimeout(() => {
-            if (confetti.parentNode) {
-                confetti.remove();
-            }
-        }, 1500);
-    }
+    }, 1500);
+}
     
     expandCard(category) {
         console.log(`📖 Expanding card for: ${category}`);
