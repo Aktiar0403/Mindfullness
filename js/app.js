@@ -738,7 +738,7 @@ class PsychometricApp {
             }, 500);
         }
     }
-  showCardsReveal() {
+ showCardsReveal() {
     this.showScreen('resultScreen');
     
     const reportsContainer = document.getElementById('reportsContainer');
@@ -758,10 +758,12 @@ class PsychometricApp {
     `;
     
     // Render interactive cards instead of psych cards
-  
-    // Add this method to your PsychometricApp class, around line 760
-     renderInteractiveCards() {
-          this.renderInteractiveCards();
+    this.renderInteractiveCards(); // JUST CALL IT, DON'T DEFINE IT HERE
+}
+
+// ===== MOVE THESE METHODS OUTSIDE (add them as separate class methods) =====
+
+renderInteractiveCards() {
     const interactiveGrid = document.getElementById('interactiveReportsGrid');
     if (!interactiveGrid) return;
 
@@ -866,7 +868,6 @@ celebrateInteractiveCard(card) {
     for (let i = 0; i < confettiCount; i++) {
         this.createConfetti(card);
     }
-}
 }
     getCurrentLanguageTexts() {
         const lang = LanguageManager.getLanguage();
