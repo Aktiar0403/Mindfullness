@@ -738,29 +738,28 @@ class PsychometricApp {
             }, 500);
         }
     }
+  showCardsReveal() {
+    this.showScreen('resultScreen');
     
-    showCardsReveal() {
-        this.showScreen('resultScreen');
-        
-        const reportsContainer = document.getElementById('reportsContainer');
-        const texts = this.getCurrentLanguageTexts();
-        
-        reportsContainer.innerHTML = `
-            <div class="cards-reveal-container">
-                <div class="reveal-message">
-                    <h2>${texts.profileReady}</h2>
-                    <p>${texts.tapToReveal}</p>
-                    <div class="reveal-hint">${texts.startWithStrongest}</div>
-                </div>
-                <div class="cards-grid" id="cardsGrid">
-                    <!-- Cards will be populated here -->
-                </div>
+    const reportsContainer = document.getElementById('reportsContainer');
+    const texts = this.getCurrentLanguageTexts();
+    
+    reportsContainer.innerHTML = `
+        <div class="cards-reveal-container">
+            <div class="reveal-message">
+                <h2>${texts.profileReady}</h2>
+                <p>${texts.tapToReveal}</p>
+                <div class="reveal-hint">${texts.startWithStrongest}</div>
             </div>
-        `;
-        
-        this.renderCards();
-    }
+            <div class="interactive-reports-container" id="interactiveReportsGrid">
+                <!-- Interactive cards will be populated here -->
+            </div>
+        </div>
+    `;
     
+    // Render interactive cards instead of psych cards
+    this.renderInteractiveCards();
+}
     getCurrentLanguageTexts() {
         const lang = LanguageManager.getLanguage();
         const translations = {
