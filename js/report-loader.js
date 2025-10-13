@@ -1,4 +1,4 @@
-// js/report-loader.js
+// js/report-loader
 const ReportLoader = {
     async loadReport(category, level) {
         try {
