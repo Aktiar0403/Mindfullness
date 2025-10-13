@@ -1091,7 +1091,379 @@ class PsychometricApp {
             document.body.classList.remove('modal-open');
         }
     }
+// ===== COMPREHENSIVE CATEGORY DESCRIPTIONS =====
 
+getSubcategoryDescription(category, subcategory, score) {
+    const descriptions = {
+        'Emotional': {
+            'Self-Awareness': {
+                high: 'Exceptional ability to recognize and understand your own emotional states in real-time',
+                medium: 'Good awareness of emotions with room for more precise identification',
+                low: 'Developing foundational skills for recognizing emotional patterns'
+            },
+            'Self-Regulation': {
+                high: 'Masterful control over emotional responses and impulses in challenging situations',
+                medium: 'Adequate emotional management with occasional reactive moments',
+                low: 'Building capacity to pause and choose responses rather than react automatically'
+            },
+            'Empathy': {
+                high: 'Highly attuned to others emotional states and able to understand diverse perspectives',
+                medium: 'Good understanding of others feelings with room for deeper connection',
+                low: 'Developing the ability to sense and understand what others are experiencing'
+            },
+            'Social Skills': {
+                high: 'Excellent at building rapport, managing conflicts, and communicating effectively',
+                medium: 'Solid interpersonal skills with opportunities for more nuanced interactions',
+                low: 'Building foundational communication and relationship-building abilities'
+            }
+        },
+        'Resilience': {
+            'Adaptability': {
+                high: 'Exceptional ability to adjust to change and bounce back quickly from setbacks',
+                medium: 'Good flexibility in most situations with some resistance to major changes',
+                low: 'Developing capacity to adapt to new circumstances and recover from challenges'
+            },
+            'Perseverance': {
+                high: 'Remarkable persistence and determination in pursuing long-term goals',
+                medium: 'Good staying power with occasional dips in motivation during tough periods',
+                low: 'Building the mental toughness to continue despite obstacles and difficulties'
+            },
+            'Optimism': {
+                high: 'Consistently positive outlook with strong belief in overcoming challenges',
+                medium: 'Generally hopeful perspective with occasional pessimistic thoughts',
+                low: 'Developing the ability to maintain positive expectations for the future'
+            }
+        },
+        'Growth': {
+            'Learning Orientation': {
+                high: 'Strong drive for continuous learning and actively seeking new knowledge',
+                medium: 'Open to learning with some hesitation about stepping outside comfort zone',
+                low: 'Developing curiosity and willingness to acquire new skills and information'
+            },
+            'Curiosity': {
+                high: 'Intensely curious nature with constant exploration of new ideas and topics',
+                medium: 'Moderate curiosity with selective interest in unfamiliar subjects',
+                low: 'Building the habit of asking questions and exploring beyond familiar territory'
+            },
+            'Openness to Change': {
+                high: 'Highly receptive to new approaches and eager to embrace innovation',
+                medium: 'Willing to consider changes but with some attachment to familiar methods',
+                low: 'Developing comfort with new systems and willingness to try different approaches'
+            }
+        },
+        'Overthinking': {
+            'Rumination': {
+                high: 'Minimal repetitive thinking about past events or mistakes',
+                medium: 'Occasional dwelling on past situations without significant impact',
+                low: 'Frequent repetitive thoughts about past events that interfere with present focus'
+            },
+            'Indecisiveness': {
+                high: 'Clear and confident decision-making with minimal second-guessing',
+                medium: 'Generally decisive with occasional hesitation on important choices',
+                low: 'Significant difficulty making decisions due to fear of making wrong choices'
+            },
+            'Worry': {
+                high: 'Rarely concerned about unlikely future events, focused on present reality',
+                medium: 'Moderate concern about potential problems without excessive anxiety',
+                low: 'Frequent worry about things that might never happen, creating unnecessary stress'
+            }
+        }
+    };
+
+    const categoryData = descriptions[category]?.[subcategory];
+    if (!categoryData) return 'Key area for personal development';
+
+    // Determine description level based on score
+    let level = 'medium';
+    if (category === 'Overthinking') {
+        // Reverse scoring for Overthinking (higher scores are better)
+        if (score >= 4.0) level = 'high';
+        else if (score <= 2.5) level = 'low';
+    } else {
+        // Normal scoring for other categories
+        if (score >= 4.0) level = 'high';
+        else if (score <= 2.5) level = 'low';
+    }
+
+    return categoryData[level];
+}
+
+getCategoryInsight(category, score) {
+    const insights = {
+        'Emotional': {
+            high: "Your emotional intelligence is a significant strength. You navigate social situations with ease and build meaningful connections.",
+            medium: "You have a solid foundation in emotional intelligence with clear opportunities for growth in specific areas.",
+            low: "Developing emotional intelligence will greatly enhance your relationships and personal effectiveness."
+        },
+        'Resilience': {
+            high: "Your resilience is exceptional. You handle challenges with grace and bounce back stronger from setbacks.",
+            medium: "You demonstrate good resilience in many situations, with room to strengthen your coping strategies.",
+            low: "Building resilience will help you navigate life's challenges with greater ease and confidence."
+        },
+        'Growth': {
+            high: "You have a strong growth mindset and actively seek learning opportunities in all areas of life.",
+            medium: "You're open to growth and development, with potential to be more proactive in seeking new challenges.",
+            low: "Cultivating a growth mindset will open up new possibilities for learning and personal development."
+        },
+        'Overthinking': {
+            high: "You maintain excellent mental clarity with balanced thinking and minimal unnecessary analysis.",
+            medium: "You generally think clearly, with occasional tendencies to overanalyze certain situations.",
+            low: "Reducing overthinking patterns will help you make decisions more easily and reduce mental clutter."
+        }
+    };
+
+    let level = 'medium';
+    if (category === 'Overthinking') {
+        if (score >= 4.0) level = 'high';
+        else if (score <= 2.5) level = 'low';
+    } else {
+        if (score >= 4.0) level = 'high';
+        else if (score <= 2.5) level = 'low';
+    }
+
+    return insights[category]?.[level] || "This area shows potential for meaningful development.";
+}
+
+// Enhanced analysis method with detailed insights
+analyzeCategoryResults(category, result) {
+    const analysis = {
+        strengths: [],
+        growthAreas: [],
+        breakdown: [],
+        recommendations: [],
+        overallInsight: this.getCategoryInsight(category, result.overall)
+    };
+    
+    // Analyze subcategories for strengths and growth areas
+    Object.entries(result.subcategories).forEach(([subcategory, subResult]) => {
+        const item = {
+            name: subcategory,
+            score: subResult.score,
+            normalized: subResult.normalized,
+            description: this.getSubcategoryDescription(category, subcategory, subResult.score),
+            insight: this.getSubcategoryInsight(category, subcategory, subResult.score)
+        };
+        
+        if (category === 'Overthinking') {
+            // Reverse logic for Overthinking (higher scores are better)
+            if (subResult.score >= 4.0) {
+                analysis.strengths.push(item);
+            } else if (subResult.score <= 2.5) {
+                analysis.growthAreas.push(item);
+            }
+        } else {
+            // Normal logic for other categories
+            if (subResult.score >= 4.0) {
+                analysis.strengths.push(item);
+            } else if (subResult.score <= 2.5) {
+                analysis.growthAreas.push(item);
+            }
+        }
+        
+        analysis.breakdown.push(item);
+    });
+    
+    // Generate recommendations based on scores
+    analysis.recommendations = this.generateDetailedRecommendations(category, result, analysis);
+    
+    return analysis;
+}
+
+getSubcategoryInsight(category, subcategory, score) {
+    const insights = {
+        'Emotional': {
+            'Self-Awareness': {
+                high: 'Your emotional self-awareness allows you to navigate complex situations with clarity',
+                medium: 'Increasing emotional awareness will help you make more aligned decisions',
+                low: 'Developing emotional awareness is the foundation for all emotional intelligence'
+            },
+            'Self-Regulation': {
+                high: 'Your emotional control helps you maintain composure in challenging moments',
+                medium: 'Enhanced self-regulation will improve your stress management',
+                low: 'Building self-regulation skills will help you respond rather than react'
+            },
+            'Empathy': {
+                high: 'Your empathy creates deep connections and understanding with others',
+                medium: 'Developing empathy will enhance your relationships and teamwork',
+                low: 'Empathy development will improve your ability to understand diverse perspectives'
+            },
+            'Social Skills': {
+                high: 'Your social skills make you effective in building relationships and influencing others',
+                medium: 'Refining social skills will enhance your professional and personal interactions',
+                low: 'Social skills development will improve your communication and connection with others'
+            }
+        },
+        'Resilience': {
+            'Adaptability': {
+                high: 'Your adaptability makes you thrive in changing environments',
+                medium: 'Increasing adaptability will help you navigate uncertainty with more ease',
+                low: 'Adaptability development will make you more comfortable with change'
+            },
+            'Perseverance': {
+                high: 'Your perseverance ensures you complete what you start, no matter the obstacles',
+                medium: 'Strengthening perseverance will help you achieve long-term goals',
+                low: 'Building perseverance will increase your ability to follow through on commitments'
+            },
+            'Optimism': {
+                high: 'Your optimism helps you see opportunities where others see obstacles',
+                medium: 'Cultivating optimism will improve your problem-solving and stress resilience',
+                low: 'Developing optimism will help you maintain hope during challenging times'
+            }
+        },
+        'Growth': {
+            'Learning Orientation': {
+                high: 'Your love of learning drives continuous personal and professional development',
+                medium: 'Enhancing learning orientation will accelerate your skill development',
+                low: 'Developing a learning mindset will open up new opportunities for growth'
+            },
+            'Curiosity': {
+                high: 'Your curiosity leads to discovery and innovation in various areas',
+                medium: 'Increasing curiosity will expand your knowledge and perspectives',
+                low: 'Cultivating curiosity will make learning more engaging and natural'
+            },
+            'Openness to Change': {
+                high: 'Your openness to change makes you an early adopter of beneficial innovations',
+                medium: 'Increasing openness will help you adapt more quickly to new situations',
+                low: 'Developing comfort with change will reduce resistance to necessary transitions'
+            }
+        },
+        'Overthinking': {
+            'Rumination': {
+                high: 'You effectively process past events without getting stuck in repetitive thoughts',
+                medium: 'Reducing rumination will free up mental energy for present-moment focus',
+                low: 'Managing rumination will help you break free from repetitive thought patterns'
+            },
+            'Indecisiveness': {
+                high: 'You make decisions confidently and trust your judgment',
+                medium: 'Reducing indecisiveness will make decision-making more efficient',
+                low: 'Overcoming indecisiveness will reduce stress and increase productivity'
+            },
+            'Worry': {
+                high: 'You maintain realistic perspective without excessive worry about the future',
+                medium: 'Managing worry will improve your ability to focus on what you can control',
+                low: 'Reducing worry will decrease anxiety and improve present-moment enjoyment'
+            }
+        }
+    };
+
+    let level = 'medium';
+    if (category === 'Overthinking') {
+        if (score >= 4.0) level = 'high';
+        else if (score <= 2.5) level = 'low';
+    } else {
+        if (score >= 4.0) level = 'high';
+        else if (score <= 2.5) level = 'low';
+    }
+
+    return insights[category]?.[subcategory]?.[level] || "This area presents opportunities for meaningful development.";
+}
+
+generateDetailedRecommendations(category, result, analysis) {
+    const recommendations = [];
+    const score = result.overall;
+    
+    // Category-specific recommendations
+    const categoryRecommendations = {
+        'Emotional': {
+            high: [
+                "Practice advanced empathy by actively seeking to understand perspectives very different from your own",
+                "Mentor others in developing their emotional intelligence skills",
+                "Explore how your emotional awareness can enhance leadership and influence"
+            ],
+            medium: [
+                "Practice naming specific emotions throughout the day to increase precision",
+                "Use the 'pause and reflect' technique before responding in emotional situations",
+                "Seek feedback from trusted others about your emotional impact on them"
+            ],
+            low: [
+                "Start an emotion journal to track and identify your daily emotional patterns",
+                "Practice basic mindfulness to increase present-moment awareness",
+                "Learn to distinguish between different emotions (frustration vs. anger, etc.)"
+            ]
+        },
+        'Resilience': {
+            high: [
+                "Share your resilience strategies with others who might benefit",
+                "Take on challenges that stretch your abilities even further",
+                "Document your resilience journey to inspire others"
+            ],
+            medium: [
+                "Develop a personal 'resilience toolkit' of coping strategies",
+                "Practice reframing challenges as opportunities for growth",
+                "Build a support network you can rely on during tough times"
+            ],
+            low: [
+                "Start with small challenges to build confidence in your ability to cope",
+                "Practice basic stress management techniques like deep breathing",
+                "Focus on one small area where you can practice bouncing back"
+            ]
+        },
+        'Growth': {
+            high: [
+                "Seek out mentors who can challenge your thinking further",
+                "Teach others what you've learned to deepen your own understanding",
+                "Explore completely unfamiliar fields to stretch your learning capacity"
+            ],
+            medium: [
+                "Set specific learning goals for the next 3-6 months",
+                "Practice asking more open-ended questions in conversations",
+                "Try one new approach or method each week in your work"
+            ],
+            low: [
+                "Start with learning about topics that genuinely interest you",
+                "Practice curiosity by asking 'why' and 'how' more frequently",
+                "Give yourself permission to be a beginner in new areas"
+            ]
+        },
+        'Overthinking': {
+            high: [
+                "Share your mental clarity strategies with others who struggle with overthinking",
+                "Use your clear thinking to make quick, effective decisions in complex situations",
+                "Practice mindfulness to maintain your present-moment focus"
+            ],
+            medium: [
+                "Set time limits for decision-making to prevent overanalysis",
+                "Practice distinguishing between productive planning and unnecessary worry",
+                "Use the 'stop, challenge, choose' method when you notice overthinking"
+            ],
+            low: [
+                "Practice the 5-minute rule: if it won't matter in 5 years, don't spend more than 5 minutes worrying",
+                "Use a 'worry journal' to contain anxious thoughts to specific times",
+                "Learn basic cognitive techniques to challenge catastrophic thinking"
+            ]
+        }
+    };
+
+    let level = 'medium';
+    if (category === 'Overthinking') {
+        if (score >= 4.0) level = 'high';
+        else if (score <= 2.5) level = 'low';
+    } else {
+        if (score >= 4.0) level = 'high';
+        else if (score <= 2.5) level = 'low';
+    }
+
+    // Add category-specific recommendations
+    recommendations.push(...(categoryRecommendations[category]?.[level] || []));
+
+    // Add specific recommendations based on growth areas
+    if (analysis.growthAreas.length > 0) {
+        const primaryGrowth = analysis.growthAreas[0];
+        recommendations.push(`Focus specifically on developing ${primaryGrowth.name.toLowerCase()} through daily practice`);
+        
+        if (analysis.growthAreas.length > 1) {
+            recommendations.push(`Work on ${analysis.growthAreas.length} key areas systematically rather than all at once`);
+        }
+    }
+
+    // Add strengths-based recommendations
+    if (analysis.strengths.length > 0) {
+        const primaryStrength = analysis.strengths[0];
+        recommendations.push(`Leverage your strength in ${primaryStrength.name.toLowerCase()} to support areas needing development`);
+    }
+
+    return recommendations.slice(0, 4); // Return top 4 recommendations
+}
     showReportError(category, errorMessage) {
         const modal = document.getElementById('reportModal');
         const result = this.state.results[category];
